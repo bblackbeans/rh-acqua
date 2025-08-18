@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema RH Acqua V2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .module-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .module-card {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .module-card h3 {
+            margin-top: 0;
+            color: #3498db;
+        }
+        .module-card a {
+            display: inline-block;
+            margin-top: 10px;
+            color: #2980b9;
+            text-decoration: none;
+        }
+        .module-card a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema RH Acqua V2</h1>
+            <p>Bem-vindo ao sistema de gerenciamento de recursos humanos</p>
+        </header>
+        
+        <div class="module-list">
+            <div class="module-card">
+                <h3>Candidaturas</h3>
+                <p>Gerenciamento de candidaturas e processos seletivos</p>
+                <a href="/applications/">Acessar</a>
+            </div>
+            
+            <div class="module-card">
+                <h3>Entrevistas</h3>
+                <p>Agendamento e gerenciamento de entrevistas</p>
+                <a href="/interviews/">Acessar</a>
+            </div>
+            
+            <div class="module-card">
+                <h3>Banco de Talentos</h3>
+                <p>Gerenciamento de candidatos e talentos</p>
+                <a href="/talent-pool/">Acessar</a>
+            </div>
+            
+            <div class="module-card">
+                <h3>Vagas</h3>
+                <p>Gerenciamento de vagas e requisições</p>
+                <a href="/vacancies/">Acessar</a>
+            </div>
+            
+            <div class="module-card">
+                <h3>Relatórios</h3>
+                <p>Relatórios e análises</p>
+                <a href="/reports/">Acessar</a>
+            </div>
+            
+            <div class="module-card">
+                <h3>Administração</h3>
+                <p>Configurações e administração do sistema</p>
+                <a href="/administration/">Acessar</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
