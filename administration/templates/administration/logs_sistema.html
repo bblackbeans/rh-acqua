@@ -1,0 +1,284 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Logs do Sistema - RH Acqua{% endblock %}
+{% block meta_description %}Visualize e gerencie os logs do sistema RH Acqua{% endblock %}
+{% block body_class %}admin-dashboard{% endblock %}
+
+{% block content %}
+<!-- Filtros -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+  </div>
+  <div class="card-body">
+    <form method="get">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label for="logType" class="form-label">Tipo de Log</label>
+          <select class="form-select" id="logType" name="log_type">
+            <option value="">Todos</option>
+            <option value="info" {% if log_type_filter == 'info' %}selected{% endif %}>Informação</option>
+            <option value="warning" {% if log_type_filter == 'warning' %}selected{% endif %}>Aviso</option>
+            <option value="error" {% if log_type_filter == 'error' %}selected{% endif %}>Erro</option>
+            <option value="critical" {% if log_type_filter == 'critical' %}selected{% endif %}>Crítico</option>
+            <option value="security" {% if log_type_filter == 'security' %}selected{% endif %}>Segurança</option>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="dateRange" class="form-label">Período</label>
+          <select class="form-select" id="dateRange" name="date_range">
+            <option value="today" {% if date_range_filter == 'today' %}selected{% endif %}>Hoje</option>
+            <option value="yesterday" {% if date_range_filter == 'yesterday' %}selected{% endif %}>Ontem</option>
+            <option value="week" {% if date_range_filter == 'week' %}selected{% endif %}>Última Semana</option>
+            <option value="month" {% if date_range_filter == 'month' %}selected{% endif %}>Último Mês</option>
+            <option value="custom" {% if date_range_filter == 'custom' %}selected{% endif %}>Personalizado</option>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="userFilter" class="form-label">Usuário</label>
+          <input type="text" class="form-control" id="userFilter" name="user_filter" placeholder="Nome ou ID" value="{{ user_filter }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="moduleFilter" class="form-label">Módulo</label>
+          <select class="form-select" id="moduleFilter" name="module_filter">
+            <option value="">Todos</option>
+            <option value="auth" {% if module_filter == 'auth' %}selected{% endif %}>Autenticação</option>
+            <option value="vacancy" {% if module_filter == 'vacancy' %}selected{% endif %}>Vagas</option>
+            <option value="candidate" {% if module_filter == 'candidate' %}selected{% endif %}>Candidatos</option>
+            <option value="interview" {% if module_filter == 'interview' %}selected{% endif %}>Entrevistas</option>
+            <option value="admin" {% if module_filter == 'admin' %}selected{% endif %}>Administração</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="messageFilter" class="form-label">Mensagem</label>
+          <input type="text" class="form-control" id="messageFilter" name="message_filter" placeholder="Buscar na mensagem..." value="{{ message_filter }}">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="ipFilter" class="form-label">Endereço IP</label>
+          <input type="text" class="form-control" id="ipFilter" name="ip_filter" placeholder="Ex: 192.168.1.1" value="{{ ip_filter }}">
+        </div>
+        <div class="col-md-3 mb-3 d-flex align-items-end">
+          <div class="w-100 text-end">
+            <a href="{% url 'administration:logs_sistema' %}" class="btn btn-secondary me-2">Limpar</a>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Ações -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5>Registros de Log</h5>
+  <div>
+    <button class="btn btn-outline-primary me-2">
+      <i class="bi bi-download"></i> Exportar
+    </button>
+    <button class="btn btn-outline-danger">
+      <i class="bi bi-trash"></i> Limpar Logs
+    </button>
+  </div>
+</div>
+
+<!-- Resumo -->
+<div class="row mb-4">
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              Total de Logs</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_logs }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-journal-text fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-success shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+              Informações</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.info_logs }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-info-circle fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-warning shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+              Avisos</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.warning_logs }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-exclamation-triangle fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-danger shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+              Erros</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.error_logs }}</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-x-circle fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabela de Logs -->
+<div class="card shadow mb-4">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-bordered" width="100%" cellspacing="0">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Tipo</th>
+            <th>Módulo</th>
+            <th>Usuário</th>
+            <th>IP</th>
+            <th>Mensagem</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.timestamp|date:"d/m/Y H:i:s" }}</td>
+            <td>
+              {% if log.level == 'error' %}
+                <span class="badge bg-danger">Erro</span>
+              {% elif log.level == 'warning' %}
+                <span class="badge bg-warning">Aviso</span>
+              {% elif log.level == 'security' %}
+                <span class="badge bg-primary">Segurança</span>
+              {% else %}
+                <span class="badge bg-success">Info</span>
+              {% endif %}
+            </td>
+            <td>{{ log.module }}</td>
+            <td>{{ log.user }}</td>
+            <td>{{ log.ip }}</td>
+            <td>{{ log.message }}</td>
+            <td>
+              <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#logDetailModal" data-log-id="{{ log.id }}">Detalhes</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center">Nenhum log encontrado.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Paginação -->
+    {% if logs.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if logs.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ logs.previous_page_number }}{% if log_type_filter %}&log_type={{ log_type_filter }}{% endif %}{% if date_range_filter %}&date_range={{ date_range_filter }}{% endif %}{% if user_filter %}&user_filter={{ user_filter }}{% endif %}{% if module_filter %}&module_filter={{ module_filter }}{% endif %}{% if message_filter %}&message_filter={{ message_filter }}{% endif %}{% if ip_filter %}&ip_filter={{ ip_filter }}{% endif %}">Anterior</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+        </li>
+        {% endif %}
+        
+        {% for num in logs.paginator.page_range %}
+          {% if logs.number == num %}
+          <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+          {% elif num > logs.number|add:'-3' and num < logs.number|add:'3' %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}{% if log_type_filter %}&log_type={{ log_type_filter }}{% endif %}{% if date_range_filter %}&date_range={{ date_range_filter }}{% endif %}{% if user_filter %}&user_filter={{ user_filter }}{% endif %}{% if module_filter %}&module_filter={{ module_filter }}{% endif %}{% if message_filter %}&message_filter={{ message_filter }}{% endif %}{% if ip_filter %}&ip_filter={{ ip_filter }}{% endif %}">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+        
+        {% if logs.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ logs.next_page_number }}{% if log_type_filter %}&log_type={{ log_type_filter }}{% endif %}{% if date_range_filter %}&date_range={{ date_range_filter }}{% endif %}{% if user_filter %}&user_filter={{ user_filter }}{% endif %}{% if module_filter %}&module_filter={{ module_filter }}{% endif %}{% if message_filter %}&message_filter={{ message_filter }}{% endif %}{% if ip_filter %}&ip_filter={{ ip_filter }}{% endif %}">Próximo</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Próximo</a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal de Detalhes do Log -->
+<div class="modal fade" id="logDetailModal" tabindex="-1" aria-labelledby="logDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logDetailModalLabel">Detalhes do Log</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p><strong>ID:</strong> <span id="logId"></span></p>
+            <p><strong>Data/Hora:</strong> <span id="logTimestamp"></span></p>
+            <p><strong>Tipo:</strong> <span id="logType"></span></p>
+            <p><strong>Módulo:</strong> <span id="logModule"></span></p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Usuário:</strong> <span id="logUser"></span></p>
+            <p><strong>IP:</strong> <span id="logIp"></span></p>
+            <p><strong>Navegador:</strong> <span id="logBrowser"></span></p>
+            <p><strong>Sistema Operacional:</strong> <span id="logOS"></span></p>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-12">
+            <p><strong>Mensagem:</strong> <span id="logMessage"></span></p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <p><strong>Detalhes Técnicos:</strong></p>
+            <pre class="bg-light p-3 rounded" id="logDetails"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Relatórios - RH Acqua{% endblock %}
+
+{% block content %}
+<!-- Filtros -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h6 class="m-0 fw-bold text-primary">Filtros</h6>
+  </div>
+  <div class="card-body">
+    <form method="get">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label for="reportType" class="form-label">Tipo de Relatório</label>
+          <select class="form-select" id="reportType" name="reportType">
+            <option value="vacancy" {% if report_type == 'vacancy' %}selected{% endif %}>Vagas</option>
+            <option value="application" {% if report_type == 'application' %}selected{% endif %}>Candidaturas</option>
+            <option value="interview" {% if report_type == 'interview' %}selected{% endif %}>Entrevistas</option>
+            <option value="conversion" {% if report_type == 'conversion' %}selected{% endif %}>Taxa de Conversão</option>
+            <option value="timeToHire" {% if report_type == 'timeToHire' %}selected{% endif %}>Tempo de Contratação</option>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="periodFilter" class="form-label">Período</label>
+          <select class="form-select" id="periodFilter" name="periodFilter">
+            <option value="week" {% if period_filter == 'week' %}selected{% endif %}>Última Semana</option>
+            <option value="month" {% if period_filter == 'month' %}selected{% endif %}>Último Mês</option>
+            <option value="quarter" {% if period_filter == 'quarter' %}selected{% endif %}>Último Trimestre</option>
+            <option value="year" {% if period_filter == 'year' %}selected{% endif %}>Último Ano</option>
+            <option value="custom" {% if period_filter == 'custom' %}selected{% endif %}>Personalizado</option>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="unitFilter" class="form-label">Unidade</label>
+          <select class="form-select" id="unitFilter" name="unitFilter">
+            <option value="">Todas</option>
+            {% for hospital in hospitals %}
+            <option value="{{ hospital.id }}" {% if unit_filter == hospital.id|stringformat:"s" %}selected{% endif %}>{{ hospital.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="formatFilter" class="form-label">Formato</label>
+          <select class="form-select" id="formatFilter" name="formatFilter">
+            <option value="chart" {% if format_filter == 'chart' %}selected{% endif %}>Gráfico</option>
+            <option value="table" {% if format_filter == 'table' %}selected{% endif %}>Tabela</option>
+            <option value="both" {% if format_filter == 'both' %}selected{% endif %}>Ambos</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 text-end">
+          <a href="{% url 'administration:relatorios' %}" class="btn btn-secondary me-2">Limpar</a>
+          <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+          <div class="btn-group ms-2">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+              Exportar
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">PDF</a></li>
+              <li><a class="dropdown-item" href="#">Excel</a></li>
+              <li><a class="dropdown-item" href="#">CSV</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Relatório de Vagas -->
+<div class="card shadow mb-4">
+  <div class="card-header py-3">
+    <h6 class="m-0 fw-bold text-primary">Relatório de Vagas - Último Mês</h6>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <!-- Gráfico -->
+      <div class="col-lg-8">
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%">
+          <!-- Simulação de gráfico com CSS -->
+          <div class="bg-light rounded d-flex align-items-center justify-content-center position-relative overflow-hidden" style="width: 100%; height: 100%;">
+            {% for semana in vagas_data.dados_por_semana %}
+            <div class="position-absolute bg-primary rounded-top" style="bottom: 0; left: {{ forloop.counter|add:9 }}%; width: 8%; height: {{ semana.vagas|add:20 }}%;"></div>
+            {% endfor %}
+            <div class="position-absolute bottom-0 start-0 w-100 text-center d-flex justify-content-around" style="transform: translateY(20px);">
+              <span>Semana 1</span>
+              <span>Semana 2</span>
+              <span>Semana 3</span>
+              <span>Semana 4</span>
+            </div>
+            <div class="position-absolute top-0 start-0 fw-bold p-3">Vagas Abertas por Semana</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="col-lg-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Total de Vagas Abertas</h6>
+            <h2 class="card-text">{{ vagas_data.total_vagas_abertas }}</h2>
+            <p class="text-success">
+              <i class="bi bi-arrow-up"></i> {{ vagas_data.vagas_crescimento }}% em relação ao mês anterior
+            </p>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Vagas Preenchidas</h6>
+            <h2 class="card-text">{{ vagas_data.vagas_preenchidas }}</h2>
+            <p class="text-success">
+              <i class="bi bi-arrow-up"></i> {{ vagas_data.preenchidas_crescimento }}% em relação ao mês anterior
+            </p>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Taxa de Preenchimento</h6>
+            <h2 class="card-text">{{ vagas_data.taxa_preenchimento }}%</h2>
+            <p class="text-danger">
+              <i class="bi bi-arrow-down"></i> {{ vagas_data.taxa_variacao }}% em relação ao mês anterior
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela de Dados -->
+    <div class="table-responsive mt-4">
+      <table class="table table-bordered" width="100%" cellspacing="0">
+        <thead>
+          <tr>
+            <th>Unidade</th>
+            <th>Vagas Abertas</th>
+            <th>Candidaturas</th>
+            <th>Entrevistas</th>
+            <th>Contratações</th>
+            <th>Taxa de Conversão</th>
+            <th>Tempo Médio (dias)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for unidade in vagas_data.dados_por_unidade %}
+          <tr>
+            <td>{{ unidade.unidade }}</td>
+            <td>{{ unidade.vagas_abertas }}</td>
+            <td>{{ unidade.candidaturas }}</td>
+            <td>{{ unidade.entrevistas }}</td>
+            <td>{{ unidade.contratacoes }}</td>
+            <td>{{ unidade.taxa_conversao }}%</td>
+            <td>{{ unidade.tempo_medio }}</td>
+          </tr>
+          {% endfor %}
+          <tr class="table-secondary">
+            <td><strong>Total</strong></td>
+            <td><strong>{{ totais.vagas_abertas }}</strong></td>
+            <td><strong>{{ totais.candidaturas }}</strong></td>
+            <td><strong>{{ totais.entrevistas }}</strong></td>
+            <td><strong>{{ totais.contratacoes }}</strong></td>
+            <td><strong>{{ totais.taxa_conversao }}%</strong></td>
+            <td><strong>{{ totais.tempo_medio }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Relatório de Candidaturas -->
+<div class="card shadow mb-4">
+  <div class="card-header py-3">
+    <h6 class="m-0 fw-bold text-primary">Relatório de Candidaturas - Último Mês</h6>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <!-- Gráfico -->
+      <div class="col-lg-8">
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%">
+          <!-- Simulação de gráfico com CSS -->
+          <div class="bg-light rounded d-flex align-items-center justify-content-center position-relative overflow-hidden" style="width: 100%; height: 100%;">
+            <!-- Gráfico de pizza simulado -->
+            <div class="position-relative overflow-hidden" style="width: 250px; height: 250px; border-radius: 50%;">
+              {% for status in candidaturas_data.status_distribuicao %}
+              <div class="position-absolute" style="width: 100%; height: 100%; clip-path: polygon(50% 50%, {% if forloop.first %}100% 50%, 100% 0, 50% 0{% elif forloop.counter == 2 %}50% 0, 0 0, 0 50%{% elif forloop.counter == 3 %}0 50%, 0 100%, 50% 100%{% else %}50% 100%, 100% 100%, 100% 50%{% endif %}); background-color: {{ status.cor }};"></div>
+              {% endfor %}
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100 text-center d-flex justify-content-around" style="transform: translateY(-20px);">
+              {% for status in candidaturas_data.status_distribuicao %}
+              <span>
+                <span class="d-inline-block me-1" style="width: 10px; height: 10px; background-color: {{ status.cor }};"></span>
+                {{ status.status }} ({{ status.percentual }}%)
+              </span>
+              {% endfor %}
+            </div>
+            <div class="position-absolute top-0 start-0 fw-bold p-3">Status das Candidaturas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estatísticas -->
+      <div class="col-lg-4">
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Total de Candidaturas</h6>
+            <h2 class="card-text">{{ candidaturas_data.total_candidaturas }}</h2>
+            <p class="text-success">
+              <i class="bi bi-arrow-up"></i> {{ candidaturas_data.candidaturas_crescimento }}% em relação ao mês anterior
+            </p>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Candidaturas por Vaga</h6>
+            <h2 class="card-text">{{ candidaturas_data.candidaturas_por_vaga }}</h2>
+            <p class="text-success">
+              <i class="bi bi-arrow-up"></i> {{ candidaturas_data.candidaturas_por_vaga_crescimento }}% em relação ao mês anterior
+            </p>
+          </div>
+        </div>
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="card-title">Score Médio</h6>
+            <h2 class="card-text">{{ candidaturas_data.score_medio }}</h2>
+            <p class="text-success">
+              <i class="bi bi-arrow-up"></i> {{ candidaturas_data.score_crescimento }}% em relação ao mês anterior
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

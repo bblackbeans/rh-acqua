@@ -1,0 +1,522 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Configurações - RH Acqua{% endblock %}
+{% block meta_description %}Configure o sistema RH Acqua com suas preferências e configurações{% endblock %}
+{% block body_class %}admin-dashboard{% endblock %}
+
+{% block content %}
+<!-- Navegação por abas -->
+<ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">Geral</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="false">Segurança</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab" aria-controls="email" aria-selected="false">Email</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup" type="button" role="tab" aria-controls="backup" aria-selected="false">Backup</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="integration-tab" data-bs-toggle="tab" data-bs-target="#integration" type="button" role="tab" aria-controls="integration" aria-selected="false">Integrações</button>
+  </li>
+</ul>
+
+<!-- Conteúdo das abas -->
+<div class="tab-content" id="configTabsContent">
+  <!-- Configurações Gerais -->
+  <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary">Configurações Gerais</h6>
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="systemName" class="form-label">Nome do Sistema</label>
+                <input type="text" class="form-control" id="systemName" name="system_name" value="{{ settings.system_name|default:'RH Acqua' }}">
+              </div>
+              <div class="mb-3">
+                <label for="companyName" class="form-label">Nome da Empresa</label>
+                <input type="text" class="form-control" id="companyName" name="company_name" value="{{ settings.company_name|default:'Grupo Hospitalar Acqua' }}">
+              </div>
+              <div class="mb-3">
+                <label for="adminEmail" class="form-label">Email do Administrador</label>
+                <input type="email" class="form-control" id="adminEmail" name="admin_email" value="{{ settings.admin_email|default:'admin@rhacqua.com' }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="timezone" class="form-label">Fuso Horário</label>
+                <select class="form-select" id="timezone" name="timezone">
+                  <option value="America/Sao_Paulo" {% if settings.timezone == 'America/Sao_Paulo' %}selected{% endif %}>América/São Paulo (GMT-3)</option>
+                  <option value="America/Rio_Branco" {% if settings.timezone == 'America/Rio_Branco' %}selected{% endif %}>América/Rio Branco (GMT-5)</option>
+                  <option value="America/Manaus" {% if settings.timezone == 'America/Manaus' %}selected{% endif %}>América/Manaus (GMT-4)</option>
+                  <option value="America/Recife" {% if settings.timezone == 'America/Recife' %}selected{% endif %}>América/Recife (GMT-3)</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="dateFormat" class="form-label">Formato de Data</label>
+                <select class="form-select" id="dateFormat" name="date_format">
+                  <option value="dd/mm/yyyy" {% if settings.date_format == 'dd/mm/yyyy' %}selected{% endif %}>DD/MM/AAAA</option>
+                  <option value="mm/dd/yyyy" {% if settings.date_format == 'mm/dd/yyyy' %}selected{% endif %}>MM/DD/AAAA</option>
+                  <option value="yyyy-mm-dd" {% if settings.date_format == 'yyyy-mm-dd' %}selected{% endif %}>AAAA-MM-DD</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="language" class="form-label">Idioma</label>
+                <select class="form-select" id="language" name="language">
+                  <option value="pt_BR" {% if settings.language == 'pt_BR' %}selected{% endif %}>Português (Brasil)</option>
+                  <option value="en_US" {% if settings.language == 'en_US' %}selected{% endif %}>English (US)</option>
+                  <option value="es_ES" {% if settings.language == 'es_ES' %}selected{% endif %}>Español</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h6 class="mb-3">Personalização</h6>
+              <div class="mb-3">
+                <label for="logoUpload" class="form-label">Logo da Empresa</label>
+                <input class="form-control" type="file" id="logoUpload" name="logo" accept="image/*">
+                <div class="form-text">Tamanho recomendado: 200x60px, formato PNG com transparência</div>
+              </div>
+              <div class="mb-3">
+                <label for="primaryColor" class="form-label">Cor Primária</label>
+                <input type="color" class="form-control form-control-color" id="primaryColor" name="primary_color" value="{{ settings.primary_color|default:'#1cc88a' }}">
+              </div>
+              <div class="mb-3">
+                <label for="secondaryColor" class="form-label">Cor Secundária</label>
+                <input type="color" class="form-control form-control-color" id="secondaryColor" name="secondary_color" value="{{ settings.secondary_color|default:'#36b9cc' }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 text-end">
+              <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configurações de Segurança -->
+  <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary">Configurações de Segurança</h6>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="mb-3">Política de Senhas</h6>
+              <div class="mb-3">
+                <label for="minPasswordLength" class="form-label">Tamanho Mínimo da Senha</label>
+                <input type="number" class="form-control" id="minPasswordLength" name="min_password_length" value="{{ settings.min_password_length|default:8 }}">
+              </div>
+              <div class="mb-3">
+                <label for="passwordExpiration" class="form-label">Expiração de Senha (dias)</label>
+                <input type="number" class="form-control" id="passwordExpiration" name="password_expiration" value="{{ settings.password_expiration|default:90 }}">
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="requireUppercase" name="require_uppercase" {% if settings.require_uppercase %}checked{% endif %}>
+                <label class="form-check-label" for="requireUppercase">Exigir letra maiúscula</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="requireNumber" name="require_number" {% if settings.require_number %}checked{% endif %}>
+                <label class="form-check-label" for="requireNumber">Exigir número</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="requireSpecialChar" name="require_special_char" {% if settings.require_special_char %}checked{% endif %}>
+                <label class="form-check-label" for="requireSpecialChar">Exigir caractere especial</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="mb-3">Autenticação</h6>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="enable2FA" name="enable_2fa" {% if settings.enable_2fa %}checked{% endif %}>
+                <label class="form-check-label" for="enable2FA">Habilitar autenticação de dois fatores (2FA)</label>
+              </div>
+              <div class="mb-3">
+                <label for="sessionTimeout" class="form-label">Tempo limite de sessão (minutos)</label>
+                <input type="number" class="form-control" id="sessionTimeout" name="session_timeout" value="{{ settings.session_timeout|default:30 }}">
+              </div>
+              <div class="mb-3">
+                <label for="maxLoginAttempts" class="form-label">Máximo de tentativas de login</label>
+                <input type="number" class="form-control" id="maxLoginAttempts" name="max_login_attempts" value="{{ settings.max_login_attempts|default:5 }}">
+              </div>
+              <div class="mb-3">
+                <label for="lockoutDuration" class="form-label">Duração do bloqueio (minutos)</label>
+                <input type="number" class="form-control" id="lockoutDuration" name="lockout_duration" value="{{ settings.lockout_duration|default:15 }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h6 class="mb-3">Registro de Atividades</h6>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="logLogins" name="log_logins" {% if settings.log_logins %}checked{% endif %}>
+                <label class="form-check-label" for="logLogins">Registrar logins</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="logFailedLogins" name="log_failed_logins" {% if settings.log_failed_logins %}checked{% endif %}>
+                <label class="form-check-label" for="logFailedLogins">Registrar tentativas de login malsucedidas</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="logDataChanges" name="log_data_changes" {% if settings.log_data_changes %}checked{% endif %}>
+                <label class="form-check-label" for="logDataChanges">Registrar alterações de dados</label>
+              </div>
+              <div class="mb-3">
+                <label for="logRetention" class="form-label">Retenção de logs (dias)</label>
+                <input type="number" class="form-control" id="logRetention" name="log_retention" value="{{ settings.log_retention|default:180 }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 text-end">
+              <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configurações de Email -->
+  <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary">Configurações de Email</h6>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="mb-3">Servidor SMTP</h6>
+              <div class="mb-3">
+                <label for="smtpServer" class="form-label">Servidor SMTP</label>
+                <input type="text" class="form-control" id="smtpServer" name="smtp_server" value="{{ settings.smtp_server|default:'smtp.rhacqua.com' }}">
+              </div>
+              <div class="mb-3">
+                <label for="smtpPort" class="form-label">Porta SMTP</label>
+                <input type="number" class="form-control" id="smtpPort" name="smtp_port" value="{{ settings.smtp_port|default:587 }}">
+              </div>
+              <div class="mb-3">
+                <label for="smtpUsername" class="form-label">Usuário SMTP</label>
+                <input type="text" class="form-control" id="smtpUsername" name="smtp_username" value="{{ settings.smtp_username|default:'no-reply@rhacqua.com' }}">
+              </div>
+              <div class="mb-3">
+                <label for="smtpPassword" class="form-label">Senha SMTP</label>
+                <input type="password" class="form-control" id="smtpPassword" name="smtp_password" value="{{ settings.smtp_password|default:'' }}">
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="smtpSsl" name="smtp_ssl" {% if settings.smtp_ssl %}checked{% endif %}>
+                <label class="form-check-label" for="smtpSsl">Usar SSL/TLS</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="mb-3">Configurações de Envio</h6>
+              <div class="mb-3">
+                <label for="fromEmail" class="form-label">Email de Origem</label>
+                <input type="email" class="form-control" id="fromEmail" name="from_email" value="{{ settings.from_email|default:'no-reply@rhacqua.com' }}">
+              </div>
+              <div class="mb-3">
+                <label for="fromName" class="form-label">Nome de Origem</label>
+                <input type="text" class="form-control" id="fromName" name="from_name" value="{{ settings.from_name|default:'RH Acqua' }}">
+              </div>
+              <div class="mb-3">
+                <label for="replyToEmail" class="form-label">Email de Resposta</label>
+                <input type="email" class="form-control" id="replyToEmail" name="reply_to_email" value="{{ settings.reply_to_email|default:'contato@rhacqua.com' }}">
+              </div>
+              <div class="mb-3">
+                <button type="button" class="btn btn-outline-primary">Enviar Email de Teste</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h6 class="mb-3">Notificações</h6>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="notifyNewCandidate" name="notify_new_candidate" {% if settings.notify_new_candidate %}checked{% endif %}>
+                <label class="form-check-label" for="notifyNewCandidate">Notificar sobre novos candidatos</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="notifyNewApplication" name="notify_new_application" {% if settings.notify_new_application %}checked{% endif %}>
+                <label class="form-check-label" for="notifyNewApplication">Notificar sobre novas candidaturas</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="notifyInterviewScheduled" name="notify_interview_scheduled" {% if settings.notify_interview_scheduled %}checked{% endif %}>
+                <label class="form-check-label" for="notifyInterviewScheduled">Notificar sobre entrevistas agendadas</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="notifyVacancyExpiring" name="notify_vacancy_expiring" {% if settings.notify_vacancy_expiring %}checked{% endif %}>
+                <label class="form-check-label" for="notifyVacancyExpiring">Notificar sobre vagas próximas do vencimento</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 text-end">
+              <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configurações de Backup -->
+  <div class="tab-pane fade" id="backup" role="tabpanel" aria-labelledby="backup-tab">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary">Configurações de Backup</h6>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="mb-3">Backup Automático</h6>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="enableAutoBackup" name="enable_auto_backup" {% if settings.enable_auto_backup %}checked{% endif %}>
+                <label class="form-check-label" for="enableAutoBackup">Habilitar backup automático</label>
+              </div>
+              <div class="mb-3">
+                <label for="backupFrequency" class="form-label">Frequência</label>
+                <select class="form-select" id="backupFrequency" name="backup_frequency">
+                  <option value="daily" {% if settings.backup_frequency == 'daily' %}selected{% endif %}>Diário</option>
+                  <option value="weekly" {% if settings.backup_frequency == 'weekly' %}selected{% endif %}>Semanal</option>
+                  <option value="monthly" {% if settings.backup_frequency == 'monthly' %}selected{% endif %}>Mensal</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="backupTime" class="form-label">Horário</label>
+                <input type="time" class="form-control" id="backupTime" name="backup_time" value="{{ settings.backup_time|default:'03:00' }}">
+              </div>
+              <div class="mb-3">
+                <label for="backupRetention" class="form-label">Retenção (dias)</label>
+                <input type="number" class="form-control" id="backupRetention" name="backup_retention" value="{{ settings.backup_retention|default:30 }}">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="mb-3">Armazenamento</h6>
+              <div class="mb-3">
+                <label for="backupStorage" class="form-label">Local de Armazenamento</label>
+                <select class="form-select" id="backupStorage" name="backup_storage">
+                  <option value="local" {% if settings.backup_storage == 'local' %}selected{% endif %}>Servidor Local</option>
+                  <option value="s3" {% if settings.backup_storage == 's3' %}selected{% endif %}>Amazon S3</option>
+                  <option value="gcs" {% if settings.backup_storage == 'gcs' %}selected{% endif %}>Google Cloud Storage</option>
+                  <option value="azure" {% if settings.backup_storage == 'azure' %}selected{% endif %}>Azure Blob Storage</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="backupPath" class="form-label">Caminho/Bucket</label>
+                <input type="text" class="form-control" id="backupPath" name="backup_path" value="{{ settings.backup_path|default:'/var/backups/rhacqua' }}">
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="compressBackup" name="compress_backup" {% if settings.compress_backup %}checked{% endif %}>
+                <label class="form-check-label" for="compressBackup">Comprimir backup</label>
+              </div>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="encryptBackup" name="encrypt_backup" {% if settings.encrypt_backup %}checked{% endif %}>
+                <label class="form-check-label" for="encryptBackup">Criptografar backup</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h6 class="mb-3">Backup Manual</h6>
+              <div class="mb-3">
+                <button type="button" class="btn btn-primary">Iniciar Backup Agora</button>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Tamanho</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for backup in backups %}
+                    <tr>
+                      <td>{{ backup.created_at|date:"d/m/Y H:i" }}</td>
+                      <td>{{ backup.size }}</td>
+                      <td><span class="badge bg-success">{{ backup.status }}</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-info">Download</button>
+                        <button class="btn btn-sm btn-danger">Excluir</button>
+                      </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center">Nenhum backup encontrado.</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 text-end">
+              <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configurações de Integração -->
+  <div class="tab-pane fade" id="integration" role="tabpanel" aria-labelledby="integration-tab">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 fw-bold text-primary">Configurações de Integração</h6>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h6 class="mb-3">API</h6>
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="enableApi" name="enable_api" {% if settings.enable_api %}checked{% endif %}>
+                <label class="form-check-label" for="enableApi">Habilitar API</label>
+              </div>
+              <div class="mb-3">
+                <label for="apiKey" class="form-label">Chave da API</label>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="apiKey" value="{{ settings.api_key|default:'a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6' }}" readonly>
+                  <button class="btn btn-outline-secondary" type="button">Regenerar</button>
+                  <button class="btn btn-outline-secondary" type="button">Copiar</button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="apiRateLimit" class="form-label">Limite de Requisições (por minuto)</label>
+                <input type="number" class="form-control" id="apiRateLimit" name="api_rate_limit" value="{{ settings.api_rate_limit|default:100 }}">
+              </div>
+              <div class="mb-3">
+                <a href="#" class="btn btn-outline-primary">Ver Documentação da API</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="mb-3">Integrações de Terceiros</h6>
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">LinkedIn</h6>
+                      <small class="text-muted">Importar candidatos e vagas</small>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="linkedinIntegration" name="linkedin_integration" {% if settings.linkedin_integration %}checked{% endif %}>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-primary">Configurar</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Google Calendar</h6>
+                      <small class="text-muted">Sincronizar entrevistas</small>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="googleCalendarIntegration" name="google_calendar_integration" {% if settings.google_calendar_integration %}checked{% endif %}>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-primary">Configurar</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="mb-0">Microsoft Teams</h6>
+                      <small class="text-muted">Notificações e entrevistas</small>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="teamsIntegration" name="teams_integration" {% if settings.teams_integration %}checked{% endif %}>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-primary">Configurar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="mb-3">Webhooks</h6>
+              <div class="mb-3">
+                <label for="webhookUrl" class="form-label">URL do Webhook</label>
+                <input type="url" class="form-control" id="webhookUrl" name="webhook_url" placeholder="https://exemplo.com/webhook" value="{{ settings.webhook_url|default:'' }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Eventos</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="webhookNewCandidate" name="webhook_new_candidate" {% if settings.webhook_new_candidate %}checked{% endif %}>
+                  <label class="form-check-label" for="webhookNewCandidate">Novo candidato</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="webhookNewApplication" name="webhook_new_application" {% if settings.webhook_new_application %}checked{% endif %}>
+                  <label class="form-check-label" for="webhookNewApplication">Nova candidatura</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="webhookInterviewScheduled" name="webhook_interview_scheduled" {% if settings.webhook_interview_scheduled %}checked{% endif %}>
+                  <label class="form-check-label" for="webhookInterviewScheduled">Entrevista agendada</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="webhookStatusChange" name="webhook_status_change" {% if settings.webhook_status_change %}checked{% endif %}>
+                  <label class="form-check-label" for="webhookStatusChange">Mudança de status</label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <button type="button" class="btn btn-outline-primary">Testar Webhook</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12 text-end">
+              <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
