@@ -1,0 +1,657 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ vacancy.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.vacancy-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.vacancy-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.vacancy-badges {
+    margin-bottom: 1.5rem;
+}
+
+.vacancy-badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+    border-radius: 25px;
+}
+
+.vacancy-info {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.vacancy-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    margin-bottom: 2rem;
+}
+
+.vacancy-section h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.sidebar-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-card h5 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.skill-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    margin: 0.25rem;
+    display: inline-block;
+}
+
+.stats-item {
+    text-align: center;
+    padding: 1rem;
+}
+
+.stats-number {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stats-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 1rem 0;
+}
+
+.breadcrumb-item a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.info-item i {
+    color: #667eea;
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+    width: 20px;
+}
+
+.info-item strong {
+    color: #2c3e50;
+    margin-right: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header da Vaga -->
+    <div class="vacancy-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="vacancy-title">{{ vacancy.title }}</h1>
+                    <div class="vacancy-badges">
+                        <span class="badge vacancy-badge bg-{% if vacancy.status == 'published' %}success{% elif vacancy.status == 'draft' %}warning{% else %}secondary{% endif %}">
+                            {{ vacancy.get_status_display }}
+                        </span>
+                        <span class="badge vacancy-badge bg-primary">{{ vacancy.get_contract_type_display }}</span>
+                        <span class="badge vacancy-badge bg-info">{{ vacancy.get_experience_level_display }}</span>
+                        {% if vacancy.is_remote %}
+                            <span class="badge vacancy-badge bg-success">{% trans 'Remoto' %}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    {% if user.is_authenticated and user.is_recruiter %}
+                        <a href="{% url 'vacancies:vacancy_update' vacancy.pk %}" class="btn btn-edit">
+                            <i class="bi bi-pencil me-2"></i>{% trans 'Editar Vaga' %}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'vacancies:vacancy_list' %}">
+                        <i class="bi bi-briefcase me-1"></i>
+                        {% trans 'Vagas' %}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ vacancy.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Conteúdo Principal -->
+            <div class="col-lg-8">
+                <!-- Informações Básicas -->
+                <div class="vacancy-info">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <i class="bi bi-building"></i>
+                                <strong>{% trans 'Hospital:' %}</strong> {{ vacancy.hospital.name }}
+                            </div>
+                            <div class="info-item">
+                                <i class="bi bi-gear"></i>
+                                <strong>{% trans 'Departamento:' %}</strong> {{ vacancy.department.name }}
+                            </div>
+                            {% if vacancy.category %}
+                                <div class="info-item">
+                                    <i class="bi bi-tag"></i>
+                                    <strong>{% trans 'Categoria:' %}</strong> {{ vacancy.category.name }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <i class="bi bi-geo-alt"></i>
+                                <strong>{% trans 'Localização:' %}</strong> {{ vacancy.location }}
+                            </div>
+                            {% if vacancy.publication_date %}
+                                <div class="info-item">
+                                    <i class="bi bi-calendar"></i>
+                                    <strong>{% trans 'Publicada em:' %}</strong> {{ vacancy.publication_date|date:"d/m/Y" }}
+                                </div>
+                            {% endif %}
+                            {% if vacancy.closing_date %}
+                                <div class="info-item">
+                                    <i class="bi bi-calendar-x"></i>
+                                    <strong>{% trans 'Encerra em:' %}</strong> {{ vacancy.closing_date|date:"d/m/Y" }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descrição da Vaga -->
+                <div class="vacancy-section">
+                    <h3><i class="bi bi-file-text me-2"></i>{% trans 'Descrição da Vaga' %}</h3>
+                    <p class="mb-0">{{ vacancy.description|linebreaks }}</p>
+                </div>
+
+                <!-- Requisitos -->
+                <div class="vacancy-section">
+                    <h3><i class="bi bi-list-check me-2"></i>{% trans 'Requisitos' %}</h3>
+                    <p class="mb-0">{{ vacancy.requirements|linebreaks }}</p>
+                </div>
+
+                <!-- Benefícios -->
+                {% if vacancy.benefits %}
+                    <div class="vacancy-section">
+                        <h3><i class="bi bi-gift me-2"></i>{% trans 'Benefícios' %}</h3>
+                        <p class="mb-0">{{ vacancy.benefits|linebreaks }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- Seção de Candidatos (apenas para recrutadores) -->
+                {% if user.is_authenticated and user.is_recruiter and applications %}
+                <div class="vacancy-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3><i class="bi bi-people me-2"></i>{% trans 'Candidatos Inscritos' %} ({{ total_candidates }})</h3>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportCandidates()">
+                                <i class="bi bi-download me-1"></i>
+                                {% trans 'Exportar' %}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Debug: Verificar dados -->
+                    <div class="alert alert-info mb-3">
+                        <strong>Debug:</strong> Total de candidatos: {{ total_candidates }}<br>
+                        <strong>Aplicações:</strong> {{ applications|length }}<br>
+                        {% for app in applications %}
+                            <small>{{ app.candidate.user.get_full_name }} - {{ app.status }}</small><br>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Estatísticas dos Candidatos -->
+                    <div class="row mb-4">
+                        <div class="col-md-2">
+                            <div class="stats-item">
+                                <div class="stats-number text-warning">{{ pending_candidates }}</div>
+                                <div class="stats-label">{% trans 'Pendentes' %}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="stats-item">
+                                <div class="stats-number text-info">{{ reviewed_candidates }}</div>
+                                <div class="stats-label">{% trans 'Em Análise' %}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="stats-item">
+                                <div class="stats-number text-primary">{{ interview_candidates }}</div>
+                                <div class="stats-label">{% trans 'Entrevista' %}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="stats-item">
+                                <div class="stats-number text-success">{{ approved_candidates }}</div>
+                                <div class="stats-label">{% trans 'Aprovados' %}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="stats-item">
+                                <div class="stats-number text-danger">{{ rejected_candidates }}</div>
+                                <div class="stats-label">{% trans 'Rejeitados' %}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Candidatos -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{% trans 'Candidato' %}</th>
+                                    <th>{% trans 'Contato' %}</th>
+                                    <th>{% trans 'Localização' %}</th>
+                                    <th>{% trans 'Status' %}</th>
+                                    <th>{% trans 'Data da Candidatura' %}</th>
+                                    <th>{% trans 'Ações' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in applications %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if application.candidate.candidate_profile.profile_picture %}
+                                                <img src="{{ application.candidate.candidate_profile.profile_picture.url }}" class="rounded-circle me-3" width="40" height="40" alt="Foto">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="bi bi-person text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ application.candidate.user.get_full_name }}</div>
+                                                <small class="text-muted">{{ application.candidate.user.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>{{ application.candidate.candidate_profile.phone|default:"Não informado" }}</div>
+                                        <small class="text-muted">{{ application.candidate.user.email }}</small>
+                                    </td>
+                                    <td>
+                                        <div>{{ application.candidate.candidate_profile.city|default:"Não informado" }}, {{ application.candidate.candidate_profile.state|default:"Não informado" }}</div>
+                                    </td>
+                                    <td>
+                                        {% if application.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">{% trans 'Pendente' %}</span>
+                                        {% elif application.status == 'under_review' %}
+                                            <span class="badge bg-info">{% trans 'Em Análise' %}</span>
+                                        {% elif application.status == 'interview' %}
+                                            <span class="badge bg-primary">{% trans 'Entrevista' %}</span>
+                                        {% elif application.status == 'approved' %}
+                                            <span class="badge bg-success">{% trans 'Aprovado' %}</span>
+                                        {% elif application.status == 'rejected' %}
+                                            <span class="badge bg-danger">{% trans 'Rejeitado' %}</span>
+                                        {% elif application.status == 'withdrawn' %}
+                                            <span class="badge bg-secondary">{% trans 'Desistência' %}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ application.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>{{ application.created_at|date:"d/m/Y" }}</div>
+                                        <small class="text-muted">{{ application.created_at|date:"H:i" }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'applications:application_detail' application.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                                {% trans 'Ver' %}
+                                            </a>
+                                            {% if application.status == 'pending' %}
+                                            <button class="btn btn-sm btn-outline-success" onclick="updateStatus({{ application.pk }}, 'under_review')">
+                                                <i class="bi bi-search"></i>
+                                                {% trans 'Analisar' %}
+                                            </button>
+                                            {% endif %}
+                                            {% if application.status == 'under_review' %}
+                                            <button class="btn btn-sm btn-outline-info" onclick="updateStatus({{ application.pk }}, 'interview')">
+                                                <i class="bi bi-calendar-check"></i>
+                                                {% trans 'Entrevista' %}
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="bi bi-people fs-1"></i>
+                                        <p class="mt-2">{% trans 'Nenhum candidato encontrado' %}</p>
+                                        <small>{% trans 'Os candidatos aparecerão aqui quando se candidatarem à vaga' %}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Habilidades -->
+                <div class="sidebar-card">
+                    <h5><i class="bi bi-lightning me-2"></i>{% trans 'Habilidades' %}</h5>
+                    {% if vacancy.skills.all %}
+                        <div class="d-flex flex-wrap">
+                            {% for skill in vacancy.skills.all %}
+                                <span class="skill-badge">{{ skill.name }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">{% trans 'Nenhuma habilidade especificada' %}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Informações do Recrutador -->
+                <div class="sidebar-card">
+                    <h5><i class="bi bi-person me-2"></i>{% trans 'Recrutador' %}</h5>
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-person-circle display-4 text-primary"></i>
+                        </div>
+                        <h6 class="mb-1">{{ vacancy.recruiter.get_full_name|default:vacancy.recruiter.email }}</h6>
+                        <p class="text-muted small mb-0">{{ vacancy.recruiter.email }}</p>
+                    </div>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="sidebar-card">
+                    <h5><i class="bi bi-graph-up me-2"></i>{% trans 'Estatísticas' %}</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stats-item">
+                                <div class="stats-number text-primary">{{ vacancy.views_count }}</div>
+                                <div class="stats-label">{% trans 'Visualizações' %}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-item">
+                                <div class="stats-number text-success">{{ vacancy.applications_count }}</div>
+                                <div class="stats-label">{% trans 'Candidaturas' %}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Carregar candidatos ao carregar a página
+    loadCandidates();
+    
+    // Event listeners para filtros
+    document.getElementById('statusFilter').addEventListener('change', loadCandidates);
+    document.getElementById('experienceFilter').addEventListener('change', loadCandidates);
+    document.getElementById('locationFilter').addEventListener('input', debounce(loadCandidates, 500));
+    document.getElementById('searchFilter').addEventListener('input', debounce(loadCandidates, 500));
+});
+
+// Função para carregar candidatos
+function loadCandidates(page = 1) {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const experienceFilter = document.getElementById('experienceFilter').value;
+    const locationFilter = document.getElementById('locationFilter').value;
+    const searchFilter = document.getElementById('searchFilter').value;
+    
+    // Simular carregamento de candidatos (substituir por chamada AJAX real)
+    const candidates = getMockCandidates();
+    const filteredCandidates = filterCandidates(candidates, {
+        status: statusFilter,
+        experience: experienceFilter,
+        location: locationFilter,
+        search: searchFilter
+    });
+    
+    displayCandidates(filteredCandidates);
+    updatePagination(filteredCandidates.length, page);
+}
+
+// Função para filtrar candidatos
+function filterCandidates(candidates, filters) {
+    return candidates.filter(candidate => {
+        if (filters.status && candidate.status !== filters.status) return false;
+        if (filters.experience && candidate.experience !== filters.experience) return false;
+        if (filters.location && !candidate.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+        if (filters.search) {
+            const searchTerm = filters.search.toLowerCase();
+            return candidate.name.toLowerCase().includes(searchTerm) || 
+                   candidate.email.toLowerCase().includes(searchTerm);
+        }
+        return true;
+    });
+}
+
+// Função para exibir candidatos na tabela
+function displayCandidates(candidates) {
+    const tbody = document.getElementById('candidatesTable');
+    
+    if (candidates.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">
+                    <i class="bi bi-people fs-1"></i>
+                    <p class="mt-2">Nenhum candidato encontrado</p>
+                    <small>Nenhum candidato corresponde aos filtros aplicados</small>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = candidates.map(candidate => `
+        <tr>
+            <td>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-circle me-2 text-primary"></i>
+                    <strong>${candidate.name}</strong>
+                </div>
+            </td>
+            <td>${candidate.email}</td>
+            <td>${candidate.phone}</td>
+            <td>${candidate.location}</td>
+            <td>
+                <span class="badge bg-${getExperienceBadgeColor(candidate.experience)}">
+                    ${candidate.experience}
+                </span>
+            </td>
+            <td>
+                <span class="badge bg-${getStatusBadgeColor(candidate.status)}">
+                    ${candidate.status}
+                </span>
+            </td>
+            <td>${candidate.applicationDate}</td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="viewCandidate(${candidate.id})" title="Ver perfil">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-success" onclick="selectCandidate(${candidate.id})" title="Selecionar">
+                        <i class="bi bi-check"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="rejectCandidate(${candidate.id})" title="Rejeitar">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Função para atualizar paginação
+function updatePagination(totalCandidates, currentPage) {
+    const pagination = document.getElementById('candidatesPagination');
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(totalCandidates / itemsPerPage);
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = '';
+    
+    // Botão anterior
+    if (currentPage > 1) {
+        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadCandidates(${currentPage - 1})">Anterior</a></li>`;
+    }
+    
+    // Páginas numeradas
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === currentPage) {
+            paginationHTML += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+        } else {
+            paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadCandidates(${i})">${i}</a></li>`;
+        }
+    }
+    
+    // Botão próximo
+    if (currentPage < totalPages) {
+        paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="loadCandidates(${currentPage + 1})">Próximo</a></li>`;
+    }
+    
+    pagination.innerHTML = paginationHTML;
+}
+
+// Função para obter cor do badge de experiência
+function getExperienceBadgeColor(experience) {
+    const colors = {
+        'entry': 'secondary',
+        'junior': 'info',
+        'mid': 'primary',
+        'senior': 'success'
+    };
+    return colors[experience] || 'secondary';
+}
+
+// Função para obter cor do badge de status
+function getStatusBadgeColor(status) {
+    const colors = {
+        'pending': 'warning',
+        'reviewed': 'info',
+        'selected': 'success',
+        'rejected': 'danger'
+    };
+    return colors[status] || 'secondary';
+}
+
+// Função para debounce (evitar muitas chamadas durante digitação)
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Funções de ação dos candidatos
+function updateStatus(applicationId, newStatus) {
+    if (confirm('Deseja atualizar o status desta candidatura?')) {
+        // Aqui você pode implementar a lógica para atualizar o status via AJAX
+        console.log('Atualizando candidatura:', applicationId, 'para status:', newStatus);
+        
+        // Mostrar mensagem de sucesso
+        alert('Status atualizado com sucesso!');
+        
+        // Recarregar a página para atualizar a lista
+        location.reload();
+    }
+}
+
+function exportCandidates() {
+    // Implementar exportação dos candidatos
+    alert('Exportando lista de candidatos...');
+}
+
+// Função para carregar candidatos (se necessário no futuro)
+function loadCandidates() {
+    // Implementar carregamento via AJAX se necessário
+    console.log('Carregando candidatos...');
+}
+</script>
+{% endblock %} 

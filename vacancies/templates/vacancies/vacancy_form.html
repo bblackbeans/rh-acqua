@@ -1,0 +1,920 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans 'Criar Nova Vaga' %}{% endblock %}
+
+{% block extra_css %}
+<style>
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+    min-width: 300px;
+    border-left: 4px solid;
+}
+
+.toast.error {
+    border-left-color: #dc3545;
+}
+
+.toast.success {
+    border-left-color: #28a745;
+}
+
+.toast-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.toast-body {
+    padding: 12px 16px;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.toast-close:hover {
+    color: #000;
+}
+
+/* Garantir que o botão seja visível */
+#submitBtn {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1000 !important;
+    background-color: #007bff !important;
+    color: white !important;
+    border: 2px solid #0056b3 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+
+#submitBtn:hover {
+    background-color: #0056b3 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3) !important;
+}
+
+/* Estilo para o campo de skills */
+select[name="skills"] {
+    min-height: 120px !important;
+    border: 2px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    padding: 8px !important;
+}
+
+select[name="skills"]:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25) !important;
+}
+
+select[name="skills"] option {
+    padding: 8px 12px !important;
+    margin: 2px 0 !important;
+    border-radius: 4px !important;
+}
+
+select[name="skills"] option:checked {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+select[name="skills"] option:hover {
+    background-color: #e3f2fd !important;
+}
+
+/* Estilos personalizados para campos select */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+    background-color: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.form-select:hover {
+    border-color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.form-select:disabled {
+    background-color: #e9ecef;
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Estilos para form-control */
+.form-control {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+    background-color: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.form-control:hover {
+    border-color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para labels */
+.form-label {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Estilos para form-text */
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* Estilos para asteriscos */
+.form-label strong:after {
+    content: "";
+}
+
+/* Estilos para campos obrigatórios */
+.form-label:has(+ .form-control[required]) strong:after,
+.form-label:has(+ .form-select[required]) strong:after {
+    content: " *";
+    color: #dc3545;
+    font-weight: 700;
+}
+
+/* Estilos para campos obrigatórios específicos */
+.form-label:has(+ select[name="hospital"]) strong:after,
+.form-label:has(+ select[name="department"]) strong:after,
+.form-label:has(+ input[name="location"]) strong:after,
+.form-label:has(+ input[name="title"]) strong:after,
+.form-label:has(+ textarea[name="description"]) strong:after,
+.form-label:has(+ textarea[name="requirements"]) strong:after,
+.form-label:has(+ select[name="skills"]) strong:after,
+.form-label:has(+ select[name="status"]) strong:after,
+.form-label:has(+ select[name="contract_type"]) strong:after,
+.form-label:has(+ select[name="experience_level"]) strong:after {
+    content: " *";
+    color: #dc3545;
+    font-weight: 700;
+}
+
+/* Melhorias adicionais para os campos */
+.form-select, .form-control {
+    background-color: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-select:hover, .form-control:hover {
+    border-color: #4299e1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+    outline: none;
+    transform: translateY(-1px);
+}
+
+/* Estilo especial para campos select */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234a5568' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 6 7 7 7-7'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px 12px;
+    padding-right: 48px;
+    cursor: pointer;
+}
+
+/* Estilo para labels */
+.form-label {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: block;
+}
+
+/* Estilo para form-text */
+.form-text {
+    font-size: 12px;
+    color: #718096;
+    margin-top: 6px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+/* Estilo para mensagens de erro */
+.invalid-feedback {
+    color: #e53e3e;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* Estilo para o container dos campos */
+.row.mb-3 {
+    margin-bottom: 1.5rem !important;
+}
+
+/* Estilo para o card do formulário */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Estilo para checkboxes de habilidades */
+.skills-checkboxes {
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 20px;
+    max-height: 250px;
+    overflow-y: auto;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.skills-checkboxes ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.skills-checkboxes li {
+    margin-bottom: 10px;
+}
+
+.skills-checkboxes input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.3);
+    accent-color: #007bff;
+}
+
+.skills-checkboxes label {
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.skills-checkboxes label:hover {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateX(4px);
+}
+
+.skills-checkboxes input[type="checkbox"]:checked + label {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border: 2px solid #28a745;
+    box-shadow: 0 2px 8px rgba(40,167,69,0.3);
+}
+
+/* Estilo para botões */
+.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 14px 28px !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3) !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0,123,255,0.4) !important;
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%) !important;
+}
+
+.btn-primary:active {
+    transform: translateY(0) !important;
+}
+
+/* Estilo para mensagens de erro */
+.alert-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+    border: 2px solid #28a745 !important;
+    border-radius: 10px !important;
+    color: #155724 !important;
+    padding: 16px 20px !important;
+    box-shadow: 0 4px 12px rgba(40,167,69,0.2) !important;
+}
+
+/* Estilo para mensagens de erro */
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
+    border: 2px solid #dc3545 !important;
+    border-radius: 10px !important;
+    color: #721c24 !important;
+    padding: 16px 20px !important;
+    box-shadow: 0 4px 12px rgba(220,53,69,0.2) !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content -->
+        <main class="col-12">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-{% if object %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+                    {% if object %}{% trans 'Editar Vaga' %}{% else %}{% trans 'Criar Nova Vaga' %}{% endif %}
+                </h1>
+                <a href="{% if user.is_recruiter %}{% url 'vacancies:gestao_vagas' %}{% else %}{% url 'vacancies:vacancy_list' %}{% endif %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>{% trans 'Voltar' %}
+                </a>
+            </div>
+
+            <!-- Toast Container -->
+            <div class="toast-container" id="toastContainer"></div>
+
+            <!-- Form -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="vacancyForm" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Informações da Vaga -->
+                            <div class="col-md-8">
+                                <h6 class="text-primary mb-3">
+                                    <i class="bi bi-info-circle me-2"></i>{% trans 'Informações da Vaga' %}
+                                </h6>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Título da Vaga' %}</strong>
+                                        </label>
+                                        {{ form.title }}
+                                        {% if form.title.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.title.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Descrição da Vaga' %}</strong>
+                                        </label>
+                                        {{ form.description }}
+                                        {% if form.description.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.description.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.requirements.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Requisitos' %}</strong>
+                                        </label>
+                                        {{ form.requirements }}
+                                        {% if form.requirements.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.requirements.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.benefits.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Benefícios' %}</strong>
+                                        </label>
+                                        {{ form.benefits }}
+                                        {% if form.benefits.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.benefits.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configurações e Localização -->
+                            <div class="col-md-4">
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.hospital.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Hospital/Unidade' %}</strong>
+                                        </label>
+                                        {{ form.hospital }}
+                                        {% if form.hospital.help_text %}
+                                            <div class="form-text text-muted">
+                                                <i class="bi bi-info-circle me-1"></i>{{ form.hospital.help_text }}
+                                            </div>
+                                        {% endif %}
+                                        {% if form.hospital.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.hospital.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.department.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Departamento/Setor' %}</strong>
+                                        </label>
+                                        {{ form.department }}
+                                        {% if form.department.help_text %}
+                                            <div class="form-text text-muted">
+                                                <i class="bi bi-info-circle me-1"></i>{{ form.department.help_text }}
+                                            </div>
+                                        {% endif %}
+                                        {% if form.department.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.department.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.category.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Categoria' %}</strong>
+                                        </label>
+                                        {{ form.category }}
+                                        {% if form.category.help_text %}
+                                            <div class="form-text text-muted">
+                                                <i class="bi bi-info-circle me-1"></i>{{ form.category.help_text }}
+                                            </div>
+                                        {% endif %}
+                                        {% if form.category.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.category.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.location.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Localização' %}</strong>
+                                        </label>
+                                        {{ form.location }}
+                                        {% if form.location.help_text %}
+                                            <div class="form-text text-muted">
+                                                <i class="bi bi-info-circle me-1"></i>{{ form.location.help_text }}
+                                            </div>
+                                        {% endif %}
+                                        {% if form.location.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.location.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Datas e Salário -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="bi bi-calendar me-2"></i>{% trans 'Datas e Salário' %}
+                                </h6>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="{{ form.publication_date.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Data de Publicação' %}</strong>
+                                        </label>
+                                        {{ form.publication_date }}
+                                        {% if form.publication_date.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.publication_date.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="{{ form.closing_date.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Data de Encerramento' %}</strong>
+                                        </label>
+                                        {{ form.closing_date }}
+                                        {% if form.closing_date.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.closing_date.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="{{ form.salary_range_min.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Salário Mínimo' %}</strong>
+                                        </label>
+                                        {{ form.salary_range_min }}
+                                        {% if form.salary_range_min.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.salary_range_min.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="{{ form.salary_range_max.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Salário Máximo' %}</strong>
+                                        </label>
+                                        {{ form.salary_range_max }}
+                                        {% if form.salary_range_max.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.salary_range_max.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="bi bi-award me-2"></i>{% trans 'Habilidades' %}
+                                </h6>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.skills.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Habilidades' %}</strong>
+                                        </label>
+                                        <div class="skills-checkboxes">
+                                            {{ form.skills }}
+                                        </div>
+                                        {% if form.skills.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.skills.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            {% trans 'Marque as habilidades necessárias para a vaga. Pelo menos uma deve ser selecionada.' %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Detalhes da Vaga -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3">
+                                    <i class="bi bi-gear me-2"></i>{% trans 'Configurações da Vaga' %}
+                                </h6>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <label for="{{ form.status.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Status' %}</strong>
+                                        </label>
+                                        {{ form.status }}
+                                        {% if form.status.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.status.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="{{ form.contract_type.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Tipo de Contrato' %}</strong>
+                                        </label>
+                                        {{ form.contract_type }}
+                                        {% if form.contract_type.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.contract_type.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label for="{{ form.experience_level.id_for_label }}" class="form-label">
+                                            <strong>{% trans 'Nível de Experiência' %}</strong>
+                                        </label>
+                                        {{ form.experience_level }}
+                                        {% if form.experience_level.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {% for error in form.experience_level.errors %}
+                                                    <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="form-check">
+                                            {{ form.is_remote }}
+                                            <label class="form-check-label" for="{{ form.is_remote.id_for_label }}">
+                                                {% trans 'Trabalho Remoto' %}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-check">
+                                            {{ form.is_salary_visible }}
+                                            <label class="form-check-label" for="{{ form.is_salary_visible.id_for_label }}">
+                                                {% trans 'Salário Visível' %}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" style="font-size: 18px; padding: 15px 30px;">
+                                        <i class="bi bi-check-circle me-2"></i>{% if object %}{% trans 'Atualizar Vaga' %}{% else %}{% trans 'Criar Vaga' %}{% endif %}
+                                    </button>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">{% if object %}Clique no botão acima para atualizar a vaga{% else %}Clique no botão acima para criar a vaga{% endif %}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Função para mostrar toast (global)
+function showToast(message, type = 'error') {
+    const toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+        console.error('Toast container not found');
+        return;
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-header">
+            <strong>${type === 'error' ? 'Erro' : 'Sucesso'}</strong>
+            <button type="button" class="toast-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    toastContainer.appendChild(toast);
+    
+    // Remove automaticamente após 5 segundos
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const hospitalSelect = document.getElementById('{{ form.hospital.id_for_label }}');
+    const departmentSelect = document.getElementById('{{ form.department.id_for_label }}');
+    const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('vacancyForm');
+    
+    // Carrega departamentos quando hospital é selecionado
+    hospitalSelect.addEventListener('change', function() {
+        const hospitalId = this.value;
+        departmentSelect.innerHTML = '<option value="">Carregando...</option>';
+        
+        if (hospitalId) {
+            fetch('/vacancies/ajax/load-departments/?hospital=' + hospitalId)
+                .then(response => response.json())
+                .then(data => {
+                    departmentSelect.innerHTML = '<option value="">Selecione um departamento</option>';
+                    data.forEach(dept => {
+                        const option = document.createElement('option');
+                        option.value = dept.id;
+                        option.textContent = dept.name;
+                        departmentSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar departamentos:', error);
+                    departmentSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                });
+        } else {
+            departmentSelect.innerHTML = '<option value="">Selecione um hospital primeiro</option>';
+        }
+    });
+    
+    // Validação do formulário
+    form.addEventListener('submit', function(e) {
+        console.log('=== FORM SUBMIT EVENT TRIGGERED ===');
+        console.log('Form element:', form);
+        console.log('Submit button:', submitBtn);
+        
+        // Remove toasts anteriores
+        const previousToasts = document.querySelectorAll('.toast');
+        previousToasts.forEach(toast => toast.remove());
+        
+        const title = document.getElementById('{{ form.title.id_for_label }}').value.trim();
+        const description = document.getElementById('{{ form.description.id_for_label }}').value.trim();
+        const requirements = document.getElementById('{{ form.requirements.id_for_label }}').value.trim();
+        const hospital = document.getElementById('{{ form.hospital.id_for_label }}').value;
+        const department = document.getElementById('{{ form.department.id_for_label }}').value;
+        const location = document.getElementById('{{ form.location.id_for_label }}').value.trim();
+        
+        console.log('Form values:', { title, description, requirements, hospital, department, location });
+        
+        let hasErrors = false;
+        let errorMessage = '';
+        
+        if (!title) {
+            errorMessage += '• Título da vaga é obrigatório\n';
+            hasErrors = true;
+        }
+        
+        if (!description) {
+            errorMessage += '• Descrição da vaga é obrigatória\n';
+            hasErrors = true;
+        }
+        
+        if (!requirements) {
+            errorMessage += '• Requisitos são obrigatórios\n';
+            hasErrors = true;
+        }
+        
+        if (!hospital) {
+            errorMessage += '• Hospital/Unidade é obrigatório\n';
+            hasErrors = true;
+        }
+        
+        if (!department) {
+            errorMessage += '• Departamento/Setor é obrigatório\n';
+            hasErrors = true;
+        }
+        
+        if (!location) {
+            errorMessage += '• Localização é obrigatória\n';
+            hasErrors = true;
+        }
+        
+        if (hasErrors) {
+            console.log('Form validation failed:', errorMessage);
+            e.preventDefault();
+            showToast(errorMessage, 'error');
+        } else {
+            console.log('Form validation passed, submitting...');
+        }
+    });
+    
+    // Validação em tempo real
+    const requiredFields = ['title', 'description', 'requirements', 'location'];
+    requiredFields.forEach(fieldName => {
+        const field = document.getElementById('form_' + fieldName + '_id');
+        if (field) {
+            field.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+            
+            field.addEventListener('input', function() {
+                if (this.value.trim() !== '') {
+                    this.classList.remove('is-invalid');
+                }
+            });
+        }
+    });
+    
+    // Desabilita botão durante envio
+    form.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Enviando...';
+    });
+});
+</script>
+
+{% if form.non_field_errors %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    showToast('{% for error in form.non_field_errors %}{{ error }}{% endfor %}', 'error');
+});
+</script>
+{% endif %}
+
+{% endblock %} 

@@ -1,0 +1,383 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Gestão de Vagas - RH Acqua{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Estilos para a coluna de ações */
+  .d-flex.gap-1 {
+    gap: 0.25rem !important;
+  }
+  
+  .d-flex.gap-1 .btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+    min-width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Ajusta a largura da coluna de ações */
+  .table th:last-child,
+  .table td:last-child {
+    width: 180px;
+    min-width: 180px;
+    text-align: center;
+  }
+  
+  /* Melhora a aparência dos botões */
+  .btn-sm {
+    transition: all 0.2s ease;
+  }
+  
+  .btn-sm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Previne que o tooltip cause scroll horizontal */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Remove tooltips customizados e usa Bootstrap nativo */
+  .btn[title]:hover::after {
+    display: none;
+  }
+  
+  /* Estilos para os modais */
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+  
+  .modal-header {
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .modal-footer {
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Token CSRF para operações de exclusão -->
+{% csrf_token %}
+
+<div class="container-fluid">
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h6 class="m-0 fw-bold text-primary">Filtros</h6>
+    </div>
+    <div class="card-body">
+      <form method="get">
+        <div class="row">
+          <div class="col-md-2 mb-3">
+            <label for="statusFilter" class="form-label">Status</label>
+            <select class="form-select" id="statusFilter" name="status">
+              <option value="">Todos</option>
+              <option value="draft" {% if status_filter == 'draft' %}selected{% endif %}>Rascunho</option>
+              <option value="published" {% if status_filter == 'published' %}selected{% endif %}>Publicada</option>
+              <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Fechada</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-3">
+            <label for="unitFilter" class="form-label">Unidade</label>
+            <select class="form-select" id="unitFilter" name="unit">
+              <option value="">Todas</option>
+              {% for hospital in hospitals %}
+              <option value="{{ hospital.id }}" {% if unit_filter == hospital.id|stringformat:"s" %}selected{% endif %}>
+                {{ hospital.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2 mb-3">
+            <label for="departmentFilter" class="form-label">Setor</label>
+            <select class="form-select" id="departmentFilter" name="department">
+              <option value="">Todos</option>
+              {% for department in departments %}
+              <option value="{{ department.id }}" {% if department_filter == department.id|stringformat:"s" %}selected{% endif %}>
+                {{ department.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2 mb-3">
+            <label for="categoryFilter" class="form-label">Categoria</label>
+            <select class="form-select" id="categoryFilter" name="category">
+              <option value="">Todas</option>
+              {% for category in categories %}
+              <option value="{{ category.id }}" {% if category_filter == category.id|stringformat:"s" %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="searchFilter" class="form-label">Busca</label>
+            <input type="text" class="form-control" id="searchFilter" name="search" 
+                   placeholder="Título, código..." value="{{ search_filter }}">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 text-end">
+            <a href="{% url 'vacancies:gestao_vagas' %}" class="btn btn-secondary me-2">Limpar</a>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5>Vagas Cadastradas</h5>
+    <a href="{% url 'vacancies:vacancy_create' %}" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Nova Vaga
+    </a>
+  </div>
+
+  <!-- Tabela de Vagas -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Código</th>
+              <th>Título</th>
+              <th>Unidade</th>
+              <th>Setor</th>
+              <th>Data de Abertura</th>
+              <th>Data de Fechamento</th>
+              <th>Candidaturas</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vacancy in vacancies %}
+            <tr>
+              <td>{{ vacancy.code|default:"-" }}</td>
+              <td>{{ vacancy.title }}</td>
+              <td>{{ vacancy.hospital.name }}</td>
+              <td>{{ vacancy.department.name }}</td>
+              <td>{{ vacancy.publication_date|date:"d/m/Y"|default:"-" }}</td>
+              <td>{{ vacancy.closing_date|date:"d/m/Y"|default:"-" }}</td>
+              <td>{{ vacancy.applications_count|default:"0" }}</td>
+              <td>
+                {% if vacancy.status == 'draft' %}
+                  <span class="badge bg-secondary">Rascunho</span>
+                {% elif vacancy.status == 'published' %}
+                  <span class="badge bg-success">Publicada</span>
+                {% elif vacancy.status == 'closed' %}
+                  <span class="badge bg-danger">Fechada</span>
+                {% endif %}
+              </td>
+              <td class="text-center">
+                <div class="d-flex gap-1 justify-content-center">
+                  <button class="btn btn-sm btn-primary" 
+                          onclick="window.location.href='{% url 'vacancies:vacancy_update' vacancy.pk %}'"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="top" 
+                          title="Editar vaga">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  
+                  <button class="btn btn-sm btn-info" 
+                          onclick="window.location.href='{% url 'vacancies:vacancy_detail' vacancy.slug %}'"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="top" 
+                          title="Ver detalhes">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  
+                  {% if vacancy.status == 'published' %}
+                    <button class="btn btn-sm btn-warning" 
+                            onclick="confirmStatusChange('{{ vacancy.pk }}', 'closed', 'Fechar vaga')"
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            title="Fechar vaga">
+                      <i class="bi bi-lock"></i>
+                    </button>
+                  {% elif vacancy.status == 'closed' %}
+                    <button class="btn btn-sm btn-success" 
+                            onclick="confirmStatusChange('{{ vacancy.pk }}', 'published', 'Reabrir vaga')"
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            title="Reabrir vaga">
+                      <i class="bi bi-unlock"></i>
+                    </button>
+                  {% elif vacancy.status == 'draft' %}
+                    <button class="btn btn-sm btn-success" 
+                            onclick="confirmStatusChange('{{ vacancy.pk }}', 'published', 'Publicar vaga')"
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            title="Publicar vaga">
+                      <i class="bi bi-check-circle"></i>
+                    </button>
+                  {% endif %}
+                  
+                  <button class="btn btn-sm btn-danger" 
+                          onclick="confirmDelete('{{ vacancy.pk }}', '{{ vacancy.title }}')"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="top" 
+                          title="Excluir vaga">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center py-4">
+                <div class="text-muted">
+                  <i class="bi bi-inbox fs-1"></i>
+                  <p class="mt-2">Nenhuma vaga encontrada</p>
+                  <a href="{% url 'vacancies:vacancy_create' %}" class="btn btn-primary">
+                    Criar primeira vaga
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Paginação -->
+      {% if vacancies.has_other_pages %}
+      <nav aria-label="Navegação de páginas" class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if vacancies.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ vacancies.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if unit_filter %}&unit={{ unit_filter }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if search_filter %}&search={{ search_filter }}{% endif %}">
+                Anterior
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Anterior</span>
+            </li>
+          {% endif %}
+
+          {% for num in vacancies.paginator.page_range %}
+            {% if vacancies.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% elif num > vacancies.number|add:'-3' and num < vacancies.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if unit_filter %}&unit={{ unit_filter }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if search_filter %}&search={{ search_filter }}{% endif %}">
+                  {{ num }}
+                </a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if vacancies.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ vacancies.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if unit_filter %}&unit={{ unit_filter }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if search_filter %}&search={{ search_filter }}{% endif %}">
+                Próximo
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Próximo</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteVacancyModal" tabindex="-1" aria-labelledby="deleteVacancyLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteVacancyLabel">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir a vaga "<span id="deleteVacancyTitle"></span>"? Esta ação não pode ser desfeita.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form id="deleteVacancyForm" method="POST">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Excluir</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmação de Alteração de Status -->
+<div class="modal fade" id="confirmStatusChangeModal" tabindex="-1" aria-labelledby="confirmStatusChangeLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmStatusChangeLabel">Confirmar Alteração de Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja <span id="confirmStatusChangeTitle"></span>?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form id="confirmStatusChangeForm" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="confirmStatusChangeStatus" name="status" value="">
+          <button type="submit" class="btn btn-primary">Confirmar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(vacancyId, vacancyTitle) {
+  // Atualiza o modal com as informações da vaga
+  document.getElementById('deleteVacancyTitle').textContent = vacancyTitle;
+  document.getElementById('deleteVacancyForm').action = `/vacancies/recruiter/vacancy/${vacancyId}/delete-vacancy/`;
+  
+  // Mostra o modal
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteVacancyModal'));
+  deleteModal.show();
+}
+
+function confirmStatusChange(vacancyId, newStatus, actionText) {
+  const confirmModal = new bootstrap.Modal(document.getElementById('confirmStatusChangeModal'));
+  document.getElementById('confirmStatusChangeTitle').textContent = actionText;
+  document.getElementById('confirmStatusChangeForm').action = `/vacancies/recruiter/vacancy/${vacancyId}/change-status/`;
+  document.getElementById('confirmStatusChangeStatus').value = newStatus;
+  confirmModal.show();
+}
+
+// Inicializa os tooltips do Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializa todos os tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+});
+</script>
+{% endblock %}

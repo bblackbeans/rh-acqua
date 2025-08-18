@@ -1,0 +1,3185 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Candidatura - {{ vacancy.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Estilo para formulário desabilitado */
+  .disabled-form input,
+  .disabled-form select,
+  .disabled-form textarea {
+    background-color: #f8f9fa !important;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .disabled-form .form-check-input {
+    pointer-events: none;
+  }
+  
+  .disabled-form .btn:not([disabled]) {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  
+  .collapse-icon {
+    transition: transform 0.3s ease;
+  }
+  
+  .collapsed .collapse-icon {
+    transform: rotate(-90deg);
+  }
+  
+  .card-header[data-bs-toggle="collapse"]:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .card-header[data-bs-toggle="collapse"] {
+    transition: all 0.3s ease;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .card {
+    margin-bottom: 1.5rem !important;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--bs-primary), var(--bs-info), var(--bs-warning), var(--bs-success));
+    opacity: 0.8;
+  }
+  
+  .card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+  
+  .card.show {
+    box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+    border-left: 4px solid var(--bs-primary);
+  }
+  
+  .card.show .card-header {
+    background: linear-gradient(135deg, var(--bs-primary), var(--bs-info)) !important;
+  }
+  
+  .card-header {
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  
+  .card-body {
+    padding: 2rem 1.5rem;
+  }
+  
+  .btn-candidatura {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-candidatura:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+    background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+  }
+  
+  .btn-candidatura:active {
+    transform: translateY(-1px);
+  }
+  
+  .btn-candidatura::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .btn-candidatura:hover::before {
+    left: 100%;
+  }
+  
+  .section-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #e9ecef, transparent);
+    margin: 1.5rem 0;
+    border-radius: 1px;
+    opacity: 0.5;
+  }
+  
+  .stats-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+    border: 1px solid #dee2e6;
+  }
+  
+  .stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #f8f9fa;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  }
+  
+  .stats-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stats-label {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Mensagem fixa se já se candidatou -->
+{% if already_applied %}
+<div class="card border-warning mb-4">
+  <div class="card-header bg-warning text-dark">
+    <h6 class="mb-0">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      Candidatura Já Enviada
+    </h6>
+  </div>
+  <div class="card-body">
+    <div class="d-flex align-items-center mb-3">
+      <i class="bi bi-info-circle-fill text-info me-3 fs-4"></i>
+      <div>
+        <h6 class="mb-1">Você já se candidatou para esta vaga!</h6>
+        <p class="mb-0 text-muted">Sua candidatura está sendo analisada pelos recrutadores. Os campos abaixo estão bloqueados para edição.</p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'applications:minhas_candidaturas' %}" class="btn btn-outline-info btn-sm">
+        <i class="bi bi-eye me-2"></i>
+        Ver Minhas Candidaturas
+      </a>
+      <a href="{% url 'vacancies:vagas_disponiveis' %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-search me-2"></i>
+        Buscar Outras Vagas
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Header da página -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">
+    <i class="bi bi-briefcase me-2"></i>
+    Candidatura para: {{ vacancy.title }}
+  </h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+      <a href="{% url 'vacancies:vagas_disponiveis' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Voltar às Vagas
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Informações da Vaga -->
+<div class="card mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">
+      <i class="bi bi-info-circle me-2"></i>
+      Informações da Vaga
+    </h5>
+  </div>
+  <div class="card-body">
+    <!-- Informações Básicas -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h6 class="text-primary mb-3"><i class="bi bi-building me-2"></i>Dados da Instituição</h6>
+        <div class="mb-3">
+          <strong>Hospital:</strong> {{ vacancy.hospital.name }}
+        </div>
+        <div class="mb-3">
+          <strong>Departamento:</strong> {{ vacancy.department.name }}
+        </div>
+        <div class="mb-3">
+          <strong>Categoria:</strong> {{ vacancy.category.name }}
+        </div>
+        <div class="mb-3">
+          <strong>Localização:</strong> {{ vacancy.location }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 class="text-primary mb-3"><i class="bi bi-calendar me-2"></i>Datas e Prazos</h6>
+        <div class="mb-3">
+          <strong>Publicada em:</strong> {{ vacancy.publication_date|date:"d/m/Y" }}
+        </div>
+        <div class="mb-3">
+          <strong>Encerra em:</strong> {{ vacancy.closing_date|date:"d/m/Y" }}
+        </div>
+        <div class="mb-3">
+          <strong>Status:</strong> 
+          <span class="badge bg-{% if vacancy.status == 'published' %}success{% elif vacancy.status == 'draft' %}warning{% else %}secondary{% endif %}">
+            {{ vacancy.get_status_display }}
+          </span>
+        </div>
+        <div class="mb-3">
+          <strong>Tipo de Contrato:</strong> 
+          <span class="badge bg-primary">{{ vacancy.get_contract_type_display }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Salário (sempre visível) -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <h6 class="text-primary mb-3"><i class="bi bi-cash-coin me-2"></i>Informações Salariais</h6>
+        {% if vacancy.is_salary_visible %}
+          <div class="card border-light">
+            <div class="card-body bg-light">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-cash-coin text-success me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                  {% if vacancy.salary_range_min and vacancy.salary_range_max %}
+                    <h6 class="text-success mb-1">Faixa Salarial</h6>
+                    <p class="h6 text-success mb-0">R$ {{ vacancy.salary_range_min }} - R$ {{ vacancy.salary_range_max }}</p>
+                  {% elif vacancy.salary_range_min %}
+                    <h6 class="text-success mb-1">Salário</h6>
+                    <p class="h6 text-success mb-0">A partir de R$ {{ vacancy.salary_range_min }}</p>
+                  {% elif vacancy.salary_range_max %}
+                    <h6 class="text-success mb-1">Salário</h6>
+                    <p class="h6 text-success mb-0">Até R$ {{ vacancy.salary_range_max }}</p>
+                  {% else %}
+                    <h6 class="text-success mb-1">Salário</h6>
+                    <p class="h6 text-success mb-0">A combinar</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="card border-light">
+            <div class="card-body bg-light">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-eye-slash text-secondary me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                  <h6 class="text-secondary mb-1">Informação Salarial</h6>
+                  <p class="h6 text-secondary mb-0">Informação oculta pela empresa</p>
+                  <small class="text-muted">Entre em contato para mais detalhes</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Detalhes da Vaga -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h6 class="text-primary mb-3"><i class="bi bi-file-text me-2"></i>Descrição da Vaga</h6>
+        <div class="p-3 bg-light rounded">
+          {{ vacancy.description|linebreaks }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h6 class="text-primary mb-3"><i class="bi bi-list-check me-2"></i>Requisitos</h6>
+        <div class="p-3 bg-light rounded">
+          {{ vacancy.requirements|linebreaks }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefícios e Informações Adicionais -->
+    {% if vacancy.benefits or vacancy.is_remote or vacancy.experience_level %}
+    <div class="row mb-4">
+      {% if vacancy.benefits %}
+      <div class="col-md-6">
+        <h6 class="text-primary mb-3"><i class="bi bi-gift me-2"></i>Benefícios</h6>
+        <div class="p-3 bg-light rounded">
+          {{ vacancy.benefits|linebreaks }}
+        </div>
+      </div>
+      {% endif %}
+      <div class="col-md-6">
+        <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Informações Adicionais</h6>
+        <div class="p-3 bg-light rounded">
+          {% if vacancy.experience_level %}
+          <div class="mb-2">
+            <strong>Nível de Experiência:</strong> 
+            <span class="badge bg-info">{{ vacancy.get_experience_level_display }}</span>
+          </div>
+          {% endif %}
+          {% if vacancy.is_remote %}
+          <div class="mb-2">
+            <strong>Modalidade:</strong> 
+            <span class="badge bg-success">Remoto</span>
+          </div>
+          {% endif %}
+          {% if vacancy.skills.all %}
+          <div class="mb-2">
+            <strong>Habilidades:</strong>
+            <div class="mt-2">
+              {% for skill in vacancy.skills.all %}
+                <span class="badge bg-secondary me-1">{{ skill.name }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Estatísticas da Vaga -->
+    <div class="section-divider"></div>
+    <div class="row">
+      <div class="col-12">
+        <h6 class="text-primary mb-4">
+          <i class="bi bi-graph-up me-2"></i>Estatísticas da Vaga
+        </h6>
+        <div class="row text-center">
+          <div class="col-md-3">
+            <div class="stats-card">
+              <div class="stats-number text-primary">{{ vacancy.views_count|default:"0" }}</div>
+              <div class="stats-label">Visualizações</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card">
+              <div class="stats-number text-success">{{ vacancy.applications_count|default:"0" }}</div>
+              <div class="stats-label">Candidaturas</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card">
+              <div class="stats-number text-info">{{ vacancy.days_since_publication|default:"0" }}</div>
+              <div class="stats-label">Dias Publicada</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stats-card">
+              <div class="stats-number text-warning">
+                {% if vacancy.is_new %}Sim{% else %}Não{% endif %}
+              </div>
+              <div class="stats-label">Vaga Nova</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Formulário de Candidatura -->
+  <form method="POST" enctype="multipart/form-data" id="candidaturaForm" {% if already_applied %}class="disabled-form"{% endif %}>
+  {% csrf_token %}
+  
+  <!-- Seção: Dados Pessoais -->
+  <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+    <h5 class="mb-0">
+      <i class="bi bi-person me-2"></i>
+      Dados Pessoais
+    </h5>
+  </div>
+    <div class="card-body">
+    <div class="row mb-4">
+        <div class="col-md-3 text-center">
+          <div class="position-relative d-inline-block">
+            <div class="profile-picture-container mb-3">
+              <img
+                src="{% if user.profile_picture and user.profile_picture != 'img/avatar-candidate.png' %}{{ user.profile_picture.url }}{% else %}{% static 'img/avatar-candidate.png' %}{% endif %}"
+                alt="Foto de Perfil"
+                class="profile-picture rounded-circle border shadow-sm"
+                id="profilePicture"
+                style="width: 120px !important; height: 120px !important; object-fit: cover; max-width: 120px; max-height: 120px;"
+              />
+                          <button type="button" class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0" 
+                    data-bs-toggle="modal" data-bs-target="#editPhotoModal">
+              <i class="bi bi-camera"></i>
+            </button>
+            </div>
+          </div>
+          <div class="mt-2">
+            <small class="text-muted">Clique para alterar</small>
+          </div>
+        </div>
+        <div class="col-md-9">
+          <!-- Informações Básicas -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Nome Completo <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="nome_completo" value="{{ user.get_full_name|default:'' }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Nome Social</label>
+              <input type="text" class="form-control" name="nome_social" value="{{ user.nome_social|default:'' }}">
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Data de Nascimento <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="data_nascimento" value="{{ user.date_of_birth|date:'Y-m-d'|default:'' }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">CPF <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="cpf" value="{{ user.cpf|default:'' }}" required>
+            </div>
+          </div>
+          
+          <!-- Documentos -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">RG</label>
+              <input type="text" class="form-control" name="rg" value="{{ user.rg|default:'' }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Data de Emissão</label>
+              <input type="date" class="form-control" name="rg_emissao" value="{{ user.rg_emissao|date:'Y-m-d'|default:'' }}">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Órgão Emissor</label>
+              <input type="text" class="form-control" name="rg_orgao" value="{{ user.rg_orgao|default:'' }}">
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">PIS <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="pis" value="{{ user.pis|default:'' }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Raça/Cor</label>
+              <select class="form-select" name="raca_cor">
+                <option value="">Selecione...</option>
+                <option value="branca" {% if user.raca_cor == 'branca' %}selected{% endif %}>Branca</option>
+                <option value="preta" {% if user.raca_cor == 'preta' %}selected{% endif %}>Preta</option>
+                <option value="parda" {% if user.raca_cor == 'parda' %}selected{% endif %}>Parda</option>
+                <option value="amarela" {% if user.raca_cor == 'amarela' %}selected{% endif %}>Amarela</option>
+                <option value="indigena" {% if user.raca_cor == 'indigena' %}selected{% endif %}>Indígena</option>
+                <option value="nao_declarada" {% if user.raca_cor == 'nao_declarada' %}selected{% endif %}>Não declarada</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Características Pessoais -->
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Sexo (designação ao nascer) <span class="text-danger">*</span></label>
+              <select class="form-select" name="sexo" required>
+                <option value="">Selecione...</option>
+                <option value="M" {% if user.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                <option value="F" {% if user.sexo == 'F' %}selected{% endif %}>Feminino</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Gênero</label>
+              <select class="form-select" name="genero">
+                <option value="">Selecione...</option>
+                <option value="homem_cis" {% if user.genero == 'homem_cis' %}selected{% endif %}>Homem Cisgênero</option>
+                <option value="homem_trans" {% if user.genero == 'homem_trans' %}selected{% endif %}>Homem Transexual/Transgênero</option>
+                <option value="mulher_cis" {% if user.genero == 'mulher_cis' %}selected{% endif %}>Mulher Cisgênero</option>
+                <option value="mulher_trans" {% if user.genero == 'mulher_trans' %}selected{% endif %}>Mulher Transexual/Transgênero</option>
+                <option value="nao_binario" {% if user.genero == 'nao_binario' %}selected{% endif %}>Não-binário</option>
+                <option value="outros" {% if user.genero == 'outros' %}selected{% endif %}>Outros</option>
+                <option value="prefiro_nao_responder" {% if user.genero == 'prefiro_nao_responder' %}selected{% endif %}>Prefiro não responder</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Estado Civil <span class="text-danger">*</span></label>
+              <select class="form-select" name="estado_civil" required>
+                <option value="">Selecione...</option>
+                <option value="solteiro" {% if user.estado_civil == 'solteiro' %}selected{% endif %}>Solteiro(a)</option>
+                <option value="casado" {% if user.estado_civil == 'casado' %}selected{% endif %}>Casado(a)</option>
+                <option value="uniao_estavel" {% if user.estado_civil == 'uniao_estavel' %}selected{% endif %}>União Estável</option>
+                <option value="divorciado" {% if user.estado_civil == 'divorciado' %}selected{% endif %}>Divorciado(a)</option>
+                <option value="viuvo" {% if user.estado_civil == 'viuvo' %}selected{% endif %}>Viúvo(a)</option>
+              </select>
+            </div>
+          </div>
+          
+          {% if user.bio %}
+          <div class="row mb-3">
+            <div class="col-12">
+              <label class="form-label fw-bold">Biografia</label>
+              <textarea class="form-control" name="bio" rows="3">{{ user.bio }}</textarea>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Separador Visual -->
+  <div class="section-divider"></div>
+
+  <!-- Seção: Informações de Contato -->
+  <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">
+      <i class="bi bi-envelope me-2"></i>
+      Informações de Contato
+    </h5>
+  </div>
+    <div class="card-body">
+    <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">E-mail <span class="text-danger">*</span></label>
+          <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+          {% if user.email_confirmado %}
+            <span class="badge bg-success mt-1">
+              <i class="bi bi-check-circle me-1"></i>Confirmado
+            </span>
+          {% else %}
+            <span class="badge bg-warning mt-1">
+              <i class="bi bi-exclamation-triangle me-1"></i>Pendente de confirmação
+            </span>
+          {% endif %}
+        </div>
+                  <div class="col-md-6">
+            <label class="form-label fw-bold">Telefone com WhatsApp <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control" name="whatsapp" value="{{ user.whatsapp|default:user.phone|default:'' }}" required>
+            {% if user.whatsapp %}
+              <span class="badge bg-success mt-1">
+                <i class="bi bi-whatsapp me-1"></i>WhatsApp disponível
+              </span>
+            {% endif %}
+          </div>
+      </div>
+      
+      <hr class="my-4">
+      <h6 class="mb-3">
+        <i class="bi bi-geo-alt me-2"></i>
+        Endereço Completo
+      </h6>
+      
+      <div class="row mb-3">
+        <div class="col-md-8">
+          <label class="form-label fw-bold">Logradouro <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="endereco" value="{{ user.address|default:'' }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Número <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="numero" value="{{ user.numero|default:'' }}" required>
+        </div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Complemento</label>
+          <input type="text" class="form-control" name="complemento" value="{{ user.complemento|default:'' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Bairro <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="bairro" value="{{ user.bairro|default:'' }}" required>
+        </div>
+      </div>
+      
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Cidade <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="cidade" value="{{ user.city|default:'' }}" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Estado <span class="text-danger">*</span></label>
+          <select class="form-select" name="estado" required>
+            <option value="">Selecione...</option>
+            <option value="AC" {% if user.state == 'AC' %}selected{% endif %}>Acre</option>
+            <option value="AL" {% if user.state == 'AL' %}selected{% endif %}>Alagoas</option>
+            <option value="AP" {% if user.state == 'AP' %}selected{% endif %}>Amapá</option>
+            <option value="AM" {% if user.state == 'AM' %}selected{% endif %}>Amazonas</option>
+            <option value="BA" {% if user.state == 'BA' %}selected{% endif %}>Bahia</option>
+            <option value="CE" {% if user.state == 'CE' %}selected{% endif %}>Ceará</option>
+            <option value="DF" {% if user.state == 'DF' %}selected{% endif %}>Distrito Federal</option>
+            <option value="ES" {% if user.state == 'ES' %}selected{% endif %}>Espírito Santo</option>
+            <option value="GO" {% if user.state == 'GO' %}selected{% endif %}>Goiás</option>
+            <option value="MA" {% if user.state == 'MA' %}selected{% endif %}>Maranhão</option>
+            <option value="MT" {% if user.state == 'MT' %}selected{% endif %}>Mato Grosso</option>
+            <option value="MS" {% if user.state == 'MS' %}selected{% endif %}>Mato Grosso do Sul</option>
+            <option value="MG" {% if user.state == 'MG' %}selected{% endif %}>Minas Gerais</option>
+            <option value="PA" {% if user.state == 'PA' %}selected{% endif %}>Pará</option>
+            <option value="PB" {% if user.state == 'PB' %}selected{% endif %}>Paraíba</option>
+            <option value="PR" {% if user.state == 'PR' %}selected{% endif %}>Paraná</option>
+            <option value="PE" {% if user.state == 'PE' %}selected{% endif %}>Pernambuco</option>
+            <option value="PI" {% if user.state == 'PI' %}selected{% endif %}>Piauí</option>
+            <option value="RJ" {% if user.state == 'RJ' %}selected{% endif %}>Rio de Janeiro</option>
+            <option value="RN" {% if user.state == 'RN' %}selected{% endif %}>Rio Grande do Norte</option>
+            <option value="RS" {% if user.state == 'RS' %}selected{% endif %}>Rio Grande do Sul</option>
+            <option value="RO" {% if user.state == 'RO' %}selected{% endif %}>Rondônia</option>
+            <option value="RR" {% if user.state == 'RR' %}selected{% endif %}>Roraima</option>
+            <option value="SC" {% if user.state == 'SC' %}selected{% endif %}>Santa Catarina</option>
+            <option value="SP" {% if user.state == 'SP' %}selected{% endif %}>São Paulo</option>
+            <option value="SE" {% if user.state == 'SE' %}selected{% endif %}>Sergipe</option>
+            <option value="TO" {% if user.state == 'TO' %}selected{% endif %}>Tocantins</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-bold">CEP <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="cep" value="{{ user.zip_code|default:'' }}" required>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Separador Visual -->
+  <div class="section-divider"></div>
+
+  <!-- Seção: Currículo -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-file-earmark-text me-2"></i>
+        Currículo
+      </h5>
+      <div class="d-flex gap-2">
+        <a href="{% url 'users:meu_curriculo' %}" class="btn btn-light btn-sm" target="_blank">
+          <i class="bi bi-box-arrow-up-right me-1"></i>
+          Ver Completo
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Formação Acadêmica -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-primary mb-0">
+            <i class="bi bi-mortarboard me-2"></i>
+            Formação Acadêmica
+          </h6>
+          <button type="button" class="btn btn-success btn-sm" onclick="showEducationModal()" id="addEducationBtn">
+            <i class="bi bi-plus me-1"></i>
+            Adicionar
+          </button>
+        </div>
+        
+        {% if educations %}
+          {% for education in educations %}
+          <div class="card mb-2 border-light">
+            <div class="card-body py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">{{ education.curso }}</h6>
+                  <p class="mb-1 text-muted">{{ education.instituicao }}</p>
+                  <small class="text-muted">
+                    Nível: {{ education.get_nivel_display }}
+                    {% if education.fim %}
+                      • Ano: {{ education.fim.year }}
+                    {% elif education.em_andamento %}
+                      • Em andamento
+                    {% endif %}
+                  </small>
+                </div>
+                <div class="d-flex gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteEducation({{ education.id }})">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-mortarboard fs-1"></i>
+            <p class="mb-0">Nenhuma formação acadêmica cadastrada</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Experiência Profissional -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-success mb-0">
+            <i class="bi bi-briefcase me-2"></i>
+            Experiência Profissional
+          </h6>
+          <button type="button" class="btn btn-success btn-sm" onclick="showExperienceModal()">
+            <i class="bi bi-plus me-1"></i>
+            Adicionar
+          </button>
+        </div>
+        
+        {% if experiences %}
+          {% for experience in experiences %}
+          <div class="card mb-2 border-light">
+            <div class="card-body py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">{{ experience.cargo }}</h6>
+                  <p class="mb-1 text-muted">{{ experience.empresa }}</p>
+                  <small class="text-muted">
+                    Período: {{ experience.inicio|date:"m/Y" }}
+                    {% if experience.atual %}
+                      - Atual
+                    {% elif experience.fim %}
+                      - {{ experience.fim|date:"m/Y" }}
+                    {% endif %}
+                  </small>
+                  {% if experience.atividades %}
+                  <p class="mb-0 mt-1 small">{{ experience.atividades|truncatewords:20 }}</p>
+                  {% endif %}
+                </div>
+                <div class="d-flex gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteExperience({{ experience.id }})">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-briefcase fs-1"></i>
+            <p class="mb-0">Nenhuma experiência profissional cadastrada</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Habilidades Técnicas -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-warning mb-0">
+            <i class="bi bi-lightning me-2"></i>
+            Habilidades Técnicas
+          </h6>
+          <button type="button" class="btn btn-success btn-sm" onclick="showTechnicalSkillModal()">
+            <i class="bi bi-plus me-1"></i>
+            Adicionar
+          </button>
+        </div>
+        
+        {% if technical_skills %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for skill in technical_skills %}
+            <div class="badge bg-primary p-2 d-flex align-items-center gap-2">
+              {{ skill.nome }} {{ skill.get_nivel_display }}
+
+              <button type="button" class="btn btn-sm btn-outline-light btn-sm" onclick="deleteTechnicalSkill({{ skill.id }})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-lightning fs-1"></i>
+            <p class="mb-0">Nenhuma habilidade técnica cadastrada</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Habilidades Emocionais -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-info mb-0">
+            <i class="bi bi-heart me-2"></i>
+            Habilidades Emocionais
+          </h6>
+          <button type="button" class="btn btn-success btn-sm" onclick="showSoftSkillModal()">
+            <i class="bi bi-plus me-1"></i>
+            Adicionar
+          </button>
+        </div>
+        
+        {% if soft_skills %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for skill in soft_skills %}
+            <div class="badge bg-success p-2 d-flex align-items-center gap-2">
+              {{ skill.nome }}
+
+              <button type="button" class="btn btn-sm btn-outline-light btn-sm" onclick="deleteSoftSkill({{ skill.id }})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-heart fs-1"></i>
+            <p class="mb-0">Nenhuma habilidade emocional cadastrada</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Certificações -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-secondary mb-0">
+            <i class="bi bi-award me-2"></i>
+            Certificações
+          </h6>
+          <button type="button" class="btn btn-success btn-sm" onclick="showCertificationModal()">
+            <i class="bi bi-plus me-1"></i>
+            Adicionar
+          </button>
+        </div>
+        
+        {% if certifications %}
+          {% for cert in certifications %}
+          <div class="card mb-2 border-light">
+            <div class="card-body py-2">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">{{ cert.titulo }}</h6>
+                  {% if cert.orgao %}
+                  <p class="mb-1 text-muted">{{ cert.orgao }}</p>
+                  {% endif %}
+                  <small class="text-muted">
+                    {% if cert.emissao %}
+                      Emissão: {{ cert.emissao|date:"m/Y" }}
+                    {% endif %}
+                    {% if cert.validade and not cert.sem_validade %}
+                      • Validade: {{ cert.validade|date:"m/Y" }}
+                    {% elif cert.sem_validade %}
+                      • Sem data de validade
+                    {% endif %}
+                  </small>
+                </div>
+                <div class="d-flex gap-1">
+
+                  <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteCertification({{ cert.id }})">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-award fs-1"></i>
+            <p class="mb-0">Nenhuma certificação cadastrada</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Idiomas -->
+      <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="text-dark mb-0">
+            <i class="bi bi-translate me-2"></i>
+            Idiomas
+          </h6>
+          <button type="button" class="btn btn-success btn-sm" onclick="showLanguageModal()">
+            <i class="bi bi-plus me-1"></i>
+            Adicionar
+          </button>
+        </div>
+        
+        {% if languages %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for lang in languages %}
+            <div class="badge bg-warning text-dark p-2 d-flex align-items-center gap-2">
+              {% if lang.idioma == 'outro' and lang.idioma_outro %}
+                {{ lang.idioma_outro }} {{ lang.get_nivel_display }}
+              {% else %}
+                {{ lang.get_idioma_display }} {{ lang.get_nivel_display }}
+              {% endif %}
+
+              <button type="button" class="btn btn-sm btn-outline-dark btn-sm" onclick="deleteLanguage({{ lang.id }})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-translate fs-1"></i>
+            <p class="mb-0">Nenhum idioma cadastrado</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Separador Visual -->
+  <div class="section-divider"></div>
+
+  <!-- Seção: Conselhos Regionais -->
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0">
+        <i class="bi bi-award me-2"></i>
+        Conselhos Regionais
+      </h5>
+    </div>
+        <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Se você é filiado a algum conselho regional, indique:</label>
+        <select class="form-select" name="conselho_regional" id="conselhoRegional">
+          <option value="">Selecione um conselho...</option>
+          <option value="COREN">COREN - Conselho Regional de Enfermagem</option>
+          <option value="CRA">CRA - Conselho Regional de Administração</option>
+          <option value="CRBM">CRBM - Conselho Regional de Biomedicina</option>
+          <option value="CRC">CRC - Conselho Regional de Contabilidade</option>
+          <option value="CREA">CREA - Arquitetura e Agronomia</option>
+          <option value="CREFITO">CREFITO - Conselho Regional de Fisioterapia e Terapia Ocupacional</option>
+          <option value="CRESS">CRESS - Conselho Regional de Serviço Social</option>
+          <option value="CRF">CRF - Conselho Regional de Farmácia</option>
+          <option value="CRFA">CRFA - Conselho Regional de Fonoaudiologia</option>
+          <option value="CRM">CRM - Conselho Regional de Medicina</option>
+          <option value="CRN">CRN - Conselho Regional de Nutricionistas</option>
+          <option value="CRO">CRO - Conselho Regional de Odontologia</option>
+          <option value="CRP">CRP - Conselho Regional de Psicologia</option>
+          <option value="CRQ">CRQ - Conselho Regional de Química</option>
+          <option value="CRTR">CRTR - Conselho Regional de Técnicos Em Radiologia</option>
+          <option value="MTE">MTE - Secretaria de Segurança e Saúde No Trabalho</option>
+        </select>
+      </div>
+      
+      <div class="row" id="conselhoFields" style="display: none;">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Número de registro profissional</label>
+            <input type="text" class="form-control" name="numero_registro" placeholder="Ex: 12345">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Validade do registro</label>
+            <input type="date" class="form-control" name="validade_registro">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Separador Visual -->
+  <div class="section-divider"></div>
+
+  <!-- Seção: PCD -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-heart me-2"></i>
+        Pessoa com Deficiência (PCD)
+      </h5>
+    </div>
+        <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Você é pessoa com deficiência?</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="is_pcd" id="pcdSim" value="sim">
+          <label class="form-check-label" for="pcdSim">Sim</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="is_pcd" id="pcdNao" value="nao" checked>
+          <label class="form-check-label" for="pcdNao">Não</label>
+        </div>
+      </div>
+      
+      <div id="pcdFields" style="display: none;">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">CID (Classificação Internacional de Doença) <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="cid" placeholder="Ex: F41.1">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Atestado médico</label>
+              <input type="file" class="form-control" name="atestado_pcd" accept=".pdf,.jpg,.jpeg,.png">
+              <small class="form-text text-muted">Formatos aceitos: PDF, JPG, PNG</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Necessita de adaptações durante o processo? <span class="text-danger">*</span></label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="necessita_adaptacoes" id="adaptacoesSim" value="sim">
+            <label class="form-check-label" for="adaptacoesSim">Sim</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="necessita_adaptacoes" id="adaptacoesNao" value="nao" checked>
+            <label class="form-check-label" for="adaptacoesNao">Não</label>
+          </div>
+        </div>
+        
+        <div class="mb-3" id="adaptacoesDescricao" style="display: none;">
+          <label class="form-label">Descreva as adaptações necessárias <span class="text-danger">*</span></label>
+          <textarea class="form-control" name="descricao_adaptacoes" rows="3" placeholder="Descreva as adaptações necessárias..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Separador Visual -->
+  <div class="section-divider"></div>
+
+  <!-- Seção: Informações Complementares -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-info-circle me-2"></i>
+        Informações Complementares
+      </h5>
+    </div>
+    <div class="card-body">
+      
+      <!-- Histórico Profissional -->
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Histórico Profissional</h6>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Você atualmente trabalha no hospital/unidade onde esta vaga será exercida?</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="trabalha_atualmente" id="trabalha_sim" value="sim" 
+                     {% if complementary_info and complementary_info.trabalha_atualmente == 'sim' %}checked{% endif %}>
+              <label class="form-check-label" for="trabalha_sim">Sim</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="trabalha_atualmente" id="trabalha_nao" value="nao" 
+                     {% if complementary_info and complementary_info.trabalha_atualmente == 'nao' %}checked{% endif %}>
+              <label class="form-check-label" for="trabalha_nao">Não</label>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="funcao_atual" class="form-label fw-bold">Qual sua função atual?</label>
+            <input type="text" class="form-control" id="funcao_atual" name="funcao_atual" 
+                   placeholder="Ex: Enfermeiro, Médico, etc." 
+                   value="{% if complementary_info %}{{ complementary_info.funcao_atual }}{% endif %}">
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Já possui experiência na área da vaga?</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="experiencia_area" id="exp_sim" value="sim" 
+                     {% if complementary_info and complementary_info.experiencia_area == 'sim' %}checked{% endif %}>
+              <label class="form-check-label" for="exp_sim">Sim</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="experiencia_area" id="exp_nao" value="nao" 
+                     {% if complementary_info and complementary_info.experiencia_area == 'nao' %}checked{% endif %}>
+              <label class="form-check-label" for="exp_nao">Não</label>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="descricao_experiencia" class="form-label fw-bold">Se sim, descreva sua experiência</label>
+            <textarea class="form-control" id="descricao_experiencia" name="descricao_experiencia" rows="3" 
+                      placeholder="Descreva sua experiência na área...">{% if complementary_info %}{{ complementary_info.descricao_experiencia }}{% endif %}</textarea>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="ultima_funcao" class="form-label fw-bold">Última função exercida</label>
+            <input type="text" class="form-control" id="ultima_funcao" name="ultima_funcao" 
+                   placeholder="Ex: Enfermeiro Chefe, Coordenador..." 
+                   value="{% if complementary_info %}{{ complementary_info.ultima_funcao }}{% endif %}">
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="tempo_experiencia" class="form-label fw-bold">Tempo de experiência</label>
+            <select class="form-select" id="tempo_experiencia" name="tempo_experiencia">
+              <option value="">Selecione...</option>
+              <option value="menos_6_meses" {% if complementary_info and complementary_info.tempo_experiencia == 'menos_6_meses' %}selected{% endif %}>Menos de 6 meses</option>
+              <option value="6_meses_1_ano" {% if complementary_info and complementary_info.tempo_experiencia == '6_meses_1_ano' %}selected{% endif %}>6 meses a 1 ano</option>
+              <option value="1_2_anos" {% if complementary_info and complementary_info.tempo_experiencia == '1_2_anos' %}selected{% endif %}>1 a 2 anos</option>
+              <option value="2_5_anos" {% if complementary_info and complementary_info.tempo_experiencia == '2_5_anos' %}selected{% endif %}>2 a 5 anos</option>
+              <option value="acima_5_anos" {% if complementary_info and complementary_info.tempo_experiencia == 'acima_5_anos' %}selected{% endif %}>Acima de 5 anos</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Disponibilidade -->
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Disponibilidade</h6>
+        
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_manha" id="disp_manha" value="manha" 
+                     {% if complementary_info and complementary_info.disponibilidade_manha %}checked{% endif %}>
+              <label class="form-check-label" for="disp_manha">Manhã</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_tarde" id="disp_tarde" value="tarde" 
+                     {% if complementary_info and complementary_info.disponibilidade_tarde %}checked{% endif %}>
+              <label class="form-check-label" for="disp_tarde">Tarde</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_noite" id="disp_noite" value="noite" 
+                     {% if complementary_info and complementary_info.disponibilidade_noite %}checked{% endif %}>
+              <label class="form-check-label" for="disp_noite">Noite</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_comercial" id="disp_comercial" value="comercial" 
+                     {% if complementary_info and complementary_info.disponibilidade_comercial %}checked{% endif %}>
+              <label class="form-check-label" for="disp_comercial">Horário Comercial</label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_plantao_dia" id="disp_plantao_dia" value="plantao_dia" 
+                     {% if complementary_info and complementary_info.disponibilidade_plantao_dia %}checked{% endif %}>
+              <label class="form-check-label" for="disp_plantao_dia">Plantão 12x36 (dia)</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_plantao_noite" id="disp_plantao_noite" value="plantao_noite" 
+                     {% if complementary_info and complementary_info.disponibilidade_plantao_noite %}checked{% endif %}>
+              <label class="form-check-label" for="disp_plantao_noite">Plantão 12x36 (noite)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Informações Complementares -->
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Informações Complementares</h6>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Já trabalhou ou trabalha no Instituto ACQUA?</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="trabalhou_acqua" id="acqua_sim" value="sim" 
+                     {% if complementary_info and complementary_info.trabalhou_acqua == 'sim' %}checked{% endif %}>
+              <label class="form-check-label" for="acqua_sim">Sim</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="trabalhou_acqua" id="acqua_nao" value="nao" 
+                     {% if complementary_info and complementary_info.trabalhou_acqua == 'nao' %}checked{% endif %}>
+              <label class="form-check-label" for="acqua_nao">Não</label>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="area_cargo_acqua" class="form-label fw-bold">Se sim, Área / Cargo</label>
+            <input type="text" class="form-control" id="area_cargo_acqua" name="area_cargo_acqua" 
+                   placeholder="Ex: Enfermagem, UTI..." 
+                   value="{% if complementary_info %}{{ complementary_info.area_cargo_acqua }}{% endif %}">
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="data_desligamento" class="form-label fw-bold">Data de desligamento</label>
+            <input type="date" class="form-control" id="data_desligamento" name="data_desligamento" 
+                   value="{% if complementary_info and complementary_info.data_desligamento %}{{ complementary_info.data_desligamento|date:'Y-m-d' }}{% endif %}">
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Possui parentes na instituição?</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="parentes_instituicao" id="parentes_sim" value="sim" 
+                     {% if complementary_info and complementary_info.parentes_instituicao == 'sim' %}checked{% endif %}>
+              <label class="form-check-label" for="parentes_sim">Sim</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="parentes_instituicao" id="parentes_nao" value="nao" 
+                     {% if complementary_info and complementary_info.parentes_instituicao == 'nao' %}checked{% endif %}>
+              <label class="form-check-label" for="parentes_nao">Não</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row" id="parentes_info" style="display: none;">
+          <div class="col-md-6 mb-3">
+            <label for="grau_parentesco" class="form-label fw-bold">Grau de parentesco</label>
+            <select class="form-select" id="grau_parentesco" name="grau_parentesco">
+              <option value="">Selecione...</option>
+              <option value="avo">Avô (a)</option>
+              <option value="pai">Pai</option>
+              <option value="mae">Mãe</option>
+              <option value="filho">Filho (a)</option>
+              <option value="irmao">Irmão (a)</option>
+              <option value="tio">Tio (a)</option>
+              <option value="sobrinho">Sobrinho (a)</option>
+              <option value="primo">Primo (a)</option>
+              <option value="conjuge">Cônjuge</option>
+              <option value="enteado">Enteado (a)</option>
+              <option value="sogro">Sogro (a)</option>
+              <option value="genro">Genro</option>
+              <option value="nora">Nora</option>
+              <option value="neto">Neto (a)</option>
+              <option value="cunhado">Cunhado (a)</option>
+              <option value="nenhum">Nenhum</option>
+            </select>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="nome_parente_setor" class="form-label fw-bold">Nome do parente e setor</label>
+            <input type="text" class="form-control" id="nome_parente_setor" name="nome_parente_setor" placeholder="Nome e setor do parente...">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Declarações -->
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Declarações</h6>
+        
+        <div class="row">
+          <div class="col-12 mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="declaracao_veracidade" id="decl_veracidade" value="sim" required 
+                     {% if complementary_info and complementary_info.declaracao_veracidade %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="decl_veracidade">
+                Declaro que todas as informações fornecidas neste formulário são verdadeiras. Estou ciente de que falsidades ou omissões podem resultar em desclassificação do processo.
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-12 mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="declaracao_edital" id="decl_edital" value="sim" required 
+                     {% if complementary_info and complementary_info.declaracao_edital %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="decl_edital">
+                Declaro que li e estou de acordo com os termos do edital
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-12 mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="autorizacao_dados" id="auth_dados" value="sim" required 
+                     {% if complementary_info and complementary_info.autorizacao_dados %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="auth_dados">
+                Autorizo o uso dos meus dados para fins do processo seletivo
+              </label>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="data_declaracao" class="form-label fw-bold">Data</label>
+            <div class="row">
+              <div class="col-4">
+                <input type="text" class="form-control" id="dia_declaracao" name="dia_declaracao" placeholder="Dia" maxlength="2" pattern="[0-9]{1,2}">
+              </div>
+              <div class="col-4">
+                <input type="text" class="form-control" id="maes_declaracao" name="mes_declaracao" placeholder="Mês" maxlength="2" pattern="[0-9]{1,2}">
+              </div>
+              <div class="col-4">
+                <input type="text" class="form-control" id="ano_declaracao" name="ano_declaracao" placeholder="Ano" maxlength="4" pattern="[0-9]{4}">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botão de Envio -->
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
+    {% if already_applied %}
+      <button type="button" class="btn btn-secondary" disabled>
+        <i class="bi bi-check-circle me-2"></i>
+        Candidatura Já Enviada
+      </button>
+    {% else %}
+      <button type="submit" class="btn btn-candidatura" id="submitBtn">
+        <i class="bi bi-check-circle me-2"></i>
+        Enviar Candidatura
+      </button>
+    {% endif %}
+  </div>
+</form>
+
+{% load static %}
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div id="photoToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-info-circle me-2"></i>
+        <span id="toastMessage"></span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Modais para o currículo -->
+
+<!-- Modal de Confirmação para Exclusão -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteConfirmationMessage">Tem certeza que deseja excluir este item?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+          <i class="bi bi-trash me-1"></i>
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Formação Acadêmica -->
+<div class="modal fade" id="educationModal" tabindex="-1" aria-labelledby="educationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="educationModalLabel">Adicionar Formação Acadêmica</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="educationFormContainer">
+          <!-- Formulário será carregado aqui via AJAX -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Experiência Profissional -->
+<div class="modal fade" id="experienceModal" tabindex="-1" aria-labelledby="experienceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="experienceModalLabel">Adicionar Experiência Profissional</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="experienceFormContainer">
+          <!-- Formulário será carregado aqui via AJAX -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Habilidades Técnicas -->
+<div class="modal fade" id="technicalSkillModal" tabindex="-1" aria-labelledby="technicalSkillModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="technicalSkillModalLabel">Adicionar Habilidade Técnica</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="technicalSkillFormContainer">
+          <!-- Formulário será carregado aqui via AJAX -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Habilidades Emocionais -->
+<div class="modal fade" id="softSkillModal" tabindex="-1" aria-labelledby="softSkillModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="softSkillModalLabel">Adicionar Habilidade Emocional</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="softSkillFormContainer">
+          <!-- Formulário será carregado aqui via AJAX -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Certificações -->
+<div class="modal fade" id="certificationModal" tabindex="-1" aria-labelledby="certificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="certificationModalLabel">Adicionar Certificação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="certificationFormContainer">
+          <!-- Formulário será carregado aqui via AJAX -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Idiomas -->
+<div class="modal fade" id="languageModal" tabindex="-1" aria-labelledby="languageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="languageModalLabel">Adicionar Idioma</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="languageFormContainer">
+          <!-- Formulário será carregado aqui via AJAX -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Editar Foto de Perfil -->
+<div class="modal fade" id="editPhotoModal" tabindex="-1" aria-labelledby="editPhotoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPhotoModalModalLabel">
+          <i class="bi bi-camera me-2"></i>
+          Alterar Foto de Perfil
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit_photo">
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <div class="position-relative d-inline-block">
+              <img
+                src="{% if user.profile_picture and user.profile_picture != 'img/avatar-candidate.png' %}{{ user.profile_picture.url }}{% else %}{% static 'img/avatar-candidate.png' %}{% endif %}"
+                alt="Foto Atual"
+                class="img-fluid rounded-circle border shadow-sm"
+                id="currentPhotoPreview"
+                style="width: 150px; height: 150px; object-fit: cover; max-width: 150px; max-height: 150px; border-radius: 50%;"
+              />
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-circle" 
+                   style="opacity: 0; transition: opacity 0.3s;" id="photoOverlay">
+                <i class="bi bi-camera text-white fs-1"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="profile_picture" class="form-label">Selecionar Nova Foto</label>
+            <input type="file" class="form-control" id="profile_picture" name="profile_picture" 
+                   accept="image/*" onchange="previewImage(this)">
+            <div class="form-text">
+              Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB. Dimensão recomendada: 400x400px.
+            </div>
+          </div>
+          
+          <div class="mb-3" id="newPhotoPreview" style="display: none;">
+            <label class="form-label">Prévia da Nova Foto</label>
+            <div class="text-center">
+              <img
+                src=""
+                alt="Nova Foto"
+                class="img-fluid rounded-circle border"
+                style="width: 120px; height: 120px; object-fit: cover;"
+                id="newPhotoImage"
+              />
+            </div>
+          </div>
+          
+
+          
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="remove_photo" name="remove_photo">
+              <label class="form-check-label" for="remove_photo">
+                Remover foto atual e usar avatar padrão
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="savePhotoBtn" disabled>
+            <i class="bi bi-check-circle me-1"></i>
+            Salvar Foto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Funções para os modais do currículo
+
+// Formação Acadêmica
+function showEducationModal() {
+  console.log('showEducationModal chamada');
+  const modalElement = document.getElementById('educationModal');
+  console.log('Modal element:', modalElement);
+  
+  if (modalElement) {
+    const modal = new bootstrap.Modal(modalElement);
+    console.log('Modal Bootstrap criado:', modal);
+    document.getElementById('educationModalLabel').textContent = 'Adicionar Formação Acadêmica';
+    loadEducationForm('create');
+    modal.show();
+  } else {
+    console.error('Modal não encontrado!');
+    showToast('Erro: Modal não encontrado', 'danger');
+  }
+}
+
+function loadEducationForm(action = 'create', educationId = null) {
+  const container = document.getElementById('educationFormContainer');
+  let url;
+  
+  if (action === 'create') {
+    url = '/users/meu-curriculo/education/create/';
+  } else {
+    url = `/users/meu-curriculo/education/${educationId}/edit/`;
+  }
+  
+  console.log('Carregando formulário:', url);
+  
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then(html => {
+      container.innerHTML = html;
+      setupEducationForm();
+    })
+    .catch(error => {
+      console.error('Erro ao carregar formulário:', error);
+      showToast('Erro ao carregar formulário: ' + error.message, 'danger');
+    });
+}
+
+
+
+function deleteEducation(educationId) {
+  // Mostrar modal de confirmação
+  showDeleteConfirmationModal(
+    'Excluir Formação Acadêmica',
+    'Tem certeza que deseja excluir esta formação acadêmica? Esta ação não pode ser desfeita.',
+    () => performDeleteEducation(educationId)
+  );
+}
+
+function performDeleteEducation(educationId) {
+  fetch(`/users/meu-curriculo/education/${educationId}/delete/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      location.reload(); // Recarrega para atualizar a lista
+      showToast('Formação acadêmica excluída com sucesso', 'success');
+    } else {
+      showToast(data.error || 'Erro ao excluir', 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao excluir formação acadêmica', 'danger');
+  });
+}
+
+// Função para mostrar modal de confirmação de exclusão
+function showDeleteConfirmationModal(title, message, onConfirm) {
+  const modal = document.getElementById('deleteConfirmationModal');
+  const titleElement = document.getElementById('deleteConfirmationModalLabel');
+  const messageElement = document.getElementById('deleteConfirmationMessage');
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  
+  // Configurar conteúdo
+  titleElement.textContent = title;
+  messageElement.textContent = message;
+  
+  // Configurar ação de confirmação
+  confirmBtn.onclick = () => {
+    onConfirm();
+    bootstrap.Modal.getInstance(modal).hide();
+  };
+  
+  // Mostrar modal
+  const bsModal = new bootstrap.Modal(modal);
+  bsModal.show();
+}
+
+// Função para submeter o formulário de educação diretamente
+function submitEducationForm(keepModalOpen = false) {
+  console.log('submitEducationForm chamada, keepModalOpen:', keepModalOpen);
+  const form = document.querySelector('#educationFormContainer form');
+  
+  if (!form) {
+    console.error('Formulário não encontrado!');
+    showToast('Erro: Formulário não encontrado', 'danger');
+    return;
+  }
+  
+  console.log('Formulário encontrado, coletando dados...');
+  
+  // Coletar dados do formulário
+  const formData = new FormData(form);
+  
+  // Verificar se é edição ou criação
+  const educationId = formData.get('education_id');
+  let url;
+  let isEdit = false;
+  
+  if (educationId) {
+    url = `/users/meu-curriculo/education/${educationId}/edit/`;
+    console.log('Editando educação:', educationId);
+    isEdit = true;
+  } else {
+    url = '/users/meu-curriculo/education/create/';
+    console.log('Criando nova educação');
+  }
+  
+  console.log('Enviando para URL:', url);
+  console.log('Dados do formulário:', Object.fromEntries(formData));
+  
+  // Enviar dados
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => {
+    console.log('Response status:', response.status);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Response data:', data);
+    if (data.ok) {
+      showToast('Formação acadêmica salva com sucesso', 'success');
+      
+      if (keepModalOpen) {
+        // Para Adicionar +1: limpar formulário e manter modal aberto
+        console.log('Limpando formulário para nova entrada...');
+        
+        // Limpar TODOS os campos manualmente para evitar duplicação
+        const allInputs = form.querySelectorAll('input, select, textarea');
+        allInputs.forEach(input => {
+          if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+          } else if (input.type === 'date') {
+            input.value = new Date().toISOString().split('T')[0];
+          } else {
+            input.value = '';
+          }
+        });
+        
+        // Limpar campo de ID se existir (para edição)
+        const idField = form.querySelector('input[name="education_id"]');
+        if (idField) {
+          idField.value = '';
+        }
+        
+        // Atualizar título do modal
+        document.getElementById('educationModalLabel').textContent = 'Adicionar Formação Acadêmica';
+        
+        // NÃO recarregar o formulário, apenas limpar os campos
+      } else {
+        // Para Adicionar normal ou Editar: fechar modal e recarregar página
+        console.log('Fechando modal e recarregando página...');
+        bootstrap.Modal.getInstance(document.getElementById('educationModal')).hide();
+        location.reload(); // Recarrega para atualizar a lista
+      }
+    } else {
+      showToast(data.error || 'Erro ao salvar', 'danger');
+      // Se houver HTML de erro, atualizar o container
+      if (data.html) {
+        document.getElementById('educationFormContainer').innerHTML = data.html;
+        setupEducationForm();
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao salvar formação acadêmica: ' + error.message, 'danger');
+  });
+}
+
+// Experiência Profissional
+function showExperienceModal() {
+  console.log('showExperienceModal chamada');
+  const modal = document.getElementById('experienceModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadExperienceForm('create');
+  }
+}
+
+function loadExperienceForm(action = 'create', experienceId = null) {
+  console.log('Carregando formulário de experiência:', action, experienceId);
+  
+  let url;
+  if (action === 'edit' && experienceId) {
+    url = `/users/meu-curriculo/experience/${experienceId}/edit/`;
+  } else {
+    url = '/users/meu-curriculo/experience/create/';
+  }
+  
+  console.log('URL para carregar formulário:', url);
+  
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then(html => {
+      document.getElementById('experienceFormContainer').innerHTML = html;
+      setupExperienceForm();
+    })
+    .catch(error => {
+      console.error('Erro ao carregar formulário:', error);
+      showToast('Erro ao carregar formulário: ' + error.message, 'danger');
+    });
+}
+
+
+
+function deleteExperience(experienceId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir esta experiência profissional?',
+    () => performDeleteExperience(experienceId)
+  );
+}
+
+function performDeleteExperience(experienceId) {
+  fetch(`/users/meu-curriculo/experience/${experienceId}/delete/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Experiência profissional excluída com sucesso', 'success');
+      location.reload();
+    } else {
+      showToast('Erro ao excluir experiência profissional', 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao excluir experiência profissional', 'danger');
+  });
+}
+
+// Habilidades Técnicas
+function showTechnicalSkillModal() {
+  console.log('showTechnicalSkillModal chamada');
+  const modal = document.getElementById('technicalSkillModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadTechnicalSkillForm('create');
+  }
+}
+
+function deleteTechnicalSkill(skillId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir esta habilidade técnica?',
+    () => performDeleteTechnicalSkill(skillId)
+  );
+}
+
+// Habilidades Emocionais
+function showSoftSkillModal() {
+  console.log('showSoftSkillModal chamada');
+  const modal = document.getElementById('softSkillModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadSoftSkillForm('create');
+  }
+}
+
+function deleteSoftSkill(skillId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir esta habilidade emocional?',
+    () => performDeleteSoftSkill(skillId)
+  );
+}
+
+// Certificações
+function showCertificationModal() {
+  console.log('showCertificationModal chamada');
+  const modal = document.getElementById('certificationModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadCertificationForm('create');
+  }
+}
+
+function deleteCertification(certId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir esta certificação?',
+    () => performDeleteCertification(certId)
+  );
+}
+
+// Idiomas
+function showLanguageModal() {
+  console.log('showLanguageModal chamada');
+  const modal = document.getElementById('languageModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadLanguageForm('create');
+  }
+}
+
+function deleteLanguage(langId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir este idioma?',
+    () => performDeleteLanguage(langId)
+  );
+}
+
+// Função de setup apenas para formação acadêmica
+function setupEducationForm() {
+  const form = document.querySelector('#educationFormContainer form');
+  if (form) {
+    console.log('Formulário encontrado, configurando...');
+    // Configurar evento de submit do formulário
+    // Removido: form.addEventListener('submit', handleEducationSubmit);
+    
+    // Configurar campos de data se existirem
+    const dateInputs = form.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+      if (!input.value) {
+        input.value = new Date().toISOString().split('T')[0];
+      }
+    });
+    
+    // Substituir os onclick dos botões para usar nossas funções
+    const addBtn = form.querySelector('button[onclick*="addEducation"]');
+
+    const saveBtn = form.querySelector('button[type="submit"], button.btn-success');
+    
+    if (addBtn) {
+      console.log('Botão Adicionar encontrado, configurando...');
+      addBtn.onclick = null; // Remove onclick antigo
+      addBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Botão Adicionar clicado');
+        submitEducationForm();
+      });
+    }
+    
+
+    
+    if (saveBtn) {
+      console.log('Botão Salvar encontrado, configurando...');
+      saveBtn.onclick = null; // Remove onclick antigo
+      saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Botão Salvar clicado');
+        submitEducationForm(); // false = fechar modal e recarregar página
+      });
+    }
+    
+    console.log('Formulário configurado com sucesso');
+  } else {
+    console.error('Formulário não encontrado no container');
+  }
+}
+
+
+
+function submitExperienceForm(keepModalOpen = false) {
+  console.log('submitExperienceForm chamada, keepModalOpen:', keepModalOpen);
+  const form = document.querySelector('#experienceFormContainer form');
+  
+  if (!form) {
+    console.error('Formulário não encontrado!');
+    showToast('Erro: Formulário não encontrado', 'danger');
+    return;
+  }
+  
+  console.log('Formulário encontrado, coletando dados...');
+  
+  const formData = new FormData(form);
+  const experienceId = formData.get('experience_id');
+  let url;
+  let isEdit = false;
+  
+  if (experienceId) {
+    url = `/users/meu-curriculo/experience/${experienceId}/edit/`;
+    console.log('Editando experiência:', experienceId);
+    isEdit = true;
+  } else {
+    url = '/users/meu-curriculo/experience/create/';
+    console.log('Criando nova experiência');
+  }
+  
+  console.log('Enviando para URL:', url);
+  
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Response data:', data);
+    if (data.ok) {
+      showToast('Experiência profissional salva com sucesso', 'success');
+      
+      if (keepModalOpen) {
+        // Para Adicionar +1: limpar formulário e manter modal aberto
+        console.log('Limpando formulário para nova entrada...');
+        
+        // Limpar TODOS os campos manualmente para evitar duplicação
+        const allInputs = form.querySelectorAll('input, select, textarea');
+        allInputs.forEach(input => {
+          if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+          } else if (input.type === 'date') {
+            input.value = new Date().toISOString().split('T')[0];
+          } else {
+            input.value = '';
+          }
+        });
+        
+        const idField = form.querySelector('input[name="experience_id"]');
+        if (idField) {
+          idField.value = '';
+        }
+        
+        document.getElementById('experienceModalLabel').textContent = 'Adicionar Experiência Profissional';
+        // NÃO recarregar o formulário, apenas limpar os campos
+      } else {
+        // Para Adicionar normal ou Editar: fechar modal e recarregar página
+        console.log('Fechando modal e recarregando página...');
+        bootstrap.Modal.getInstance(document.getElementById('experienceModal')).hide();
+        location.reload();
+      }
+    } else {
+      showToast(data.error || 'Erro ao salvar', 'danger');
+      if (data.html) {
+        document.getElementById('experienceFormContainer').innerHTML = data.html;
+        setupExperienceForm();
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao salvar experiência profissional: ' + error.message, 'danger');
+  });
+}
+
+function setupExperienceForm() {
+  const form = document.querySelector('#experienceFormContainer form');
+  if (form) {
+    console.log('Formulário de experiência encontrado, configurando...');
+    
+    // Configurar campos de data
+    const dateInputs = form.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+      if (!input.value) {
+        input.value = new Date().toISOString().split('T')[0];
+      }
+    });
+    
+    // Configurar botões
+    const addBtn = form.querySelector('button[onclick*="addExperience"]');
+
+    const saveBtn = form.querySelector('button[type="submit"], button.btn-success');
+    
+    if (addBtn) {
+      console.log('Botão Adicionar encontrado, configurando...');
+      addBtn.onclick = null;
+      addBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Botão Adicionar clicado');
+        submitExperienceForm();
+      });
+    }
+    
+
+    
+    if (saveBtn) {
+      console.log('Botão Salvar encontrado, configurando...');
+      saveBtn.onclick = null;
+      saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Botão Salvar clicado');
+        submitExperienceForm();
+      });
+    }
+    
+    console.log('Formulário de experiência configurado com sucesso');
+  } else {
+    console.error('Formulário de experiência não encontrado no container');
+  }
+}
+
+// Habilidades Técnicas
+function showTechnicalSkillModal() {
+  console.log('showTechnicalSkillModal chamada');
+  const modal = document.getElementById('technicalSkillModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadTechnicalSkillForm('create');
+  }
+}
+
+function loadTechnicalSkillForm(action = 'create', skillId = null) {
+  console.log('Carregando formulário de habilidade técnica:', action, skillId);
+  
+  let url;
+  if (action === 'edit' && skillId) {
+    url = `/users/meu-curriculo/skill-tech/${skillId}/edit/`;
+  } else {
+    url = '/users/meu-curriculo/skill-tech/create/';
+  }
+  
+  console.log('URL para carregar formulário:', url);
+  
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then(html => {
+      document.getElementById('technicalSkillFormContainer').innerHTML = html;
+      setupTechnicalSkillForm();
+    })
+    .catch(error => {
+      console.error('Erro ao carregar formulário:', error);
+      showToast('Erro ao carregar formulário: ' + error.message, 'danger');
+    });
+}
+
+
+
+function deleteTechnicalSkill(skillId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir esta habilidade técnica?',
+    () => performDeleteTechnicalSkill(skillId)
+  );
+}
+
+function performDeleteTechnicalSkill(skillId) {
+  fetch(`/users/meu-curriculo/skill-tech/${skillId}/delete/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Habilidade técnica excluída com sucesso', 'success');
+      location.reload();
+    } else {
+      showToast('Erro ao excluir habilidade técnica', 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao excluir habilidade técnica', 'danger');
+  });
+}
+
+function submitTechnicalSkillForm(keepModalOpen = false) {
+  console.log('submitTechnicalSkillForm chamada, keepModalOpen:', keepModalOpen);
+  const form = document.querySelector('#technicalSkillFormContainer form');
+  
+  if (!form) {
+    console.error('Formulário não encontrado!');
+    showToast('Erro: Formulário não encontrado', 'danger');
+    return;
+  }
+  
+  const formData = new FormData(form);
+  const skillId = formData.get('skill_id');
+  let url;
+  
+  if (skillId) {
+    url = `/users/meu-curriculo/skill-tech/${skillId}/edit/`;
+    console.log('Editando habilidade técnica:', skillId);
+  } else {
+    url = '/users/meu-curriculo/skill-tech/create/';
+    console.log('Criando nova habilidade técnica');
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Habilidade técnica salva com sucesso', 'success');
+      
+      if (keepModalOpen) {
+        // Limpar TODOS os campos manualmente para evitar duplicação
+        const allInputs = form.querySelectorAll('input, select, textarea');
+        allInputs.forEach(input => {
+          if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+          } else if (input.type === 'date') {
+            input.value = new Date().toISOString().split('T')[0];
+          } else {
+            input.value = '';
+          }
+        });
+        
+        const idField = form.querySelector('input[name="skill_id"]');
+        if (idField) idField.value = '';
+        document.getElementById('technicalSkillModalLabel').textContent = 'Adicionar Habilidade Técnica';
+        // NÃO recarregar o formulário, apenas limpar os campos
+      } else {
+        bootstrap.Modal.getInstance(document.getElementById('technicalSkillModal')).hide();
+        location.reload();
+      }
+    } else {
+      showToast(data.error || 'Erro ao salvar', 'danger');
+      if (data.html) {
+        document.getElementById('technicalSkillFormContainer').innerHTML = data.html;
+        setupTechnicalSkillForm();
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao salvar habilidade técnica: ' + error.message, 'danger');
+  });
+}
+
+function setupTechnicalSkillForm() {
+  const form = document.querySelector('#technicalSkillFormContainer form');
+  if (form) {
+    console.log('Formulário de habilidade técnica encontrado, configurando...');
+    
+    const addBtn = form.querySelector('button[onclick*="addTechnicalSkill"]');
+
+    const saveBtn = form.querySelector('button[type="submit"], button.btn-success');
+    
+    if (addBtn) {
+      addBtn.onclick = null;
+      addBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitTechnicalSkillForm();
+      });
+    }
+    
+
+    
+    if (saveBtn) {
+      saveBtn.onclick = null;
+      saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitTechnicalSkillForm();
+      });
+    }
+    
+    console.log('Formulário de habilidade técnica configurado com sucesso');
+  }
+}
+
+// Habilidades Emocionais (Soft Skills)
+function showSoftSkillModal() {
+  console.log('showSoftSkillModal chamada');
+  const modal = document.getElementById('softSkillModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadSoftSkillForm('create');
+  }
+}
+
+function loadSoftSkillForm(action = 'create', skillId = null) {
+  console.log('Carregando formulário de habilidade emocional:', action, skillId);
+  
+  let url;
+  if (action === 'edit' && skillId) {
+    url = `/users/meu-curriculo/skill-soft/${skillId}/edit/`;
+  } else {
+    url = '/users/meu-curriculo/skill-soft/create/';
+  }
+  
+  console.log('URL para carregar formulário:', url);
+  
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.text();
+    })
+    .then(html => {
+      document.getElementById('softSkillFormContainer').innerHTML = html;
+      setupSoftSkillForm();
+    })
+    .catch(error => {
+      console.error('Erro ao carregar formulário:', error);
+      showToast('Erro ao carregar formulário: ' + error.message, 'danger');
+    });
+}
+
+
+
+function deleteSoftSkill(skillId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir esta habilidade emocional?',
+    () => performDeleteSoftSkill(skillId)
+  );
+}
+
+function performDeleteSoftSkill(skillId) {
+  fetch(`/users/meu-curriculo/skill-soft/${skillId}/delete/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Habilidade emocional excluída com sucesso', 'success');
+      location.reload();
+    } else {
+      showToast('Erro ao excluir habilidade emocional', 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao excluir habilidade emocional', 'danger');
+  });
+}
+
+function submitSoftSkillForm(keepModalOpen = false) {
+  console.log('submitSoftSkillForm chamada, keepModalOpen:', keepModalOpen);
+  const form = document.querySelector('#softSkillFormContainer form');
+  
+  if (!form) {
+    console.error('Formulário não encontrado!');
+    showToast('Erro: Formulário não encontrado', 'danger');
+    return;
+  }
+  
+  const formData = new FormData(form);
+  const skillId = formData.get('skill_id');
+  let url;
+  
+  if (skillId) {
+    url = `/users/meu-curriculo/skill-soft/${skillId}/edit/`;
+    console.log('Editando habilidade emocional:', skillId);
+  } else {
+    url = '/users/meu-curriculo/skill-soft/create/';
+    console.log('Criando nova habilidade emocional');
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Habilidade emocional salva com sucesso', 'success');
+      
+      if (keepModalOpen) {
+        form.reset();
+        const idField = form.querySelector('input[name="skill_id"]');
+        if (idField) idField.value = '';
+        document.getElementById('softSkillModalLabel').textContent = 'Adicionar Habilidade Emocional';
+        // NÃO recarregar o formulário, apenas limpar os campos
+      } else {
+        bootstrap.Modal.getInstance(document.getElementById('softSkillModal')).hide();
+        location.reload();
+      }
+    } else {
+      showToast(data.error || 'Erro ao salvar', 'danger');
+      if (data.html) {
+        document.getElementById('softSkillFormContainer').innerHTML = data.html;
+        setupSoftSkillForm();
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao salvar habilidade emocional: ' + error.message, 'danger');
+  });
+}
+
+function setupSoftSkillForm() {
+  const form = document.querySelector('#softSkillFormContainer form');
+  if (form) {
+    console.log('Formulário de habilidade emocional encontrado, configurando...');
+    
+    const addBtn = form.querySelector('button[onclick*="addSoftSkill"]');
+
+    const saveBtn = form.querySelector('button[type="submit"], button.btn-success');
+    
+    if (addBtn) {
+      addBtn.onclick = null;
+      addBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitSoftSkillForm();
+      });
+    }
+    
+
+    
+    if (saveBtn) {
+      saveBtn.onclick = null;
+      saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitSoftSkillForm();
+      });
+    }
+    
+    console.log('Formulário de habilidade emocional configurado com sucesso');
+  }
+}
+
+// Certificações
+function showCertificationModal() {
+  console.log('showCertificationModal chamada');
+  const modal = document.getElementById('certificationModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadCertificationForm('create');
+  }
+}
+
+function loadCertificationForm(action = 'create', certificationId = null) {
+  console.log('Carregando formulário de certificação:', action, certificationId);
+  
+  let url;
+  if (action === 'edit' && certificationId) {
+    url = `/users/meu-curriculo/certification/${certificationId}/edit/`;
+  } else {
+    url = '/users/meu-curriculo/certification/create/';
+  }
+  
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('certificationFormContainer').innerHTML = html;
+      setupCertificationForm();
+    })
+    .catch(error => {
+      console.error('Erro ao carregar formulário:', error);
+      showToast('Erro ao carregar formulário: ' + error.message, 'danger');
+    });
+}
+
+
+
+function deleteCertification(certificationId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir esta certificação?',
+    () => performDeleteCertification(certificationId)
+  );
+}
+
+function performDeleteCertification(certificationId) {
+  fetch(`/users/meu-curriculo/certification/${certificationId}/delete/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Certificação excluída com sucesso', 'success');
+      location.reload();
+    } else {
+      showToast('Erro ao excluir certificação', 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao excluir certificação', 'danger');
+  });
+}
+
+function submitCertificationForm(keepModalOpen = false) {
+  console.log('submitCertificationForm chamada, keepModalOpen:', keepModalOpen);
+  const form = document.querySelector('#certificationFormContainer form');
+  
+  if (!form) {
+    console.error('Formulário não encontrado!');
+    showToast('Erro: Formulário não encontrado', 'danger');
+    return;
+  }
+  
+  const formData = new FormData(form);
+  const certificationId = formData.get('certification_id');
+  let url;
+  
+  if (certificationId) {
+    url = `/users/meu-curriculo/certification/${certificationId}/edit/`;
+    console.log('Editando certificação:', certificationId);
+  } else {
+    url = '/users/meu-curriculo/certification/create/';
+    console.log('Criando nova certificação');
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Certificação salva com sucesso', 'success');
+      
+      if (keepModalOpen) {
+        form.reset();
+        const idField = form.querySelector('input[name="certification_id"]');
+        if (idField) idField.value = '';
+        document.getElementById('certificationModalLabel').textContent = 'Adicionar Certificação';
+        // NÃO recarregar o formulário, apenas limpar os campos
+      } else {
+        bootstrap.Modal.getInstance(document.getElementById('certificationModal')).hide();
+        location.reload();
+      }
+    } else {
+      showToast(data.error || 'Erro ao salvar', 'danger');
+      if (data.html) {
+        document.getElementById('certificationFormContainer').innerHTML = data.html;
+        setupCertificationForm();
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao salvar certificação: ' + error.message, 'danger');
+  });
+}
+
+function setupCertificationForm() {
+  const form = document.querySelector('#certificationFormContainer form');
+  if (form) {
+    console.log('Formulário de certificação encontrado, configurando...');
+    
+    const addBtn = form.querySelector('button[onclick*="addCertification"]');
+
+    const saveBtn = form.querySelector('button[type="submit"], button.btn-success');
+    
+    if (addBtn) {
+      addBtn.onclick = null;
+      addBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitCertificationForm();
+      });
+    }
+    
+
+    
+    if (saveBtn) {
+      saveBtn.onclick = null;
+      saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitCertificationForm();
+      });
+    }
+    
+    console.log('Formulário de certificação configurado com sucesso');
+  }
+}
+
+// Idiomas
+function showLanguageModal() {
+  console.log('showLanguageModal chamada');
+  const modal = document.getElementById('languageModal');
+  if (modal) {
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+    loadLanguageForm('create');
+  }
+}
+
+function loadLanguageForm(action = 'create', languageId = null) {
+  console.log('Carregando formulário de idioma:', action, languageId);
+  
+  let url;
+  if (action === 'edit' && languageId) {
+    url = `/users/meu-curriculo/language/${languageId}/edit/`;
+  } else {
+    url = '/users/meu-curriculo/language/create/';
+  }
+  
+  fetch(url)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('languageFormContainer').innerHTML = html;
+      setupLanguageForm();
+    })
+    .catch(error => {
+      console.error('Erro ao carregar formulário:', error);
+      showToast('Erro ao carregar formulário: ' + error.message, 'danger');
+    });
+}
+
+
+
+function deleteLanguage(langId) {
+  showDeleteConfirmationModal(
+    'Confirmar Exclusão',
+    'Tem certeza que deseja excluir este idioma?',
+    () => performDeleteLanguage(langId)
+  );
+}
+
+function performDeleteLanguage(languageId) {
+  fetch(`/users/meu-curriculo/language/${languageId}/delete/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Idioma excluído com sucesso', 'success');
+      location.reload();
+    } else {
+      showToast('Erro ao excluir idioma', 'danger');
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao excluir idioma', 'danger');
+  });
+}
+
+function submitLanguageForm(keepModalOpen = false) {
+  console.log('submitLanguageForm chamada, keepModalOpen:', keepModalOpen);
+  const form = document.querySelector('#languageFormContainer form');
+  
+  if (!form) {
+    console.error('Formulário não encontrado!');
+    showToast('Erro: Formulário não encontrado', 'danger');
+    return;
+  }
+  
+  const formData = new FormData(form);
+  const languageId = formData.get('language_id');
+  let url;
+  
+  if (languageId) {
+    url = `/users/meu-curriculo/language/${languageId}/edit/`;
+    console.log('Editando idioma:', languageId);
+  } else {
+    url = '/users/meu-curriculo/language/create/';
+    console.log('Criando novo idioma');
+  }
+  
+  fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('Idioma salvo com sucesso', 'success');
+      
+      if (keepModalOpen) {
+        form.reset();
+        const idField = form.querySelector('input[name="language_id"]');
+        if (idField) idField.value = '';
+        document.getElementById('languageModalLabel').textContent = 'Adicionar Idioma';
+        // NÃO recarregar o formulário, apenas limpar os campos
+      } else {
+        bootstrap.Modal.getInstance(document.getElementById('languageModal')).hide();
+        location.reload();
+      }
+    } else {
+      showToast(data.error || 'Erro ao salvar', 'danger');
+      if (data.html) {
+        document.getElementById('languageFormContainer').innerHTML = data.html;
+        setupLanguageForm();
+      }
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    showToast('Erro ao salvar idioma: ' + error.message, 'danger');
+  });
+}
+
+function setupLanguageForm() {
+  const form = document.querySelector('#languageFormContainer form');
+  if (form) {
+    console.log('Formulário de idioma encontrado, configurando...');
+    
+    const addBtn = form.querySelector('button[onclick*="addLanguage"]');
+
+    const saveBtn = form.querySelector('button[type="submit"], button.btn-success');
+    
+    if (addBtn) {
+      addBtn.onclick = null;
+      addBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitLanguageForm();
+      });
+    }
+    
+
+    
+    if (saveBtn) {
+      saveBtn.onclick = null;
+      saveBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        submitLanguageForm();
+      });
+    }
+    
+    console.log('Formulário de idioma configurado com sucesso');
+  }
+}
+
+// Função para mostrar toast
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('photoToast');
+  const toastMessage = document.getElementById('toastMessage');
+  
+  // Definir cor baseada no tipo
+  let bgClass = 'bg-info';
+  let icon = 'bi-info-circle';
+  
+  switch(type) {
+    case 'success':
+      bgClass = 'bg-success';
+      icon = 'bi-check-circle';
+      break;
+    case 'warning':
+      bgClass = 'bg-warning';
+      icon = 'bi-exclamation-triangle';
+      break;
+    case 'danger':
+      bgClass = 'bg-danger';
+      icon = 'bi-x-circle';
+      break;
+    case 'info':
+    default:
+      bgClass = 'bg-info';
+      icon = 'bi-info-circle';
+      break;
+  }
+  
+  // Atualizar toast
+  toast.className = `toast align-items-center text-white border-0 ${bgClass}`;
+  toast.querySelector('.toast-body i').className = `${icon} me-2`;
+  toastMessage.textContent = message;
+  
+  // Mostrar toast
+  const bsToast = new bootstrap.Toast(toast);
+  bsToast.show();
+}
+
+// Função para pré-visualizar a nova imagem
+function previewImage(input) {
+  const file = input.files[0];
+  const preview = document.getElementById('newPhotoPreview');
+  const previewImg = document.getElementById('newPhotoImage');
+  const saveBtn = document.getElementById('savePhotoBtn');
+  
+  if (file) {
+    // Validar tamanho do arquivo (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('O arquivo é muito grande. Tamanho máximo permitido: 5MB', 'danger');
+      input.value = '';
+      preview.style.display = 'none';
+      saveBtn.disabled = true;
+      return;
+    }
+    
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      showToast('Por favor, selecione apenas arquivos de imagem', 'warning');
+      input.value = '';
+      preview.style.display = 'none';
+      saveBtn.disabled = true;
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      preview.style.display = 'block';
+      saveBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    preview.style.display = 'none';
+    saveBtn.disabled = true;
+  }
+}
+
+// Função para atualizar a foto na página principal após sucesso
+function updateProfilePicture(newImageSrc) {
+  const profilePicture = document.getElementById('profilePicture');
+  if (profilePicture) {
+    profilePicture.src = newImageSrc;
+  }
+}
+
+// Efeito hover na foto atual
+document.addEventListener('DOMContentLoaded', function() {
+  const photoContainer = document.querySelector('.position-relative');
+  const overlay = document.getElementById('photoOverlay');
+  
+  if (photoContainer && overlay) {
+    photoContainer.addEventListener('mouseenter', function() {
+      overlay.style.opacity = '1';
+    });
+    
+    photoContainer.addEventListener('mouseleave', function() {
+      overlay.style.opacity = '0';
+    });
+  }
+});
+
+// Habilitar botão quando checkbox de remover foto for marcado
+document.getElementById('remove_photo')?.addEventListener('change', function() {
+  const saveBtn = document.getElementById('savePhotoBtn');
+  const fileInput = document.getElementById('profile_picture');
+  
+  if (this.checked) {
+    saveBtn.disabled = false;
+    fileInput.disabled = true;
+  } else {
+    fileInput.disabled = false;
+    if (!fileInput.files[0]) {
+      saveBtn.disabled = true;
+    }
+  }
+});
+
+// Adicionar listener para o formulário
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('#editPhotoModal form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault(); // Previne o submit normal
+      
+      const saveBtn = document.getElementById('savePhotoBtn');
+      const fileInput = document.getElementById('profile_picture');
+      const removePhotoCheckbox = document.getElementById('remove_photo');
+      
+      // Atualizar botão
+      saveBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Salvando...';
+      saveBtn.disabled = true;
+      
+      // Criar FormData para envio
+      const formData = new FormData();
+      formData.append('action', 'edit_photo');
+      formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+      
+      if (removePhotoCheckbox.checked) {
+        formData.append('remove_photo', 'on');
+      } else if (fileInput.files[0]) {
+        formData.append('profile_picture', fileInput.files[0]);
+      } else {
+        showToast('Por favor, selecione uma foto ou marque a opção de remover foto atual.', 'warning');
+        saveBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Salvar Foto';
+        saveBtn.disabled = false;
+        return;
+      }
+      
+      // Enviar via AJAX
+      fetch('/users/meu-perfil/', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        if (data.includes('Foto de perfil atualizada com sucesso') || 
+            data.includes('Foto de perfil removida com sucesso')) {
+          
+          // Atualizar foto na página principal
+          const profilePicture = document.getElementById('profilePicture');
+          if (profilePicture) {
+            if (removePhotoCheckbox.checked) {
+              profilePicture.src = "{% static 'img/avatar-candidate.png' %}";
+            } else {
+              // Criar URL temporária para a nova foto
+              const file = fileInput.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                  profilePicture.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+              }
+            }
+          }
+          
+          // Fechar modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('editPhotoModal'));
+          if (modal) {
+            modal.hide();
+          }
+          
+          // Resetar formulário
+          fileInput.value = '';
+          removePhotoCheckbox.checked = false;
+          document.getElementById('newPhotoPreview').style.display = 'none';
+          
+          // Mostrar mensagem de sucesso
+          showToast(removePhotoCheckbox.checked ? 'Foto removida com sucesso!' : 'Foto atualizada com sucesso!', 'success');
+          
+        } else {
+          // Erro no servidor
+          showToast('Erro ao salvar a foto. Tente novamente.', 'danger');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showToast('Erro ao salvar a foto. Tente novamente.', 'danger');
+      })
+      .finally(() => {
+        // Resetar botão
+        saveBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Salvar Foto';
+        saveBtn.disabled = true;
+      });
+    });
+  }
+  
+  // Controles para campos condicionais das Informações Complementares
+  
+  // Controle para campos PCD
+  const pcdSim = document.getElementById('pcdSim');
+  const pcdNao = document.getElementById('pcdNao');
+  const pcdFields = document.getElementById('pcdFields');
+  
+  if (pcdSim && pcdNao && pcdFields) {
+    pcdSim.addEventListener('change', function() {
+      if (this.checked) {
+        pcdFields.style.display = 'block';
+        // Habilitar campos obrigatórios
+        const cidField = document.querySelector('input[name="cid"]');
+        const atestadoField = document.querySelector('input[name="atestado_pcd"]');
+        const adaptacoesField = document.querySelector('input[name="necessita_adaptacoes"]');
+        const descricaoAdaptacoes = document.getElementById('adaptacoesDescricao');
+        
+        if (cidField) cidField.required = true;
+        if (atestadoField) atestadoField.required = false; // Atestado não é obrigatório
+        if (adaptacoesField) adaptacoesField.required = true;
+      }
+    });
+    
+    pcdNao.addEventListener('change', function() {
+      if (this.checked) {
+        pcdFields.style.display = 'none';
+        // Desabilitar e limpar campos
+        const cidField = document.querySelector('input[name="cid"]');
+        const atestadoField = document.querySelector('input[name="atestado_pcd"]');
+        const adaptacoesField = document.querySelector('input[name="necessita_adaptacoes"]');
+        const descricaoAdaptacoes = document.getElementById('adaptacoesDescricao');
+        
+        if (cidField) {
+          cidField.required = false;
+          cidField.value = '';
+        }
+        if (atestadoField) {
+          atestadoField.required = false;
+          atestadoField.value = '';
+        }
+        if (adaptacoesField) {
+          adaptacoesField.required = false;
+          // Desmarcar radio buttons
+          document.getElementById('adaptacoesSim').checked = false;
+          document.getElementById('adaptacoesNao').checked = false;
+        }
+        if (descricaoAdaptacoes) {
+          descricaoAdaptacoes.style.display = 'none';
+          const descricaoTextarea = document.querySelector('textarea[name="descricao_adaptacoes"]');
+          if (descricaoTextarea) {
+            descricaoTextarea.required = false;
+            descricaoTextarea.value = '';
+          }
+        }
+      }
+    });
+  }
+  
+  // Controle para campos de adaptações PCD
+  const adaptacoesSim = document.getElementById('adaptacoesSim');
+  const adaptacoesNao = document.getElementById('adaptacoesNao');
+  const adaptacoesDescricao = document.getElementById('adaptacoesDescricao');
+  
+  if (adaptacoesSim && adaptacoesNao && adaptacoesDescricao) {
+    adaptacoesSim.addEventListener('change', function() {
+      if (this.checked) {
+        adaptacoesDescricao.style.display = 'block';
+        const descricaoTextarea = document.querySelector('textarea[name="descricao_adaptacoes"]');
+        if (descricaoTextarea) descricaoTextarea.required = true;
+      }
+    });
+    
+    adaptacoesNao.addEventListener('change', function() {
+      if (this.checked) {
+        adaptacoesDescricao.style.display = 'none';
+        const descricaoTextarea = document.querySelector('textarea[name="descricao_adaptacoes"]');
+        if (descricaoTextarea) {
+          descricaoTextarea.required = false;
+          descricaoTextarea.value = '';
+        }
+      }
+    });
+  }
+  
+  // Controle para campos de conselho regional
+  const conselhoRegional = document.getElementById('conselhoRegional');
+  const conselhoFields = document.getElementById('conselhoFields');
+  
+  if (conselhoRegional && conselhoFields) {
+    conselhoRegional.addEventListener('change', function() {
+      if (this.value) {
+        conselhoFields.style.display = 'block';
+        // Habilitar campos obrigatórios
+        const numeroRegistro = document.querySelector('input[name="numero_registro"]');
+        const validadeRegistro = document.querySelector('input[name="validade_registro"]');
+        
+        if (numeroRegistro) numeroRegistro.required = true;
+        if (validadeRegistro) validadeRegistro.required = true;
+      } else {
+        conselhoFields.style.display = 'none';
+        // Desabilitar e limpar campos
+        const numeroRegistro = document.querySelector('input[name="numero_registro"]');
+        const validadeRegistro = document.querySelector('input[name="validade_registro"]');
+        
+        if (numeroRegistro) {
+          numeroRegistro.required = false;
+          numeroRegistro.value = '';
+        }
+        if (validadeRegistro) {
+          validadeRegistro.required = false;
+          validadeRegistro.value = '';
+        }
+      }
+    });
+  }
+  
+  // Controle para campos de parentes
+  const parentesSim = document.getElementById('parentes_sim');
+  const parentesNao = document.getElementById('parentes_nao');
+  const parentesInfo = document.getElementById('parentes_info');
+  
+  if (parentesSim && parentesNao && parentesInfo) {
+    parentesSim.addEventListener('change', function() {
+      if (this.checked) {
+        parentesInfo.style.display = 'block';
+      }
+    });
+    
+    parentesNao.addEventListener('change', function() {
+      if (this.checked) {
+        parentesInfo.style.display = 'none';
+        // Limpar campos quando "Não" for selecionado
+        document.getElementById('grau_parentesco').value = '';
+        document.getElementById('nome_parente_setor').value = '';
+      }
+    });
+  }
+  
+  // Controle para campos de experiência na área
+  const expSim = document.getElementById('exp_sim');
+  const expNao = document.getElementById('exp_nao');
+  const descricaoExp = document.getElementById('descricao_experiencia');
+  
+  if (expSim && expNao && descricaoExp) {
+    expSim.addEventListener('change', function() {
+      if (this.checked) {
+        descricaoExp.disabled = false;
+        descricaoExp.required = true;
+      }
+    });
+    
+    expNao.addEventListener('change', function() {
+      if (this.checked) {
+        descricaoExp.disabled = true;
+        descricaoExp.required = false;
+        descricaoExp.value = '';
+      }
+    });
+  }
+  
+  // Controle para campos do ACQUA
+  const acquaSim = document.getElementById('acqua_sim');
+  const acquaNao = document.getElementById('acqua_nao');
+  const areaCargoAcqua = document.getElementById('area_cargo_acqua');
+  const dataDesligamento = document.getElementById('data_desligamento');
+  
+  if (acquaSim && acquaNao && areaCargoAcqua && dataDesligamento) {
+    acquaSim.addEventListener('change', function() {
+      if (this.checked) {
+        areaCargoAcqua.disabled = false;
+        areaCargoAcqua.required = true;
+        dataDesligamento.disabled = false;
+      }
+    });
+    
+    acquaNao.addEventListener('change', function() {
+      if (this.checked) {
+        areaCargoAcqua.disabled = true;
+        areaCargoAcqua.required = false;
+        areaCargoAcqua.value = '';
+        dataDesligamento.disabled = true;
+        dataDesligamento.value = '';
+      }
+    });
+  }
+  
+  // Controle para campos de trabalho atual
+  const trabalhaSim = document.getElementById('trabalha_sim');
+  const trabalhaNao = document.getElementById('trabalha_nao');
+  const funcaoAtual = document.getElementById('funcao_atual');
+  
+  if (trabalhaSim && trabalhaNao && funcaoAtual) {
+    trabalhaSim.addEventListener('change', function() {
+      if (this.checked) {
+        funcaoAtual.disabled = false;
+        funcaoAtual.required = true;
+      }
+    });
+    
+    trabalhaNao.addEventListener('change', function() {
+      if (this.checked) {
+        funcaoAtual.disabled = true;
+        funcaoAtual.required = false;
+        funcaoAtual.value = '';
+      }
+    });
+  }
+  
+  // Definir data atual para campos de data
+  const hoje = new Date().toISOString().split('T')[0];
+  if (dataDesligamento) {
+    dataDesligamento.max = hoje;
+  }
+  
+  // Definir data atual para declaração
+  const hojeObj = new Date();
+  const diaDeclaracao = document.getElementById('dia_declaracao');
+  const mesDeclaracao = document.getElementById('mes_declaracao');
+  const anoDeclaracao = document.getElementById('ano_declaracao');
+  
+  if (diaDeclaracao && mesDeclaracao && anoDeclaracao) {
+    diaDeclaracao.value = hojeObj.getDate().toString().padStart(2, '0');
+    mesDeclaracao.value = (hojeObj.getMonth() + 1).toString().padStart(2, '0');
+    anoDeclaracao.value = hojeObj.getFullYear();
+  }
+});
+</script>
+
+<style>
+/* CSS específico para o modal de foto */
+#editPhotoModal .img-fluid.rounded-circle {
+  width: 150px !important;
+  height: 150px !important;
+  max-width: 150px !important;
+  max-height: 150px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+#editPhotoModal #newPhotoImage {
+  width: 120px !important;
+  height: 120px !important;
+  max-width: 120px !important;
+  max-height: 120px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  border: 2px solid #dee2e6 !important;
+}
+
+/* Garantir que todas as imagens no modal sejam redondas */
+#editPhotoModal img {
+  border-radius: 50% !important;
+}
+</style>
+{% endblock %}
+
+ 

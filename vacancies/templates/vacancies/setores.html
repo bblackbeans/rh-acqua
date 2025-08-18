@@ -1,0 +1,484 @@
+{% extends 'dashboard/base.html' %} {% load static %} {% block title %}RH Acqua
+- Setores{% endblock %} {% block content %}
+<!-- Main Content -->
+<div class="container-fluid py-4">
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+    </div>
+    <div class="card-body">
+      <form>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="unitFilter" class="form-label">Unidade</label>
+            <select class="form-select" id="unitFilter">
+              <option value="">Todas</option>
+              <option value="1">Hospital São Paulo</option>
+              <option value="2">Hospital Rio de Janeiro</option>
+              <option value="3">Hospital Belo Horizonte</option>
+              <option value="4">Clínica São Paulo Sul</option>
+              <option value="5">Clínica Rio Norte</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="statusFilter" class="form-label">Status</label>
+            <select class="form-select" id="statusFilter">
+              <option value="">Todos</option>
+              <option value="active">Ativo</option>
+              <option value="inactive">Inativo</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="searchFilter" class="form-label">Busca</label>
+            <input
+              type="text"
+              class="form-control"
+              id="searchFilter"
+              placeholder="Nome do setor..."
+            />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 text-end">
+            <button type="button" class="btn btn-secondary me-2">Limpar</button>
+            <button type="button" class="btn btn-primary">Filtrar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ações -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5>Setores Cadastrados</h5>
+    <button class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Novo Setor
+    </button>
+  </div>
+
+  <!-- Organograma -->
+  <div class="card shadow mb-4">
+    <div
+      class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+    >
+      <h6 class="m-0 font-weight-bold text-primary">
+        Organograma - Hospital São Paulo
+      </h6>
+      <div class="dropdown">
+        <button
+          class="btn btn-sm btn-outline-primary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+        >
+          Selecionar Unidade
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">Hospital São Paulo</a></li>
+          <li><a class="dropdown-item" href="#">Hospital Rio de Janeiro</a></li>
+          <li><a class="dropdown-item" href="#">Hospital Belo Horizonte</a></li>
+          <li><a class="dropdown-item" href="#">Clínica São Paulo Sul</a></li>
+          <li><a class="dropdown-item" href="#">Clínica Rio Norte</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card-body">
+      <div
+        class="organogram-container"
+        style="
+          height: 400px;
+          background-color: #f8f9fa;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: auto;
+        "
+      >
+        <!-- Simulação de organograma com CSS -->
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <!-- Nível 1 -->
+          <div style="margin-bottom: 40px">
+            <div
+              style="
+                width: 200px;
+                padding: 15px;
+                background-color: #1cc88a;
+                color: white;
+                border-radius: 8px;
+                text-align: center;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+              "
+            >
+              <strong>Direção Geral</strong>
+            </div>
+          </div>
+
+          <!-- Linha vertical -->
+          <div
+            style="width: 2px; height: 30px; background-color: #adb5bd"
+          ></div>
+
+          <!-- Nível 2 -->
+          <div
+            style="display: flex; justify-content: center; margin-bottom: 40px"
+          >
+            <div style="display: flex; gap: 40px">
+              <div
+                style="
+                  width: 180px;
+                  padding: 12px;
+                  background-color: #36b9cc;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Direção Clínica</strong>
+              </div>
+              <div
+                style="
+                  width: 180px;
+                  padding: 12px;
+                  background-color: #36b9cc;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Direção Administrativa</strong>
+              </div>
+              <div
+                style="
+                  width: 180px;
+                  padding: 12px;
+                  background-color: #36b9cc;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Recursos Humanos</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Linhas verticais -->
+          <div
+            style="display: flex; justify-content: space-around; width: 600px"
+          >
+            <div
+              style="width: 2px; height: 30px; background-color: #adb5bd"
+            ></div>
+            <div
+              style="width: 2px; height: 30px; background-color: #adb5bd"
+            ></div>
+            <div
+              style="width: 2px; height: 30px; background-color: #adb5bd"
+            ></div>
+          </div>
+
+          <!-- Nível 3 -->
+          <div
+            style="display: flex; justify-content: space-around; width: 100%"
+          >
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+              "
+            >
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>UTI</strong>
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Centro Cirúrgico</strong>
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Emergência</strong>
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+              "
+            >
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Financeiro</strong>
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Manutenção</strong>
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Suprimentos</strong>
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+              "
+            >
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Recrutamento</strong>
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Treinamento</strong>
+              </div>
+              <div
+                style="
+                  width: 150px;
+                  padding: 10px;
+                  background-color: #4e73df;
+                  color: white;
+                  border-radius: 8px;
+                  text-align: center;
+                  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                "
+              >
+                <strong>Benefícios</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabela de Setores -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <th>Nome do Setor</th>
+              <th>Unidade</th>
+              <th>Responsável</th>
+              <th>Funcionários</th>
+              <th>Vagas Abertas</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>UTI</td>
+              <td>Hospital São Paulo</td>
+              <td>Dr. Ricardo Almeida</td>
+              <td>45</td>
+              <td>3</td>
+              <td><span class="status-badge approved">Ativo</span></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-info">Ver</button>
+                  <button class="btn btn-sm btn-danger">Desativar</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Centro Cirúrgico</td>
+              <td>Hospital São Paulo</td>
+              <td>Dra. Mariana Santos</td>
+              <td>32</td>
+              <td>2</td>
+              <td><span class="status-badge approved">Ativo</span></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-info">Ver</button>
+                  <button class="btn btn-sm btn-danger">Desativar</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Emergência</td>
+              <td>Hospital São Paulo</td>
+              <td>Dr. Paulo Oliveira</td>
+              <td>28</td>
+              <td>5</td>
+              <td><span class="status-badge approved">Ativo</span></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-info">Ver</button>
+                  <button class="btn btn-sm btn-danger">Desativar</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>UTI</td>
+              <td>Hospital Rio de Janeiro</td>
+              <td>Dra. Carla Mendes</td>
+              <td>38</td>
+              <td>2</td>
+              <td><span class="status-badge approved">Ativo</span></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-info">Ver</button>
+                  <button class="btn btn-sm btn-danger">Desativar</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Pediatria</td>
+              <td>Hospital Rio de Janeiro</td>
+              <td>Dr. Fernando Costa</td>
+              <td>22</td>
+              <td>1</td>
+              <td><span class="status-badge approved">Ativo</span></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-info">Ver</button>
+                  <button class="btn btn-sm btn-danger">Desativar</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Oncologia</td>
+              <td>Hospital Belo Horizonte</td>
+              <td>Dra. Luciana Ferreira</td>
+              <td>18</td>
+              <td>0</td>
+              <td><span class="status-badge closed">Inativo</span></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-info">Ver</button>
+                  <button class="btn btn-sm btn-success">Ativar</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>Fisioterapia</td>
+              <td>Clínica São Paulo Sul</td>
+              <td>Dr. André Martins</td>
+              <td>12</td>
+              <td>2</td>
+              <td><span class="status-badge approved">Ativo</span></td>
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                  <button class="btn btn-sm btn-info">Ver</button>
+                  <button class="btn btn-sm btn-danger">Desativar</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginação -->
+      <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true"
+              >Anterior</a
+            >
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Próximo</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

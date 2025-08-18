@@ -1,0 +1,458 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Vagas Disponíveis - RH Acqua{% endblock %}
+
+{% block content %}
+<!-- Filtros -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Filtros</h5>
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label for="unidade" class="form-label">Unidade</label>
+        <select id="unidade" name="unidade" class="form-select">
+          <option value="" {% if not unidade_filter %}selected{% endif %}>Todas</option>
+          {% for hospital in hospitals %}
+          <option value="{{ hospital.name }}" {% if unidade_filter == hospital.name %}selected{% endif %}>{{ hospital.name }} - {{ hospital.city }}, {{ hospital.state }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="cargo" class="form-label">Cargo</label>
+        <select id="cargo" name="cargo" class="form-select">
+          <option value="" {% if not cargo_filter %}selected{% endif %}>Todos</option>
+          {% for category in categories %}
+          <option value="{{ category.name }}" {% if cargo_filter == category.name %}selected{% endif %}>{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="regiao" class="form-label">Região</label>
+        <select id="regiao" name="regiao" class="form-select">
+          <option value="" {% if not regiao_filter %}selected{% endif %}>Todas</option>
+          {% for region in regions %}
+          <option value="{{ region }}" {% if regiao_filter == region %}selected{% endif %}>{{ region }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'vacancies:vagas_disponiveis' %}" class="btn btn-outline-secondary">Limpar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Vagas -->
+<div class="row">
+  <div class="col-12">
+    {% if total_vagas > 0 %}
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+          <i class="bi bi-briefcase me-2 text-primary"></i>
+          {{ total_vagas }} vaga{{ total_vagas|pluralize:"s" }} encontrada{{ total_vagas|pluralize:"s" }}
+        </h5>
+        {% if unidade_filter or cargo_filter or regiao_filter %}
+          <div class="text-muted small">
+            <i class="bi bi-funnel me-1"></i>
+            Filtros aplicados
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+  
+  {% if total_vagas == 0 and not unidade_filter and not cargo_filter and not regiao_filter %}
+    <!-- Mensagem para quando não há vagas no sistema -->
+    <div class="col-12">
+      <div class="text-center py-5">
+        <div class="mb-4">
+          <i class="bi bi-briefcase" style="font-size: 4rem; color: #6c757d;"></i>
+        </div>
+        <h4 class="text-muted mb-3">Nenhuma vaga disponível</h4>
+        <p class="text-muted mb-2">Ainda não há vagas publicadas no sistema.</p>
+        <p class="text-muted small">Os recrutadores podem criar e publicar vagas que aparecerão aqui.</p>
+        <div class="mt-4">
+          <div class="d-inline-block p-3 bg-light rounded">
+            <i class="bi bi-info-circle text-primary me-2"></i>
+            <span class="text-muted small">Esta página será atualizada automaticamente quando novas vagas forem publicadas.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  
+  {% if total_vagas > 0 %}
+    {% for vaga in vagas %}
+    <div class="col-lg-4 col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title">{{ vaga.title }}</h5>
+            {% if vaga.is_new %}
+            <span class="badge bg-primary">Novo</span>
+            {% endif %}
+          </div>
+          <h6 class="card-subtitle mb-2 text-muted">{{ vaga.hospital.name }}</h6>
+          <p class="card-text"><i class="bi bi-geo-alt"></i> {{ vaga.hospital.city }}, {{ vaga.hospital.state }}</p>
+          <p class="card-text"><i class="bi bi-calendar3"></i> 
+            {% if vaga.publication_date %}
+              Publicada há 
+              {% if vaga.days_since_publication == 0 %}
+                hoje
+              {% elif vaga.days_since_publication == 1 %}
+                1 dia
+              {% elif vaga.days_since_publication < 7 %}
+                {{ vaga.days_since_publication }} dias
+              {% elif vaga.days_since_publication < 30 %}
+                {{ vaga.days_since_publication|divisibleby:7 }} semanas
+              {% else %}
+                {{ vaga.days_since_publication|divisibleby:30 }} meses
+              {% endif %}
+            {% else %}
+              Data não informada
+            {% endif %}
+          </p>
+          
+          {% if vaga.category %}
+          <p class="card-text"><i class="bi bi-tag"></i> {{ vaga.category.name }}</p>
+          {% endif %}
+          
+          {% if vaga.contract_type %}
+          <p class="card-text"><i class="bi bi-file-earmark-text"></i> {{ vaga.get_contract_type_display }}</p>
+          {% endif %}
+          
+          <hr>
+          <div class="d-flex justify-content-between">
+            <a href="#" 
+               class="btn btn-primary btn-sm"
+               onclick="showVacancyDetails('{{ vaga.pk }}', '{{ vaga.title }}')"
+               title="Ver detalhes">
+              <i class="bi bi-eye"></i>
+              Ver detalhes
+            </a>
+            <a href="{% url 'vacancies:candidatura' vaga.pk %}" class="btn btn-sm btn-primary">Candidatar-se</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <!-- Mensagem para quando não há vagas com os filtros aplicados -->
+    <div class="col-12">
+      <div class="text-center py-5">
+        <div class="mb-4">
+          <i class="bi bi-search" style="font-size: 4rem; color: #6c757d;"></i>
+        </div>
+        <h4 class="text-muted mb-3">Nenhuma vaga encontrada</h4>
+        <p class="text-muted mb-2">Não há vagas disponíveis com os filtros selecionados.</p>
+        <p class="text-muted small">Tente ajustar os filtros ou aguarde novas vagas serem publicadas.</p>
+        <div class="mt-4">
+          <a href="{% url 'vacancies:vagas_disponiveis' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-clockwise me-2"></i>Limpar Filtros
+          </a>
+        </div>
+        {% if total_vagas > 0 %}
+        <div class="mt-3">
+          <div class="d-inline-block p-2 bg-light rounded">
+            <i class="bi bi-info-circle text-info me-2"></i>
+            <span class="text-muted small">Existem {{ total_vagas }} vagas no sistema. Tente ajustar os filtros para encontrá-las.</span>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<!-- Paginação -->
+{% if vagas.has_other_pages %}
+<nav aria-label="Navegação de páginas">
+  <ul class="pagination justify-content-center">
+    {% if vagas.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ vagas.previous_page_number }}{% if unidade_filter %}&unidade={{ unidade_filter }}{% endif %}{% if cargo_filter %}&cargo={{ cargo_filter }}{% endif %}{% if regiao_filter %}&regiao={{ regiao_filter }}{% endif %}">Anterior</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Anterior</span>
+      </li>
+    {% endif %}
+
+    {% for num in vagas.paginator.page_range %}
+      {% if vagas.number == num %}
+        <li class="page-item active">
+          <span class="page-link">{{ num }}</span>
+        </li>
+      {% elif num > vagas.number|add:'-3' and num < vagas.number|add:'3' %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ num }}{% if unidade_filter %}&unidade={{ unidade_filter }}{% endif %}{% if cargo_filter %}&cargo={{ cargo_filter }}{% endif %}{% if regiao_filter %}&regiao={{ regiao_filter }}{% endif %}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if vagas.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ vagas.next_page_number }}{% if unidade_filter %}&unidade={{ unidade_filter }}{% endif %}{% if cargo_filter %}&cargo={{ cargo_filter }}{% endif %}{% if regiao_filter %}&regiao={{ regiao_filter }}{% endif %}">Próxima</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Próxima</span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+<!-- Modal de Detalhes da Vaga -->
+<div class="modal fade" id="vacancyDetailModal" tabindex="-1" aria-labelledby="vacancyDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="vacancyDetailModalLabel">
+          <i class="bi bi-briefcase me-2"></i>
+          <span id="modalVacancyTitle"></span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+        <div id="modalVacancyContent">
+          <!-- Conteúdo será carregado via JavaScript -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        <a href="#" id="modalCandidatarBtn" class="btn btn-success">
+          <i class="bi bi-check-circle me-2"></i>
+          Candidatar-se
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showVacancyDetails(vacancyId, vacancyTitle) {
+  // Atualiza o título do modal
+  document.getElementById('modalVacancyTitle').textContent = vacancyTitle;
+  
+  // Atualiza o link do botão candidatar-se
+  document.getElementById('modalCandidatarBtn').href = `/vacancies/candidatura/${vacancyId}/`;
+  
+  // Carrega os detalhes da vaga via AJAX
+  fetch(`/vacancies/api/vacancy/${vacancyId}/`)
+    .then(response => response.json())
+    .then(data => {
+      const content = document.getElementById('modalVacancyContent');
+      content.innerHTML = `
+        <div class="row">
+          <div class="col-md-8">
+            <!-- Informações Principais da Vaga -->
+            <div class="card mb-3">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-info-circle me-2"></i>
+                  Informações da Vaga
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <p><strong>Código:</strong> ${data.code || 'Não informado'}</p>
+                    <p><strong>Hospital:</strong> ${data.hospital || 'Não informado'}</p>
+                    <p><strong>Departamento:</strong> ${data.department || 'Não informado'}</p>
+                    <p><strong>Categoria:</strong> ${data.category || 'Não informado'}</p>
+                    <p><strong>Localização:</strong> ${data.location || 'Não informado'}</p>
+                    ${data.is_remote ? '<p><strong>Remoto:</strong> <span class="badge bg-success">Sim</span></p>' : ''}
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Status:</strong> <span class="badge bg-primary">${data.status || 'Não informado'}</span></p>
+                    <p><strong>Tipo de Contrato:</strong> ${data.contract_type || 'Não informado'}</p>
+                    <p><strong>Nível de Experiência:</strong> ${data.experience_level || 'Não informado'}</p>
+                    <p><strong>Publicada em:</strong> ${data.published_date || 'Não informado'}</p>
+                    <p><strong>Encerra em:</strong> ${data.closing_date || 'Não informado'}</p>
+                    ${data.is_new ? '<p><strong>Nova:</strong> <span class="badge bg-warning">Publicada recentemente</span></p>' : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Salário (quando visível) -->
+            ${data.is_salary_visible ? `
+            <div class="card mb-3">
+              <div class="card-header bg-success text-white">
+                <h6 class="mb-0">
+                  <i class="bi bi-cash-coin me-2"></i>
+                  Informações Salariais
+                </h6>
+              </div>
+              <div class="card-body">
+                <p class="mb-0"><strong>Faixa Salarial:</strong> ${data.salary_info}</p>
+              </div>
+            </div>
+            ` : ''}
+            
+            <!-- Descrição da Vaga -->
+            <div class="card mb-3">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-file-text me-2"></i>
+                  Descrição da Vaga
+                </h6>
+              </div>
+              <div class="card-body">
+                <p>${data.description || 'Descrição não disponível.'}</p>
+              </div>
+            </div>
+            
+            <!-- Requisitos -->
+            <div class="card mb-3">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-list-check me-2"></i>
+                  Requisitos
+                </h6>
+              </div>
+              <div class="card-body">
+                <p>${data.requirements || 'Requisitos não especificados.'}</p>
+              </div>
+            </div>
+            
+            <!-- Benefícios -->
+            ${data.benefits ? `
+            <div class="card mb-3">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-gift me-2"></i>
+                  Benefícios
+                </h6>
+              </div>
+              <div class="card-body">
+                <p>${data.benefits}</p>
+              </div>
+            </div>
+            ` : ''}
+          </div>
+          
+          <div class="col-md-4">
+            <!-- Recrutador -->
+            <div class="card mb-3">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-person me-2"></i>
+                  Recrutador
+                </h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Nome:</strong> ${data.recruiter_name || 'Não informado'}</p>
+                <p><strong>Email:</strong> ${data.recruiter_email || 'Não informado'}</p>
+              </div>
+            </div>
+            
+            <!-- Estatísticas -->
+            <div class="card mb-3">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-graph-up me-2"></i>
+                  Estatísticas
+                </h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Visualizações:</strong> ${data.views || 0}</p>
+                <p><strong>Candidaturas:</strong> ${data.applications || 0}</p>
+                <p><strong>Criada em:</strong> ${data.created_at || 'Não informado'}</p>
+              </div>
+            </div>
+            
+            <!-- Habilidades -->
+            <div class="card">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-tags me-2"></i>
+                  Habilidades
+                </h6>
+              </div>
+              <div class="card-body">
+                ${data.skills && data.skills.length > 0 ? 
+                  data.skills.map(skill => `<span class="badge bg-primary me-1 mb-1">${skill}</span>`).join('') : 
+                  '<p class="text-muted mb-0">Não especificadas</p>'
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    })
+    .catch(error => {
+      console.error('Erro ao carregar detalhes da vaga:', error);
+      document.getElementById('modalVacancyContent').innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Erro ao carregar os detalhes da vaga. Tente novamente.
+        </div>
+      `;
+    });
+  
+  // Mostra o modal
+  const modal = new bootstrap.Modal(document.getElementById('vacancyDetailModal'));
+  modal.show();
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Estilos para o modal de detalhes da vaga */
+#vacancyDetailModal .modal-dialog {
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+#vacancyDetailModal .modal-content {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#vacancyDetailModal .modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.5rem;
+}
+
+#vacancyDetailModal .modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+#vacancyDetailModal .modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#vacancyDetailModal .modal-body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+#vacancyDetailModal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Garante que o modal não ultrapasse a tela */
+@media (max-height: 600px) {
+  #vacancyDetailModal .modal-body {
+    max-height: 60vh;
+  }
+}
+
+@media (max-height: 500px) {
+  #vacancyDetailModal .modal-body {
+    max-height: 50vh;
+  }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,1 @@
+# Arquivo de inicialização para comandos de gerenciamento 
