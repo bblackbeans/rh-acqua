@@ -1,0 +1,411 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Candidaturas - RH Acqua{% endblock %}
+
+{% block content %}
+                <div class="container-fluid">
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-header">
+      <h6 class="m-0 fw-bold text-primary">Filtros</h6>
+                    </div>
+                    <div class="card-body">
+      <form method="get">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="statusFilter" class="form-label">Status</label>
+            <select class="form-select" id="statusFilter" name="status">
+                                        <option value="">Todos</option>
+              <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pendente</option>
+              <option value="under_review" {% if status_filter == 'under_review' %}selected{% endif %}>Em Análise</option>
+              <option value="interview" {% if status_filter == 'interview' %}selected{% endif %}>Entrevista</option>
+              <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Aprovado</option>
+              <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejeitado</option>
+              <option value="withdrawn" {% if status_filter == 'withdrawn' %}selected{% endif %}>Desistência</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="vacancyFilter" class="form-label">Vaga</label>
+            <select class="form-select" id="vacancyFilter" name="vacancy">
+                                        <option value="">Todas</option>
+              {% for vacancy in vacancies %}
+              <option value="{{ vacancy.id }}" {% if vacancy_filter == vacancy.id|stringformat:"s" %}selected{% endif %}>
+                {{ vacancy.title }}
+              </option>
+              {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="dateFilter" class="form-label">Data</label>
+            <select class="form-select" id="dateFilter" name="date">
+                                        <option value="">Todas</option>
+              <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Hoje</option>
+              <option value="week" {% if date_filter == 'week' %}selected{% endif %}>Esta semana</option>
+              <option value="month" {% if date_filter == 'month' %}selected{% endif %}>Este mês</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="searchFilter" class="form-label">Busca</label>
+            <input type="text" class="form-control" id="searchFilter" name="search" 
+                   placeholder="Nome, email..." value="{{ search_filter }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-end">
+            <a href="{% url 'applications:candidaturas' %}" class="btn btn-secondary me-2">Limpar</a>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Visualização -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Candidaturas Recebidas</h5>
+                    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-outline-primary active" id="listView">
+                            <i class="bi bi-list"></i> Lista
+                        </button>
+      <button type="button" class="btn btn-outline-primary" id="kanbanView">
+                            <i class="bi bi-kanban"></i> Kanban
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visualização em Lista -->
+  <div class="card shadow mb-4" id="listViewContent">
+                    <div class="card-body">
+                        <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+          <thead class="table-light">
+                                    <tr>
+                                        <th>Candidato</th>
+                                        <th>Vaga</th>
+                                        <th>Data</th>
+                                        <th>Score</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            {% for application in applications %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                  {% if application.candidate.user.profile_picture %}
+                    <img src="{{ application.candidate.user.profile_picture.url }}" 
+                         alt="Candidato" class="rounded-circle me-2" 
+                         style="width: 40px; height: 40px; object-fit: cover;">
+                  {% else %}
+                    <div class="rounded-circle me-2 d-flex align-items-center justify-content-center bg-secondary text-white"
+                         style="width: 40px; height: 40px;">
+                      <i class="bi bi-person"></i>
+                                                </div>
+                  {% endif %}
+                                                <div>
+                    <div class="fw-bold">{{ application.candidate.user.get_full_name }}</div>
+                    <div class="small text-muted">{{ application.candidate.user.email }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+              <td>{{ application.vacancy.title }}</td>
+              <td>{{ application.created_at|date:"d/m/Y" }}</td>
+              <td>
+                {% if application.evaluations.exists %}
+                  {% with latest_eval=application.evaluations.first %}
+                    <div class="score-indicator score-{% if latest_eval.average_score >= 8 %}high{% elif latest_eval.average_score >= 6 %}medium{% else %}low{% endif %}">
+                      {{ latest_eval.average_score|floatformat:1 }}
+                                            </div>
+                  {% endwith %}
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
+                                        </td>
+              <td>
+                {% if application.status == 'pending' %}
+                  <span class="badge bg-secondary">Pendente</span>
+                {% elif application.status == 'under_review' %}
+                  <span class="badge bg-primary">Em Análise</span>
+                {% elif application.status == 'interview' %}
+                  <span class="badge bg-info">Entrevista</span>
+                {% elif application.status == 'approved' %}
+                  <span class="badge bg-success">Aprovado</span>
+                {% elif application.status == 'rejected' %}
+                  <span class="badge bg-danger">Rejeitado</span>
+                {% elif application.status == 'withdrawn' %}
+                  <span class="badge bg-warning">Desistência</span>
+                {% endif %}
+                                        </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{% url 'applications:application_detail' application.pk %}" 
+                     class="btn btn-sm btn-info" title="Ver detalhes">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  {% if application.status == 'pending' or application.status == 'under_review' %}
+                    <button class="btn btn-sm btn-primary" 
+                            onclick="updateStatus('{{ application.pk }}', 'interview')" 
+                            title="Agendar entrevista">
+                      <i class="bi bi-calendar-plus"></i>
+                    </button>
+                    <button class="btn btn-sm btn-success" 
+                            onclick="updateStatus('{{ application.pk }}', 'approved')" 
+                            title="Aprovar">
+                      <i class="bi bi-check-circle"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" 
+                            onclick="updateStatus('{{ application.pk }}', 'rejected')" 
+                            title="Rejeitar">
+                      <i class="bi bi-x-circle"></i>
+                    </button>
+                  {% elif application.status == 'rejected' %}
+                    <button class="btn btn-sm btn-warning" 
+                            onclick="updateStatus('{{ application.pk }}', 'under_review')" 
+                            title="Reconsiderar">
+                      <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                  {% elif application.status == 'approved' %}
+                    <button class="btn btn-sm btn-secondary" 
+                            onclick="updateStatus('{{ application.pk }}', 'hired')" 
+                            title="Contratar">
+                      <i class="bi bi-person-check"></i>
+                    </button>
+                  {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4">
+                <div class="text-muted">
+                  <i class="bi bi-inbox fs-1"></i>
+                  <p class="mt-2">Nenhuma candidatura encontrada</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+            {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Paginação -->
+      {% if applications.has_other_pages %}
+      <nav aria-label="Navegação de páginas" class="mt-4">
+                            <ul class="pagination justify-content-center">
+          {% if applications.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ applications.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vacancy_filter %}&vacancy={{ vacancy_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if search_filter %}&search={{ search_filter }}{% endif %}">
+                Anterior
+              </a>
+            </li>
+          {% else %}
+                                <li class="page-item disabled">
+              <span class="page-link">Anterior</span>
+            </li>
+          {% endif %}
+
+          {% for num in applications.paginator.page_range %}
+            {% if applications.number == num %}
+              <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+              </li>
+            {% elif num > applications.number|add:'-3' and num < applications.number|add:'3' %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vacancy_filter %}&vacancy={{ vacancy_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if search_filter %}&search={{ search_filter }}{% endif %}">
+                  {{ num }}
+                </a>
+                                </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if applications.has_next %}
+                                <li class="page-item">
+              <a class="page-link" href="?page={{ applications.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if vacancy_filter %}&vacancy={{ vacancy_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if search_filter %}&search={{ search_filter }}{% endif %}">
+                Próximo
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">Próximo</span>
+                                </li>
+          {% endif %}
+                            </ul>
+                        </nav>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Visualização Kanban (inicialmente oculta) -->
+  <div class="card shadow mb-4 d-none" id="kanbanViewContent">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+              <h6 class="mb-0">Pendentes</h6>
+            </div>
+            <div class="card-body">
+              {% for application in applications %}
+                {% if application.status == 'pending' %}
+                  <div class="card mb-2">
+                    <div class="card-body p-2">
+                      <h6 class="card-title small">{{ application.candidate.user.get_full_name }}</h6>
+                      <p class="card-text small text-muted">{{ application.vacancy.title }}</p>
+                      <small class="text-muted">{{ application.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-info">
+            <div class="card-header bg-info text-white">
+              <h6 class="mb-0">Em Análise</h6>
+            </div>
+            <div class="card-body">
+              {% for application in applications %}
+                {% if application.status == 'under_review' %}
+                  <div class="card mb-2">
+                    <div class="card-body p-2">
+                      <h6 class="card-title small">{{ application.candidate.user.get_full_name }}</h6>
+                      <p class="card-text small text-muted">{{ application.vacancy.title }}</p>
+                      <small class="text-muted">{{ application.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+              <h6 class="mb-0">Entrevista</h6>
+            </div>
+            <div class="card-body">
+              {% for application in applications %}
+                {% if application.status == 'interview' %}
+                  <div class="card mb-2">
+                    <div class="card-body p-2">
+                      <h6 class="card-title small">{{ application.candidate.user.get_full_name }}</h6>
+                      <p class="card-text small text-muted">{{ application.vacancy.title }}</p>
+                      <small class="text-muted">{{ application.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-success">
+            <div class="card-header bg-success text-white">
+              <h6 class="mb-0">Aprovados</h6>
+            </div>
+            <div class="card-body">
+              {% for application in applications %}
+                {% if application.status == 'approved' %}
+                  <div class="card mb-2">
+                    <div class="card-body p-2">
+                      <h6 class="card-title small">{{ application.candidate.user.get_full_name }}</h6>
+                      <p class="card-text small text-muted">{{ application.vacancy.title }}</p>
+                      <small class="text-muted">{{ application.created_at|date:"d/m/Y" }}</small>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Alternar entre visualizações
+document.getElementById('listView').addEventListener('click', function() {
+  document.getElementById('listViewContent').classList.remove('d-none');
+  document.getElementById('kanbanViewContent').classList.add('d-none');
+  document.getElementById('listView').classList.add('active');
+  document.getElementById('kanbanView').classList.remove('active');
+});
+
+document.getElementById('kanbanView').addEventListener('click', function() {
+  document.getElementById('listViewContent').classList.add('d-none');
+  document.getElementById('kanbanViewContent').classList.remove('d-none');
+  document.getElementById('listView').classList.remove('active');
+  document.getElementById('kanbanView').classList.add('active');
+});
+
+// Função para atualizar status
+function updateStatus(applicationId, newStatus) {
+  const statusLabels = {
+    'pending': 'Pendente',
+    'under_review': 'Em Análise',
+    'interview': 'Entrevista',
+    'approved': 'Aprovado',
+    'rejected': 'Rejeitado',
+    'withdrawn': 'Desistência'
+  };
+  
+  if (confirm(`Tem certeza que deseja alterar o status para "${statusLabels[newStatus]}"?`)) {
+    fetch(`/applications/api/applications/${applicationId}/update_status/`, {
+      method: 'PATCH',
+      headers: {
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: newStatus
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status) {
+        location.reload();
+      } else {
+        alert('Erro ao alterar status: ' + data.error);
+      }
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+      alert('Erro ao alterar status da candidatura');
+    });
+  }
+}
+</script>
+
+<style>
+.score-indicator {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+  min-width: 40px;
+}
+
+.score-high {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.score-medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.score-low {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+</style>
+{% endblock %}

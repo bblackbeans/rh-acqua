@@ -1,0 +1,142 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Minhas Candidaturas - RH Acqua{% endblock %}
+
+{% comment %} {% block breadcrumb %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Minhas Candidaturas</li>
+  </ol>
+</nav>
+{% endblock %} {% endcomment %}
+
+{% block content %}
+<!-- Filtros -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Filtros</h5>
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label for="status" class="form-label">Status</label>
+        <select id="status" name="status" class="form-select">
+          <option value="" {% if not status_filter %}selected{% endif %}>Todos os Status</option>
+          <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pendente</option>
+          <option value="under_review" {% if status_filter == 'under_review' %}selected{% endif %}>Em Análise</option>
+          <option value="interview" {% if status_filter == 'interview' %}selected{% endif %}>Entrevista</option>
+          <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Aprovado</option>
+          <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejeitado</option>
+          <option value="withdrawn" {% if status_filter == 'withdrawn' %}selected{% endif %}>Desistência</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="vacancy" class="form-label">Vaga</label>
+        <select id="vacancy" name="vacancy" class="form-select">
+          <option value="" {% if not vacancy_filter %}selected{% endif %}>Todas as Vagas</option>
+          {% for candidatura in candidaturas %}
+          <option value="{{ candidatura.id }}" {% if vacancy_filter == candidatura.id|stringformat:'s' %}selected{% endif %}>{{ candidatura.vaga }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="date" class="form-label">Período</label>
+        <select id="date" name="date" class="form-select">
+          <option value="" {% if not date_filter %}selected{% endif %}>Todas as Datas</option>
+          <option value="7" {% if date_filter == '7' %}selected{% endif %}>Últimos 7 dias</option>
+          <option value="30" {% if date_filter == '30' %}selected{% endif %}>Últimos 30 dias</option>
+          <option value="90" {% if date_filter == '90' %}selected{% endif %}>Últimos 90 dias</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'applications:minhas_candidaturas' %}" class="btn btn-outline-secondary">Limpar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Candidaturas -->
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Minhas Candidaturas</h5>
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Vaga</th>
+            <th>Unidade</th>
+            <th>Data da Candidatura</th>
+            <th>Status</th>
+            <th>Próxima Etapa</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for candidatura in candidaturas %}
+          <tr>
+            <td>{{ candidatura.vaga }}</td>
+            <td>{{ candidatura.unidade }}</td>
+            <td>{{ candidatura.data_candidatura }}</td>
+            <td><span class="badge {{ candidatura.status_badge }}">{{ candidatura.status }}</span></td>
+            <td>{{ candidatura.proxima_etapa }}</td>
+            <td>
+              <a href="{% url 'applications:application_detail' candidatura.application.pk %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-eye me-1"></i>
+                Ver Detalhes
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center">
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                Nenhuma candidatura encontrada com os filtros selecionados.
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Próximas Entrevistas -->
+{% if entrevistas %}
+<div class="card mt-4">
+  <div class="card-body">
+    <h5 class="card-title">Próximas Entrevistas</h5>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Vaga</th>
+            <th>Local</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Tipo</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entrevista in entrevistas %}
+          <tr>
+            <td>{{ entrevista.vaga }}</td>
+            <td>{{ entrevista.local }}</td>
+            <td>{{ entrevista.data }}</td>
+            <td>{{ entrevista.horario }}</td>
+            <td>{{ entrevista.tipo }}</td>
+            <td>
+              <button class="btn btn-sm btn-primary">Ver Detalhes</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

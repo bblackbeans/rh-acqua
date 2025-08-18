@@ -1,0 +1,123 @@
+{% extends 'dashboard/base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h2 class="h4 mb-0">{% trans 'Detalhes da Candidatura' %}</h2>
+		<a href="{% url 'applications:candidaturas' %}" class="btn btn-outline-secondary btn-sm">
+			<i class="bi bi-arrow-left me-1"></i> {% trans 'Voltar' %}
+		</a>
+	</div>
+
+	<div class="row g-3">
+		<div class="col-lg-8">
+			<div class="card">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<span class="fw-semibold">{% trans 'Candidato' %}</span>
+					<span class="badge {% if application.status == 'pending' %}bg-warning text-dark{% elif application.status == 'under_review' %}bg-info{% elif application.status == 'interview' %}bg-primary{% elif application.status == 'approved' %}bg-success{% elif application.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
+						{{ application.get_status_display }}
+					</span>
+				</div>
+				<div class="card-body">
+					<div class="d-flex align-items-center mb-3">
+						<div class="me-3">
+							{% if application.candidate.user.profile_picture %}
+								<img src="{{ application.candidate.user.profile_picture.url }}" class="rounded-circle" width="56" height="56" alt="foto">
+							{% else %}
+								<div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+									<i class="bi bi-person text-white"></i>
+								</div>
+							{% endif %}
+						</div>
+						<div>
+							<div class="fw-semibold">{{ application.candidate.user.get_full_name }}</div>
+							<div class="text-muted small">{{ application.candidate.user.email }}</div>
+							<div class="text-muted small">{{ application.candidate.user.city|default:'-' }}{% if application.candidate.user.state %}, {{ application.candidate.user.state }}{% endif %}</div>
+						</div>
+					</div>
+
+					<div class="row g-2">
+						<div class="col-md-4">
+							<div class="small text-muted">{% trans 'Data da candidatura' %}</div>
+							<div>{{ application.created_at|date:'d/m/Y H:i' }}</div>
+						</div>
+						<div class="col-md-4">
+							<div class="small text-muted">{% trans 'Vaga' %}</div>
+							<div>{{ application.vacancy.title }}</div>
+						</div>
+						<div class="col-md-4">
+							<div class="small text-muted">{% trans 'Unidade' %}</div>
+							<div>{{ application.vacancy.hospital.name }}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{% if application.cover_letter %}
+			<div class="card mt-3">
+				<div class="card-header fw-semibold">{% trans 'Carta de Apresentação' %}</div>
+				<div class="card-body">
+					<p class="mb-0" style="white-space:pre-line;">{{ application.cover_letter }}</p>
+				</div>
+			</div>
+			{% endif %}
+
+			{% if evaluation_form or status_form %}
+			<div class="card mt-3">
+				<div class="card-header fw-semibold">{% trans 'Ações do Recrutador' %}</div>
+				<div class="card-body">
+					<div class="row g-3">
+						{% if status_form %}
+						<div class="col-md-6">
+							<form method="post">
+								{% csrf_token %}
+								{{ status_form.as_p }}
+								<button class="btn btn-primary" name="status_submit">{% trans 'Atualizar Status' %}</button>
+							</form>
+						</div>
+						{% endif %}
+						{% if evaluation_form %}
+						<div class="col-md-6">
+							<form method="post">
+								{% csrf_token %}
+								{{ evaluation_form.as_p }}
+								<button class="btn btn-success" name="evaluation_submit">{% trans 'Registrar Avaliação' %}</button>
+							</form>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			{% endif %}
+		</div>
+
+		<div class="col-lg-4">
+			<div class="card">
+				<div class="card-header fw-semibold">{% trans 'Resumo da Vaga' %}</div>
+				<div class="card-body small">
+					<div class="mb-2"><strong>{% trans 'Título:' %}</strong> {{ application.vacancy.title }}</div>
+					<div class="mb-2"><strong>{% trans 'Departamento:' %}</strong> {{ application.vacancy.department.name }}</div>
+					<div class="mb-2"><strong>{% trans 'Categoria:' %}</strong> {{ application.vacancy.category.name }}</div>
+					<div class="mb-2"><strong>{% trans 'Localização:' %}</strong> {{ application.vacancy.location }}</div>
+					<div class="mb-2"><strong>{% trans 'Status da Vaga:' %}</strong> {{ application.vacancy.get_status_display }}</div>
+				</div>
+			</div>
+
+			{% if application.resume %}
+			<div class="card mt-3">
+				<div class="card-header fw-semibold">{% trans 'Currículo Enviado' %}</div>
+				<div class="card-body">
+					<a class="btn btn-outline-primary btn-sm" href="{{ application.resume.url }}" target="_blank">
+						<i class="bi bi-file-earmark-arrow-down me-1"></i> {% trans 'Baixar Currículo' %}
+					</a>
+				</div>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %} 

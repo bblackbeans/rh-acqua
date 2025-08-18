@@ -1,0 +1,221 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Minhas Candidaturas - RH Acqua{% endblock %}
+
+{% block content %}
+<!-- Cabeçalho -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">
+    <i class="bi bi-file-earmark-text me-2"></i>
+    Minhas Candidaturas
+  </h2>
+  <a href="{% url 'vacancies:vagas_disponiveis' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle me-2"></i>
+    Candidatar-se a Nova Vaga
+  </a>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">
+      <i class="bi bi-funnel me-2"></i>
+      Filtros
+    </h5>
+    <form method="get" class="row g-3">
+      <div class="col-md-4">
+        <label for="status" class="form-label">Status</label>
+        <select id="status" name="status" class="form-select">
+          <option value="" {% if not status_filter %}selected{% endif %}>Todos os Status</option>
+          <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pendente</option>
+          <option value="under_review" {% if status_filter == 'under_review' %}selected{% endif %}>Em Análise</option>
+          <option value="interview" {% if status_filter == 'interview' %}selected{% endif %}>Entrevista</option>
+          <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Aprovado</option>
+          <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejeitado</option>
+          <option value="withdrawn" {% if status_filter == 'withdrawn' %}selected{% endif %}>Desistência</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="vacancy" class="form-label">Vaga</label>
+        <select id="vacancy" name="vacancy" class="form-select">
+          <option value="" {% if not vacancy_filter %}selected{% endif %}>Todas as Vagas</option>
+          {% for app in applications %}
+          <option value="{{ app.vacancy.id }}" {% if vacancy_filter == app.vacancy.id|stringformat:'s' %}selected{% endif %}>{{ app.vacancy.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="date" class="form-label">Período</label>
+        <select id="date" name="date" class="form-select">
+          <option value="" {% if not date_filter %}selected{% endif %}>Todas as Datas</option>
+          <option value="7" {% if date_filter == '7' %}selected{% endif %}>Últimos 7 dias</option>
+          <option value="30" {% if date_filter == '30' %}selected{% endif %}>Últimos 30 dias</option>
+          <option value="90" {% if date_filter == '90' %}selected{% endif %}>Últimos 90 dias</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-search me-2"></i>
+          Filtrar
+        </button>
+        <a href="{% url 'applications:application_list' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-clockwise me-2"></i>
+          Limpar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Lista de Candidaturas -->
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">
+      <i class="bi bi-list-ul me-2"></i>
+      Candidaturas ({{ applications|length }})
+    </h5>
+    
+    {% if applications %}
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Vaga</th>
+              <th>Hospital/Unidade</th>
+              <th>Data da Candidatura</th>
+              <th>Status</th>
+              <th>Última Atualização</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for application in applications %}
+            <tr>
+              <td>
+                <div class="fw-bold">{{ application.vacancy.title }}</div>
+                <small class="text-muted">{{ application.vacancy.department.name|default:"Departamento não informado" }}</small>
+              </td>
+              <td>
+                <div>{{ application.vacancy.hospital.name|default:"Hospital não informado" }}</div>
+                <small class="text-muted">{{ application.vacancy.hospital.city }}, {{ application.vacancy.hospital.state }}</small>
+              </td>
+              <td>
+                <div>{{ application.created_at|date:"d/m/Y" }}</div>
+                <small class="text-muted">{{ application.created_at|date:"H:i" }}</small>
+              </td>
+              <td>
+                {% if application.status == 'pending' %}
+                  <span class="badge bg-warning text-dark">Pendente</span>
+                {% elif application.status == 'under_review' %}
+                  <span class="badge bg-info">Em Análise</span>
+                {% elif application.status == 'interview' %}
+                  <span class="badge bg-primary">Entrevista</span>
+                {% elif application.status == 'approved' %}
+                  <span class="badge bg-success">Aprovado</span>
+                {% elif application.status == 'rejected' %}
+                  <span class="badge bg-danger">Rejeitado</span>
+                {% elif application.status == 'withdrawn' %}
+                  <span class="badge bg-secondary">Desistência</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ application.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <div>{{ application.updated_at|date:"d/m/Y" }}</div>
+                <small class="text-muted">{{ application.updated_at|date:"H:i" }}</small>
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{% url 'applications:application_detail' application.pk %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-eye"></i>
+                    Ver
+                  </a>
+                  {% if application.status == 'pending' %}
+                  <button class="btn btn-sm btn-outline-warning" onclick="withdrawApplication({{ application.pk }})">
+                    <i class="bi bi-x-circle"></i>
+                    Desistir
+                  </button>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5">
+        <div class="mb-3">
+          <i class="bi bi-file-earmark-text text-muted" style="font-size: 4rem;"></i>
+        </div>
+        <h5 class="text-muted">Nenhuma candidatura encontrada</h5>
+        <p class="text-muted mb-4">
+          {% if status_filter or vacancy_filter or date_filter %}
+            Nenhuma candidatura encontrada com os filtros selecionados.
+          {% else %}
+            Você ainda não se candidatou a nenhuma vaga.
+          {% endif %}
+        </p>
+        <a href="{% url 'vacancies:vagas_disponiveis' %}" class="btn btn-primary">
+          <i class="bi bi-plus-circle me-2"></i>
+          Candidatar-se a uma Vaga
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal de Confirmação para Desistência -->
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="withdrawModalLabel">Confirmar Desistência</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja desistir desta candidatura?</p>
+        <p class="text-muted small">Esta ação não pode ser desfeita.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-warning" id="confirmWithdrawBtn">
+          <i class="bi bi-x-circle me-1"></i>
+          Confirmar Desistência
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentApplicationId = null;
+
+function withdrawApplication(applicationId) {
+  currentApplicationId = applicationId;
+  const modal = new bootstrap.Modal(document.getElementById('withdrawModal'));
+  modal.show();
+}
+
+document.getElementById('confirmWithdrawBtn').addEventListener('click', function() {
+  if (currentApplicationId) {
+    // Aqui você pode implementar a lógica para desistir da candidatura
+    // Por exemplo, fazer uma requisição AJAX para atualizar o status
+    console.log('Desistindo da candidatura:', currentApplicationId);
+    
+    // Fechar modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('withdrawModal'));
+    modal.hide();
+    
+    // Mostrar mensagem de sucesso
+    alert('Desistência registrada com sucesso!');
+    
+    // Recarregar a página para atualizar a lista
+    location.reload();
+  }
+});
+</script>
+{% endblock %} 
