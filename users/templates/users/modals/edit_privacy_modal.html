@@ -1,0 +1,88 @@
+<!-- Modal para Editar Configurações de Privacidade -->
+<div class="modal fade" id="editPrivacyModal" tabindex="-1" aria-labelledby="editPrivacyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPrivacyModalLabel">
+          <i class="bi bi-shield-lock me-2"></i>
+          Configurações de Privacidade
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit_privacy">
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Importante:</strong> Estas configurações controlam como suas informações são compartilhadas com recrutadores e parceiros.
+          </div>
+          
+          <div class="mb-4">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="perfil_visivel" name="perfil_visivel" 
+                     {% if perfil_data.perfil_visivel %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="perfil_visivel">
+                Perfil Visível para Recrutadores
+              </label>
+              <div class="form-text">
+                Permite que recrutadores vejam seu perfil e entrem em contato com oportunidades
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="compartilhar_dados" name="compartilhar_dados" 
+                     {% if perfil_data.compartilhar_dados %}checked{% endif %}>
+              <label class="form-check-label fw-bold" for="compartilhar_dados">
+                Compartilhar Dados com Parceiros
+              </label>
+              <div class="form-text">
+                Permite que empresas parceiras tenham acesso às suas informações para oportunidades específicas
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="perfil_publico" name="perfil_publico" 
+                     {% if perfil_data.perfil_publico %}checked{% endif %}>
+              <label class="form-check-label" for="perfil_publico">
+                Perfil Público
+              </label>
+              <div class="form-text">
+                Seu perfil pode aparecer em buscas públicas (recomendado para networking)
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="receber_convites" name="receber_convites" 
+                     {% if perfil_data.receber_convites %}checked{% endif %}>
+              <label class="form-check-label" for="receber_convites">
+                Receber Convites para Vagas
+              </label>
+              <div class="form-text">
+                Recrutadores podem enviar convites diretos para vagas específicas
+              </div>
+            </div>
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Recomendação:</strong> Manter o perfil visível aumenta significativamente suas chances de ser encontrado por recrutadores.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i>
+            Salvar Configurações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,366 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Meu Currículo - RH Acqua{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Estilos específicos para a página de currículo */
+    .card {
+        transition: box-shadow 0.2s;
+        min-height: 120px; /* Aumenta altura mínima */
+    }
+    
+    .card:hover {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .card-body {
+        padding: 1.5rem; /* Aumenta padding interno */
+    }
+    
+    .card-title {
+        font-size: 1.1rem; /* Aumenta tamanho do título */
+        margin-bottom: 0.75rem;
+    }
+    
+    .card-text {
+        font-size: 1rem; /* Aumenta tamanho do texto */
+        margin-bottom: 0.75rem;
+    }
+    
+    .btn-group {
+        margin-left: 1rem; /* Aumenta espaçamento dos botões */
+    }
+    
+    .btn-sm {
+        padding: 0.5rem 0.75rem; /* Aumenta tamanho dos botões */
+        font-size: 0.9rem;
+    }
+    
+    /* Apenas aumentar fonte das habilidades técnicas e emocionais */
+    [data-section-container="skill-tech"] .badge,
+    [data-section-container="skill-soft"] .badge {
+        font-size: 1.2rem !important; /* Fonte maior para badges */
+    }
+    
+    [data-section-container="skill-tech"] .badge .badge,
+    [data-section-container="skill-soft"] .badge .badge {
+        font-size: 1rem !important; /* Fonte para badges internos */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <button class="btn btn-primary me-2" onclick="downloadPDF()">
+                <i class="bi bi-download"></i> Baixar PDF
+            </button>
+            <button class="btn btn-outline-secondary" disabled title="Funcionalidade em desenvolvimento">
+                <i class="bi bi-share"></i> Compartilhar
+            </button>
+        </div>
+        <div>
+            <small class="text-muted">Última atualização: {{ curriculo_data.ultima_atualizacao }}</small>
+        </div>
+    </div>
+
+    <!-- Resume Sections -->
+    <div class="accordion" id="resumeAccordion">
+        <!-- Personal Information -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingPersonal">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePersonal" aria-expanded="true" aria-controls="collapsePersonal">
+                    <i class="bi bi-person me-2"></i> Informações Pessoais
+                </button>
+            </h2>
+            <div id="collapsePersonal" class="accordion-collapse collapse show" aria-labelledby="headingPersonal" data-bs-parent="#resumeAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Dados Pessoais</h5>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Nome Completo</label>
+                            <p>{{ curriculo_data.informacoes_pessoais.nome_completo }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Data de Nascimento</label>
+                            <p>{{ curriculo_data.informacoes_pessoais.data_nascimento }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">E-mail</label>
+                            <p>{{ curriculo_data.informacoes_pessoais.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Telefone</label>
+                            <p>{{ curriculo_data.informacoes_pessoais.telefone }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Endereço</label>
+                            <p>{{ curriculo_data.informacoes_pessoais.endereco }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Resumo Profissional</label>
+                            <p>{{ curriculo_data.informacoes_pessoais.resumo_profissional }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingEducation">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEducation" aria-expanded="false" aria-controls="collapseEducation">
+                    <i class="bi bi-mortarboard me-2"></i> Formação Acadêmica
+                </button>
+            </h2>
+            <div id="collapseEducation" class="accordion-collapse collapse" aria-labelledby="headingEducation" data-bs-parent="#resumeAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Formação Acadêmica</h5>
+                        <button class="btn btn-sm btn-success" data-action="create" data-section="education">
+                            <i class="bi bi-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    
+                    <div data-section-container="education">
+                        {% if curriculo_data.formacao_academica %}
+                            {% for formacao in curriculo_data.formacao_academica %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="card-title mb-1">{{ formacao.curso }}</h6>
+                                            <p class="card-text text-muted mb-1">{{ formacao.instituicao }}</p>
+                                            <p class="card-text small mb-1">
+                                                <strong>Nível:</strong> {{ formacao.nivel_escolaridade }}
+                                            </p>
+                                            <p class="card-text small mb-0">
+                                                <strong>Ano:</strong> {{ formacao.ano_conclusao }}
+                                            </p>
+                                        </div>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                    data-action="edit" data-section="education" data-id="{{ formacao.id }}">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                    data-action="delete" data-section="education" data-id="{{ formacao.id }}">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {% include 'users/partials/empty.html' with icon='mortarboard' section_name='formações acadêmicas' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingExperience">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExperience" aria-expanded="false" aria-controls="collapseExperience">
+                    <i class="bi bi-briefcase me-2"></i> Experiência Profissional
+                </button>
+            </h2>
+            <div id="collapseExperience" class="accordion-collapse collapse" aria-labelledby="headingExperience" data-bs-parent="#resumeAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Experiência Profissional</h5>
+                        <button class="btn btn-sm btn-success" data-action="create" data-section="experience">
+                            <i class="bi bi-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    
+                    <div data-section-container="experience">
+                        {% if curriculo_data.experiencia_profissional %}
+                            {% for experiencia in curriculo_data.experiencia_profissional %}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="card-title mb-1">{{ experiencia.cargo }}</h6>
+                                            <p class="card-text text-muted mb-1">{{ experiencia.empresa }}</p>
+                                            <p class="card-text small mb-1">
+                                                <strong>Período:</strong> {{ experiencia.periodo }}
+                                            </p>
+                                            {% if experiencia.atividades %}
+                                                <p class="card-text small mb-0">
+                                                    <strong>Atividades:</strong> {{ experiencia.atividades|truncatewords:20 }}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                    data-action="edit" data-section="experience" data-id="{{ experiencia.id }}">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                    data-action="delete" data-section="experience" data-id="{{ experiencia.id }}">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            {% include 'users/partials/empty.html' with icon='briefcase' section_name='experiências profissionais' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Skills -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTechSkills">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTechSkills" aria-expanded="false" aria-controls="collapseTechSkills">
+                    <i class="bi bi-heart-pulse me-2"></i> Habilidades Técnicas
+                </button>
+            </h2>
+            <div id="collapseTechSkills" class="accordion-collapse collapse" aria-labelledby="headingTechSkills" data-bs-parent="#resumeAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Habilidades Técnicas</h5>
+                        <button class="btn btn-sm btn-success" data-action="create" data-section="skill-tech">
+                            <i class="bi bi-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    
+                    <div data-section-container="skill-tech">
+                        {% include 'users/partials/technical_skill_list.html' with habilidades_tecnicas=curriculo_data.habilidades_tecnicas %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Soft Skills -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSoftSkills">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSoftSkills" aria-expanded="false" aria-controls="collapseSoftSkills">
+                    <i class="bi bi-emoji-smile me-2"></i> Habilidades Emocionais
+                </button>
+            </h2>
+            <div id="collapseSoftSkills" class="accordion-collapse collapse" aria-labelledby="headingSoftSkills" data-bs-parent="#resumeAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Habilidades Emocionais</h5>
+                        <button class="btn btn-sm btn-success" data-action="create" data-section="skill-soft">
+                            <i class="bi bi-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    
+                    <div data-section-container="skill-soft">
+                        {% include 'users/partials/soft_skill_list.html' with habilidades_emocionais=curriculo_data.habilidades_emocionais %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingCertifications">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCertifications" aria-expanded="false" aria-controls="collapseCertifications">
+                    <i class="bi bi-award me-2"></i> Certificações
+                </button>
+            </h2>
+            <div id="collapseCertifications" class="accordion-collapse collapse" aria-labelledby="headingCertifications" data-bs-parent="#resumeAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Certificações</h5>
+                        <button class="btn btn-sm btn-success" data-action="create" data-section="certification">
+                            <i class="bi bi-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    
+                    <div data-section-container="certification">
+                        {% include 'users/partials/certification_list.html' with certificacoes=curriculo_data.certificacoes %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingLanguages">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLanguages" aria-expanded="false" aria-controls="collapseLanguages">
+                    <i class="bi bi-translate me-2"></i> Idiomas
+                </button>
+            </h2>
+            <div id="collapseLanguages" class="accordion-collapse collapse" aria-labelledby="headingLanguages" data-bs-parent="#resumeAccordion">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5>Idiomas</h5>
+                        <button class="btn btn-sm btn-success" data-action="create" data-section="language">
+                            <i class="bi bi-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    
+                    <div data-section-container="language">
+                        {% include 'users/partials/language_list.html' with idiomas=curriculo_data.idiomas %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal genérico para CRUD -->
+<div class="modal fade" id="cvModal" tabindex="-1" aria-labelledby="cvModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cvModalLabel">Adicionar Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmação para exclusão -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este item?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Container para toasts -->
+<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/cv.js' %}"></script>
+{% endblock %}

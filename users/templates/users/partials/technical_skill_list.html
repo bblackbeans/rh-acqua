@@ -1,0 +1,24 @@
+{% load static %}
+
+{% if habilidades_tecnicas %}
+    <div class="d-flex flex-wrap gap-2">
+        {% for skill in habilidades_tecnicas %}
+        <div class="badge bg-primary d-flex align-items-center gap-2">
+            {{ skill.nome }}
+            <span class="badge bg-light text-dark">{{ skill.nivel }}</span>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-outline-light" 
+                        data-action="edit" data-section="skill-tech" data-id="{{ skill.id }}">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light" 
+                        data-action="delete" data-section="skill-tech" data-id="{{ skill.id }}">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    {% include 'users/partials/empty.html' with icon='heart-pulse' section_name='habilidades técnicas' %}
+{% endif %} 

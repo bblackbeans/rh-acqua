@@ -1,0 +1,43 @@
+{% load static %}
+
+{% if experiences %}
+    {% for experience in experiences %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title mb-2">{{ experience.cargo }}</h6>
+                        <p class="card-text text-muted mb-2">{{ experience.empresa }}</p>
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <strong>Período:</strong> {{ experience.inicio|date:"m/Y" }} - 
+                                {% if experience.atual %}
+                                    <span class="badge bg-success">Atual</span>
+                                {% else %}
+                                    {{ experience.fim|date:"m/Y" }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        {% if experience.atividades %}
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <strong>Atividades:</strong> {{ experience.atividades }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="btn-group ms-3" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-action="edit" data-section="experience" data-id="{{ experience.id }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-action="delete" data-section="experience" data-id="{{ experience.id }}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    {% include 'users/partials/empty.html' with icon='briefcase' section_name='experiências profissionais' %}
+{% endif %} 

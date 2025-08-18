@@ -1,0 +1,49 @@
+{% load static %}
+
+{% if certificacoes %}
+    {% for certification in certificacoes %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title mb-1">{{ certification.titulo }}</h6>
+                        {% if certification.orgao %}
+                            <p class="card-text text-muted mb-1">{{ certification.orgao }}</p>
+                        {% endif %}
+                        <p class="card-text small mb-1">
+                            <strong>Emissão:</strong> {{ certification.emissao }}
+                        </p>
+                        {% if certification.sem_validade %}
+                            <p class="card-text small mb-0">
+                                <strong>Validade:</strong> <span class="text-muted">Sem data de validade</span>
+                            </p>
+                        {% elif certification.validade %}
+                            <p class="card-text small mb-0">
+                                <strong>Validade:</strong> {{ certification.validade }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                data-action="edit" data-section="certification" data-id="{{ certification.id }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                data-action="delete" data-section="certification" data-id="{{ certification.id }}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% if certification.credencial_url %}
+                <div class="mt-2">
+                    <a href="{{ certification.credencial_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-link-45deg"></i> Ver Credencial
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    {% include 'users/partials/empty.html' with icon='award' section_name='certificações' %}
+{% endif %} 

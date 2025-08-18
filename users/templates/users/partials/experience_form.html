@@ -1,0 +1,109 @@
+{% load static %}
+
+<form method="post" id="experienceForm">
+    {% csrf_token %}
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.empresa.id_for_label }}" class="form-label">Empresa *</label>
+            {{ form.empresa }}
+            {% if form.empresa.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.empresa.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.cargo.id_for_label }}" class="form-label">Cargo *</label>
+            {{ form.cargo }}
+            {% if form.cargo.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.cargo.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.inicio.id_for_label }}" class="form-label">Data de Início *</label>
+            {{ form.inicio }}
+            {% if form.inicio.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.inicio.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.fim.id_for_label }}" class="form-label">Data de Saída</label>
+            {{ form.fim }}
+            {% if form.fim.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.fim.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <div class="form-check">
+            {{ form.atual }}
+            <label class="form-check-label" for="{{ form.atual.id_for_label }}">
+                Trabalho atual
+            </label>
+            {% if form.atual.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.atual.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.atividades.id_for_label }}" class="form-label">Atividades e Responsabilidades</label>
+        {{ form.atividades }}
+        {% if form.atividades.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.atividades.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        {% if action == 'create' %}
+        <button type="button" class="btn btn-primary me-2" onclick="addExperience()">
+            Adicionar
+        </button>
+        <button type="button" class="btn btn-success" onclick="addMoreExperience()">
+            <i class="bi bi-plus"></i> Adicionar +1
+        </button>
+        {% else %}
+        <button type="button" class="btn btn-primary me-2" onclick="editExperience({{ experience.id }})">
+            Salvar
+        </button>
+        {% endif %}
+    </div>
+</form> 

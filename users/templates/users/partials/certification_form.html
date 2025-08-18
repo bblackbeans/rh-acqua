@@ -1,0 +1,138 @@
+{% load static %}
+
+<form method="post" id="certificationForm">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        <label for="{{ form.titulo.id_for_label }}" class="form-label">Título *</label>
+        {{ form.titulo }}
+        {% if form.titulo.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.titulo.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.orgao.id_for_label }}" class="form-label">Órgão Emissor</label>
+        {{ form.orgao }}
+        {% if form.orgao.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.orgao.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.emissao.id_for_label }}" class="form-label">Data de Emissão</label>
+            {{ form.emissao }}
+            {% if form.emissao.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.emissao.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.validade.id_for_label }}" class="form-label">Data de Validade</label>
+            {{ form.validade }}
+            {% if form.validade.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.validade.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mb-3">
+        <div class="form-check">
+            {{ form.sem_validade }}
+            <label class="form-check-label" for="{{ form.sem_validade.id_for_label }}">
+                Sem data de validade
+            </label>
+        </div>
+        {% if form.sem_validade.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.sem_validade.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.credencial_url.id_for_label }}" class="form-label">URL da Credencial</label>
+        {{ form.credencial_url }}
+        {% if form.credencial_url.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.credencial_url.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="form-text text-muted">
+            <i class="bi bi-link-45deg"></i> Link para verificar a credencial (opcional)
+        </div>
+    </div>
+    
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        {% if action == 'create' %}
+        <button type="button" class="btn btn-primary me-2" onclick="addCertification()">
+            Adicionar
+        </button>
+        <button type="button" class="btn btn-success" onclick="addMoreCertification()">
+            <i class="bi bi-plus"></i> Adicionar +1
+        </button>
+        {% else %}
+        <button type="button" class="btn btn-primary me-2" onclick="editCertification({{ certification.id }})">
+            Salvar
+        </button>
+        {% endif %}
+    </div>
+</form>
+
+<script>
+// Lógica para controlar o campo de data de validade
+document.addEventListener('DOMContentLoaded', function() {
+    const semValidadeCheckbox = document.getElementById('sem_validade');
+    const validadeField = document.getElementById('{{ form.validade.id_for_label }}');
+    
+    if (semValidadeCheckbox && validadeField) {
+        // Função para atualizar o estado do campo de validade
+        function updateValidadeField() {
+            if (semValidadeCheckbox.checked) {
+                validadeField.disabled = true;
+                validadeField.value = '';
+                validadeField.classList.add('text-muted');
+            } else {
+                validadeField.disabled = false;
+                validadeField.classList.remove('text-muted');
+            }
+        }
+        
+        // Aplicar estado inicial
+        updateValidadeField();
+        
+        // Adicionar event listener
+        semValidadeCheckbox.addEventListener('change', updateValidadeField);
+    }
+});
+</script> 

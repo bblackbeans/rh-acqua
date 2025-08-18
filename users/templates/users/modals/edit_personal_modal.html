@@ -1,0 +1,281 @@
+<!-- Modal para Editar Informações Pessoais -->
+<div class="modal fade" id="editPersonalModal" tabindex="-1" aria-labelledby="editPersonalModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPersonalModalLabel">
+          <i class="bi bi-person me-2"></i>
+          Editar Informações Pessoais
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit_personal">
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="first_name" class="form-label">Nome *</label>
+              <input type="text" class="form-control" id="first_name" name="first_name" 
+                     value="{{ user.first_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label for="last_name" class="form-label">Sobrenome *</label>
+              <input type="text" class="form-control" id="last_name" name="last_name" 
+                     value="{{ user.last_name }}" required>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="nome_social" class="form-label">Nome Social *</label>
+              <input type="text" class="form-control" id="nome_social" name="nome_social" 
+                     value="{% if perfil_data.nome_social %}{{ perfil_data.nome_social }}{% endif %}" 
+                     required placeholder="Digite seu nome social">
+              <div class="form-text">Nome pelo qual você gostaria de ser chamado</div>
+            </div>
+            <div class="col-md-6">
+              <label for="date_of_birth" class="form-label">Data de Nascimento *</label>
+              <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                     value="{% if user.date_of_birth %}{{ user.date_of_birth|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="cpf" class="form-label">CPF *</label>
+              <input type="text" class="form-control" id="cpf" name="cpf" 
+                     value="{% if perfil_data.cpf %}{{ perfil_data.cpf }}{% endif %}" 
+                     required placeholder="000.000.000-00">
+              <div class="form-text">Digite apenas números - máximo 11 dígitos</div>
+            </div>
+            <div class="col-md-6">
+              <label for="pis" class="form-label">PIS *</label>
+              <input type="text" class="form-control" id="pis" name="pis" 
+                     value="{% if perfil_data.pis %}{{ perfil_data.pis }}{% endif %}" 
+                     required placeholder="000.00000.00-0">
+              <div class="form-text">Digite apenas números - máximo 11 dígitos</div>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="rg" class="form-label">RG</label>
+              <input type="text" class="form-control" id="rg" name="rg" 
+                     value="{% if perfil_data.rg %}{{ perfil_data.rg }}{% endif %}" 
+                     placeholder="Digite apenas números (máx. 12 dígitos)">
+              <div class="form-text">Apenas números - máximo 12 dígitos</div>
+            </div>
+            <div class="col-md-4">
+              <label for="rg_emissao" class="form-label">Data de Emissão RG</label>
+              <input type="date" class="form-control" id="rg_emissao" name="rg_emissao" 
+                     value="{% if perfil_data.rg_emissao %}{{ perfil_data.rg_emissao }}{% endif %}">
+            </div>
+            <div class="col-md-4">
+              <label for="rg_orgao" class="form-label">Órgão Emissor RG</label>
+              <input type="text" class="form-control" id="rg_orgao" name="rg_orgao" 
+                     value="{% if perfil_data.rg_orgao %}{{ perfil_data.rg_orgao }}{% endif %}" 
+                     placeholder="Ex: SSP, DETRAN">
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="raca_cor" class="form-label">Raça/Cor</label>
+              <select class="form-select" id="raca_cor" name="raca_cor">
+                <option value="">Selecione...</option>
+                <option value="indigena" {% if perfil_data.raca_cor == 'indigena' %}selected{% endif %}>Indígena</option>
+                <option value="branca" {% if perfil_data.raca_cor == 'branca' %}selected{% endif %}>Branca</option>
+                <option value="preta" {% if perfil_data.raca_cor == 'preta' %}selected{% endif %}>Preta</option>
+                <option value="amarela" {% if perfil_data.raca_cor == 'amarela' %}selected{% endif %}>Amarela</option>
+                <option value="parda" {% if perfil_data.raca_cor == 'parda' %}selected{% endif %}>Parda</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="sexo" class="form-label">Sexo (designação ao nascer) *</label>
+              <select class="form-select" id="sexo" name="sexo" required>
+                <option value="">Selecione...</option>
+                <option value="M" {% if perfil_data.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                <option value="F" {% if perfil_data.sexo == 'F' %}selected{% endif %}>Feminino</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="genero" class="form-label">Gênero</label>
+              <select class="form-select" id="genero" name="genero">
+                <option value="">Selecione...</option>
+                <option value="homem_cis" {% if perfil_data.genero == 'homem_cis' %}selected{% endif %}>Homem Cisgênero</option>
+                <option value="homem_trans" {% if perfil_data.genero == 'homem_trans' %}selected{% endif %}>Homem Transexual/Transgênero</option>
+                <option value="mulher_cis" {% if perfil_data.genero == 'mulher_cis' %}selected{% endif %}>Mulher Cisgênero</option>
+                <option value="mulher_trans" {% if perfil_data.genero == 'mulher_trans' %}selected{% endif %}>Mulher Transexual/Transgênero</option>
+                <option value="nao_binario" {% if perfil_data.genero == 'nao_binario' %}selected{% endif %}>Não-binário</option>
+                <option value="outros" {% if perfil_data.genero == 'outros' %}selected{% endif %}>Outros</option>
+                <option value="prefiro_nao_responder" {% if perfil_data.genero == 'prefiro_nao_responder' %}selected{% endif %}>Prefiro não responder</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="estado_civil" class="form-label">Estado Civil *</label>
+              <select class="form-select" id="estado_civil" name="estado_civil" required>
+                <option value="">Selecione...</option>
+                <option value="solteiro" {% if perfil_data.estado_civil == 'solteiro' %}selected{% endif %}>Solteiro(a)</option>
+                <option value="casado" {% if perfil_data.estado_civil == 'casado' %}selected{% endif %}>Casado(a)</option>
+                <option value="uniao_estavel" {% if perfil_data.estado_civil == 'uniao_estavel' %}selected{% endif %}>União Estável</option>
+                <option value="divorciado" {% if perfil_data.estado_civil == 'divorciado' %}selected{% endif %}>Divorciado(a)</option>
+                <option value="viuvo" {% if perfil_data.estado_civil == 'viuvo' %}selected{% endif %}>Viúvo(a)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="bio" class="form-label">Biografia</label>
+            <textarea class="form-control" id="bio" name="bio" rows="3" 
+                      placeholder="Uma breve descrição sobre você e seus interesses profissionais...">{% if perfil_data.bio %}{{ perfil_data.bio }}{% endif %}</textarea>
+            <div class="form-text">Uma breve descrição sobre você e seus interesses profissionais</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i>
+            Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 
+
+<!-- 🎭 PATCH DE MÁSCARAS - Aplicado diretamente no modal -->
+<script>
+console.log('patch-masks ativo');
+
+// === util ===
+const isCtrl = k => ['Backspace','Delete','Tab','Enter','ArrowLeft','ArrowRight','Home','End'].includes(k);
+const onlyDigits = v => String(v||'').replace(/\D/g,'');
+const fmtCPF = d => {
+  d = onlyDigits(d).slice(0,11);
+  if (!d) return '';
+  if (d.length <= 3) return d;
+  if (d.length <= 6) return `${d.slice(0,3)}.${d.slice(3)}`;
+  if (d.length <= 9) return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`;
+  return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+};
+const fmtPIS = d => {
+  d = onlyDigits(d).slice(0,11);
+  if (!d) return '';
+  if (d.length <= 3) return d;
+  if (d.length <= 8) return `${d.slice(0,3)}.${d.slice(3)}`;
+  if (d.length <= 10) return `${d.slice(0,3)}.${d.slice(3,8)}.${d.slice(8)}`;
+  return `${d.slice(0,3)}.${d.slice(3,8)}.${d.slice(8,10)}-${d.slice(10)}`;
+};
+const fmtPhone = d => { // 10 ou 11 dígitos
+  d = onlyDigits(d).slice(0,11);
+  if (!d) return '';
+  if (d.length <= 2) return `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0,2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+  return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+};
+const fmtCEP = d => {
+  d = onlyDigits(d).slice(0,8);
+  return d.length <= 5 ? d : `${d.slice(0,5)}-${d.slice(5)}`;
+};
+function bindMasked(el, fmt, maxDigits, validLens=new Set([maxDigits])) {
+  if (!el) return;
+  el.type = 'text'; el.setAttribute('inputmode','numeric');
+
+  // barra letra antes de entrar
+  el.addEventListener('beforeinput', e => {
+    if (e.inputType === 'insertText' && !/^\d$/.test(e.data)) e.preventDefault();
+  });
+
+  // segurança extra no keydown
+  el.addEventListener('keydown', e => {
+    if (isCtrl(e.key)) return;
+    if (!/^\d$/.test(e.key)) e.preventDefault();
+  });
+
+  // cola/arrasta
+  ['paste','drop'].forEach(evt => {
+    el.addEventListener(evt, e => {
+      e.preventDefault();
+      const t = (e.clipboardData && e.clipboardData.getData && e.clipboardData.getData('text')) ||
+                (e.dataTransfer && e.dataTransfer.getData && e.dataTransfer.getData('text')) || '';
+      const d = onlyDigits(t).slice(0, maxDigits);
+      el.value = fmt(d);
+      mark(el, d.length, validLens);
+    });
+  });
+
+  // formata a cada input
+  el.addEventListener('input', () => {
+    const d = onlyDigits(el.value).slice(0, maxDigits);
+    el.value = fmt(d);
+    mark(el, d.length, validLens);
+  });
+
+  // inicial
+  const d0 = onlyDigits(el.value).slice(0, maxDigits);
+  el.value = fmt(d0);
+  mark(el, d0.length, validLens);
+}
+function bindDigitsOnly(el, maxDigits) { // RG
+  if (!el) return;
+  el.type = 'text'; el.setAttribute('inputmode','numeric');
+  el.removeAttribute('required');
+
+  el.addEventListener('beforeinput', e => {
+    if (e.inputType === 'insertText' && !/^\d$/.test(e.data)) e.preventDefault();
+  });
+  el.addEventListener('keydown', e => {
+    if (isCtrl(e.key)) return;
+    if (!/^\d$/.test(e.key)) e.preventDefault();
+  });
+  ['paste','drop','input'].forEach(evt => {
+    el.addEventListener(evt, e => {
+      if (evt !== 'input') e.preventDefault();
+      const t = (e.clipboardData && e.clipboardData.getData && e.clipboardData.getData('text')) ||
+                (e.dataTransfer && e.dataTransfer.getData && e.dataTransfer.getData('text')) ||
+                el.value;
+      el.value = onlyDigits(t).slice(0, maxDigits);
+    });
+  });
+  el.value = onlyDigits(el.value).slice(0, maxDigits);
+}
+function mark(el, len, validLens){
+  const ok = validLens.has(len);
+  el.classList.toggle('is-valid', ok);
+  el.classList.toggle('is-invalid', len>0 && !ok);
+}
+
+// liga quando o modal abrir
+document.addEventListener('shown.bs.modal', ev => {
+  if (ev.target && ev.target.id === 'editPersonalModal') {
+    console.log('Modal aberto, aplicando máscaras...');
+    const cpf = document.getElementById('cpf');
+    const pis = document.getElementById('pis');
+    const rg  = document.getElementById('rg');
+    const tel = document.getElementById('telefone');   // se existir
+    const cep = document.getElementById('cep');        // se existir
+
+    bindMasked(cpf, fmtCPF, 11, new Set([11]));
+    bindMasked(pis, fmtPIS, 11, new Set([11]));
+    bindDigitsOnly(rg, 12);
+    if (tel) bindMasked(tel, fmtPhone, 11, new Set([10,11]));
+    if (cep) bindMasked(cep, fmtCEP, 8, new Set([8]));
+    
+    console.log('✅ Máscaras aplicadas!');
+  }
+});
+
+// também liga se o modal já estiver renderizado na página
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('editPersonalModal');
+  if (modal && modal.classList.contains('show')) {
+    console.log('Modal já aberto, disparando evento...');
+    const evt = new Event('shown.bs.modal'); evt.target = modal; document.dispatchEvent(evt);
+  }
+});
+</script> 

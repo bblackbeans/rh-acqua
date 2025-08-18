@@ -1,0 +1,53 @@
+{% load static %}
+
+<form method="post" id="technicalSkillForm">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        <label for="{{ form.nome.id_for_label }}" class="form-label">Nome da Habilidade *</label>
+        {{ form.nome }}
+        {% if form.nome.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.nome.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.nivel.id_for_label }}" class="form-label">Nível *</label>
+        {{ form.nivel }}
+        {% if form.nivel.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.nivel.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        {% if action == 'create' %}
+        <button type="button" class="btn btn-primary me-2" onclick="addTechnicalSkill()">
+            Adicionar
+        </button>
+        <button type="button" class="btn btn-success" onclick="addMoreTechnicalSkill()">
+            <i class="bi bi-plus"></i> Adicionar +1
+        </button>
+        {% else %}
+        <button type="button" class="btn btn-primary me-2" onclick="editTechnicalSkill({{ skill.id }})">
+            Salvar
+        </button>
+        {% endif %}
+    </div>
+</form> 

@@ -1,0 +1,450 @@
+{% extends 'dashboard/base.html' %} 
+{% load static %} 
+{# {% load masks %} #} 
+
+{% block title %}Meu Perfil - RH Acqua{% endblock %} 
+
+{% block content %}
+<!-- Profile Completion -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">
+      <i class="bi bi-person-circle me-2"></i>
+      Completude do Perfil
+    </h5>
+    <div class="progress mb-3" style="height: 25px;">
+      <div
+        class="progress-bar bg-success"
+        role="progressbar"
+        style="width: {{ perfil_data.completude }}%"
+        aria-valuenow="{{ perfil_data.completude }}"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <strong>{{ perfil_data.completude }}%</strong>
+      </div>
+    </div>
+    
+    <!-- Indicadores de Completude -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="me-2">
+            {% if indicadores.dados_pessoais.nome and indicadores.dados_pessoais.nascimento and indicadores.dados_pessoais.cpf %}
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            {% else %}
+              <i class="bi bi-circle text-muted fs-5"></i>
+            {% endif %}
+          </div>
+          <span class="{% if indicadores.dados_pessoais.nome and indicadores.dados_pessoais.nascimento and indicadores.dados_pessoais.cpf %}text-success{% else %}text-muted{% endif %}">
+            Dados Pessoais
+          </span>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="me-2">
+            {% if indicadores.contato.email and indicadores.contato.telefone and indicadores.contato.endereco %}
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            {% else %}
+              <i class="bi bi-circle text-muted fs-5"></i>
+            {% endif %}
+          </div>
+          <span class="{% if indicadores.contato.email and indicadores.contato.telefone and indicadores.contato.endereco %}text-success{% else %}text-muted{% endif %}">
+            Informações de Contato
+          </span>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="me-2">
+            {% if indicadores.perfil.foto or indicadores.perfil.bio %}
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            {% else %}
+              <i class="bi bi-circle text-muted fs-5"></i>
+            {% endif %}
+          </div>
+          <span class="{% if indicadores.perfil.foto or indicadores.perfil.bio %}text-success{% else %}text-muted{% endif %}">
+            Perfil
+          </span>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="d-flex align-items-center">
+          <div class="me-2">
+            {% if indicadores.configuracoes.notificacoes or indicadores.configuracoes.privacidade %}
+              <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            {% else %}
+              <i class="bi bi-circle text-muted fs-5"></i>
+            {% endif %}
+          </div>
+          <span class="{% if indicadores.configuracoes.notificacoes or indicadores.configuracoes.privacidade %}text-success{% else %}text-muted{% endif %}">
+            Configurações
+          </span>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Personal Information -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">
+      <i class="bi bi-person me-2"></i>
+      Dados Pessoais
+    </h5>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editPersonalModal">
+      <i class="bi bi-pencil me-1"></i> Editar
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="row mb-4">
+      <div class="col-md-3 text-center">
+        <div class="position-relative d-inline-block">
+          <div class="profile-picture-container mb-3">
+            <img
+              src="{% if perfil_data.foto_perfil != 'img/avatar-candidate.png' %}{{ perfil_data.foto_perfil }}{% else %}{% static 'img/avatar-candidate.png' %}{% endif %}"
+              alt="Foto de Perfil"
+              class="profile-picture rounded-circle border shadow-sm"
+              id="profilePicture"
+              style="width: 120px !important; height: 120px !important; object-fit: cover; max-width: 120px; max-height: 120px;"
+            />
+            <button class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0" 
+                    data-bs-toggle="modal" data-bs-target="#editPhotoModal">
+              <i class="bi bi-camera"></i>
+            </button>
+          </div>
+        </div>
+        <div class="mt-2">
+          <small class="text-muted">Clique para alterar</small>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <!-- Informações Básicas -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-muted">Nome Completo *</label>
+            <p class="mb-1">{{ perfil_data.nome_completo|default:"Não informado" }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-muted">Nome Social *</label>
+            <p>{{ perfil_data.nome_social|default:"Não informado" }}</p>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-muted">Data de Nascimento *</label>
+            <p>{{ perfil_data.data_nascimento|default:"Não informado" }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-muted">CPF *</label>
+            <p>{{ perfil_data.cpf|default:"Não informado" }}</p>
+          </div>
+        </div>
+        
+        <!-- Documentos -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">RG</label>
+            <p>{{ perfil_data.rg|default:"Não informado" }}</p>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">Data de Emissão</label>
+            <p>{{ perfil_data.rg_emissao|default:"Não informado" }}</p>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">Órgão Emissor</label>
+            <p>{{ perfil_data.rg_orgao|default:"Não informado" }}</p>
+          </div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-muted">PIS *</label>
+            <p>{{ perfil_data.pis|default:"Não informado" }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold text-muted">Raça/Cor</label>
+            <p>{{ perfil_data.raca_cor|default:"Não informado" }}</p>
+          </div>
+        </div>
+        
+        <!-- Características Pessoais -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">Sexo (designação ao nascer) *</label>
+            <p>{{ perfil_data.sexo|default:"Não informado" }}</p>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">Gênero</label>
+            <p>{{ perfil_data.genero|default:"Não informado" }}</p>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold text-muted">Estado Civil *</label>
+            <p>{{ perfil_data.estado_civil|default:"Não informado" }}</p>
+          </div>
+        </div>
+        
+        {% if perfil_data.bio %}
+        <div class="row mb-3">
+          <div class="col-12">
+            <label class="form-label fw-bold text-muted">Biografia</label>
+            <p class="text-muted">{{ perfil_data.bio }}</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contact Information -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">
+      <i class="bi bi-envelope me-2"></i>
+      Informações de Contato
+    </h5>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editContactModal">
+      <i class="bi bi-pencil me-1"></i> Editar
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">E-mail *</label>
+        <p>{{ perfil_data.email }}</p>
+        {% if perfil_data.email_confirmado %}
+          <span class="badge bg-success">
+            <i class="bi bi-check-circle me-1"></i>Confirmado
+          </span>
+        {% else %}
+          <span class="badge bg-warning">
+            <i class="bi bi-exclamation-triangle me-1"></i>Pendente de confirmação
+          </span>
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Telefone com WhatsApp *</label>
+        <p>{{ perfil_data.whatsapp|default:perfil_data.telefone|default:"Não informado" }}</p>
+        {% if perfil_data.whatsapp %}
+          <span class="badge bg-success">
+            <i class="bi bi-whatsapp me-1"></i>WhatsApp disponível
+          </span>
+        {% endif %}
+      </div>
+    </div>
+    
+    <hr class="my-4">
+    <h6 class="mb-3">
+      <i class="bi bi-geo-alt me-2"></i>
+      Endereço Completo
+    </h6>
+    
+    <div class="row mb-3">
+      <div class="col-md-8">
+        <label class="form-label fw-bold text-muted">Logradouro *</label>
+        <p>{{ perfil_data.endereco|default:"Não informado" }}</p>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-bold text-muted">Número *</label>
+        <p>{{ perfil_data.numero|default:"Não informado" }}</p>
+      </div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Complemento</label>
+        <p>{{ perfil_data.complemento|default:"Não informado" }}</p>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Bairro *</label>
+        <p>{{ perfil_data.bairro|default:"Não informado" }}</p>
+      </div>
+    </div>
+    
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label fw-bold text-muted">Cidade *</label>
+        <p>{{ perfil_data.cidade|default:"Não informado" }}</p>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-bold text-muted">Estado *</label>
+        <p>{{ perfil_data.estado|default:"Não informado" }}</p>
+      </div>
+      <div class="col-md-4">
+        <label class="form-label fw-bold text-muted">CEP *</label>
+        <p>{{ perfil_data.cep|default:"Não informado" }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Account Settings -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">
+      <i class="bi bi-gear me-2"></i>
+      Configurações da Conta
+    </h5>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editSettingsModal">
+      <i class="bi bi-pencil me-1"></i> Editar
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Nome de Usuário</label>
+        <p>{{ perfil_data.username }}</p>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Senha</label>
+        <p>•••••••• <a href="#" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#editPasswordModal">Alterar</a></p>
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Notificações por E-mail</label>
+        <p>
+          {% if perfil_data.notificacoes_email %}
+          <span class="badge bg-success">
+            <i class="bi bi-check-circle me-1"></i>Ativado
+          </span>
+          {% else %}
+          <span class="badge bg-danger">
+            <i class="bi bi-x-circle me-1"></i>Desativado
+          </span>
+          {% endif %}
+        </p>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Notificações por SMS</label>
+        <p>
+          {% if perfil_data.notificacoes_sms %}
+          <span class="badge bg-success">
+            <i class="bi bi-check-circle me-1"></i>Ativado
+          </span>
+          {% else %}
+          <span class="badge bg-danger">
+            <i class="bi bi-x-circle me-1"></i>Desativado
+          </span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Privacy Settings -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">
+      <i class="bi bi-shield-lock me-2"></i>
+      Configurações de Privacidade
+    </h5>
+    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editPrivacyModal">
+      <i class="bi bi-pencil me-1"></i> Editar
+    </button>
+  </div>
+  <div class="card-body">
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Perfil Visível para Recrutadores</label>
+        <p>
+          {% if perfil_data.perfil_visivel %}
+          <span class="badge bg-success">
+            <i class="bi bi-eye me-1"></i>Ativado
+          </span>
+          {% else %}
+          <span class="badge bg-danger">
+            <i class="bi bi-eye-slash me-1"></i>Desativado
+          </span>
+          {% endif %}
+        </p>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold text-muted">Compartilhar Dados com Parceiros</label>
+        <p>
+          {% if perfil_data.compartilhar_dados %}
+          <span class="badge bg-success">
+            <i class="bi bi-share me-1"></i>Ativado
+          </span>
+          {% else %}
+          <span class="badge bg-danger">
+            <i class="bi bi-share-slash me-1"></i>Desativado
+          </span>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modais de Edição serão incluídos aqui -->
+{% include 'users/modals/edit_personal_modal.html' %}
+{% include 'users/modals/edit_contact_modal.html' %}
+{% include 'users/modals/edit_settings_modal.html' %}
+{% include 'users/modals/edit_privacy_modal.html' %}
+{% include 'users/modals/edit_photo_modal.html' %}
+{% include 'users/modals/edit_password_modal.html' %}
+
+{% endblock %}
+
+<style>
+.profile-picture-container {
+  position: relative;
+  display: inline-block;
+  width: 120px;
+  height: 120px;
+}
+
+.profile-picture {
+  width: 120px !important;
+  height: 120px !important;
+  max-width: 120px !important;
+  max-height: 120px !important;
+  min-width: 120px !important;
+  min-height: 120px !important;
+  object-fit: cover !important;
+  border: 3px solid #fff !important;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.profile-picture:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.profile-picture-container .btn {
+  z-index: 10;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.profile-picture-container .btn:hover {
+  transform: scale(1.1);
+}
+
+/* Garantir que a imagem nunca quebre o layout */
+.profile-picture img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+</style>
+

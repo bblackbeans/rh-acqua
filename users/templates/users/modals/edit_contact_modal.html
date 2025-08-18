@@ -1,0 +1,190 @@
+<!-- Modal para Editar Informações de Contato -->
+<div class="modal fade" id="editContactModal" tabindex="-1" aria-labelledby="editContactModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editContactModalLabel">
+          <i class="bi bi-envelope me-2"></i>
+          Editar Informações de Contato
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit_contact">
+        <div class="modal-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="email" class="form-label">E-mail *</label>
+              <input type="email" class="form-control" id="email" name="email" 
+                     value="{{ user.email }}" required>
+              <div class="form-text">Este será usado para login e comunicação</div>
+            </div>
+            <div class="col-md-6">
+              <label for="email_confirm" class="form-label">Confirmação de E-mail *</label>
+              <input type="email" class="form-control" id="email_confirm" name="email_confirm" 
+                     value="{{ user.email }}" required>
+              <div class="form-text">Digite o mesmo e-mail para confirmar</div>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="whatsapp" class="form-label">Telefone com WhatsApp *</label>
+              <input type="text" class="form-control" id="whatsapp" name="whatsapp" 
+                     value="{% if perfil_data.whatsapp %}{{ perfil_data.whatsapp }}{% endif %}" 
+                     required placeholder="(00) 00000-0000" inputmode="numeric">
+              <div class="form-text">Telefone para contato via WhatsApp - apenas números</div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" id="whatsapp_available" name="whatsapp_available" 
+                       {% if perfil_data.whatsapp %}checked{% endif %}>
+                <label class="form-check-label" for="whatsapp_available">
+                  Disponível para contato via WhatsApp
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <hr class="my-4">
+          <h6 class="mb-3">
+            <i class="bi bi-geo-alt me-2"></i>
+            Endereço Completo
+          </h6>
+          
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label for="address" class="form-label">Logradouro *</label>
+              <input type="text" class="form-control" id="address" name="address" 
+                     value="{% if perfil_data.endereco %}{{ perfil_data.endereco }}{% endif %}" 
+                     required placeholder="Rua, Avenida, etc.">
+            </div>
+            <div class="col-md-4">
+              <label for="numero" class="form-label">Número *</label>
+              <input type="text" class="form-control" id="numero" name="numero" 
+                     value="{% if perfil_data.numero %}{{ perfil_data.numero }}{% endif %}" 
+                     required placeholder="Número" 
+                     oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                     maxlength="10">
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="complemento" class="form-label">Complemento</label>
+              <input type="text" class="form-control" id="complemento" name="complemento" 
+                     value="{% if perfil_data.complemento %}{{ perfil_data.complemento }}{% endif %}" 
+                     placeholder="Apartamento, sala, etc.">
+            </div>
+            <div class="col-md-6">
+              <label for="bairro" class="form-label">Bairro *</label>
+              <input type="text" class="form-control" id="bairro" name="bairro" 
+                     value="{% if perfil_data.bairro %}{{ perfil_data.bairro }}{% endif %}" 
+                     required placeholder="Nome do bairro">
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="city" class="form-label">Cidade *</label>
+              <input type="text" class="form-control" id="city" name="city" 
+                     value="{% if perfil_data.cidade %}{{ perfil_data.cidade }}{% endif %}" 
+                     required placeholder="Nome da cidade">
+            </div>
+            <div class="col-md-4">
+              <label for="state" class="form-label">Estado *</label>
+              <select class="form-select" id="state" name="state" required>
+                <option value="">Selecione...</option>
+                <option value="AC" {% if perfil_data.estado == 'AC' %}selected{% endif %}>Acre</option>
+                <option value="AL" {% if perfil_data.estado == 'AL' %}selected{% endif %}>Alagoas</option>
+                <option value="AP" {% if perfil_data.estado == 'AP' %}selected{% endif %}>Amapá</option>
+                <option value="AM" {% if perfil_data.estado == 'AM' %}selected{% endif %}>Amazonas</option>
+                <option value="BA" {% if perfil_data.estado == 'BA' %}selected{% endif %}>Bahia</option>
+                <option value="CE" {% if perfil_data.estado == 'CE' %}selected{% endif %}>Ceará</option>
+                <option value="DF" {% if perfil_data.estado == 'DF' %}selected{% endif %}>Distrito Federal</option>
+                <option value="ES" {% if perfil_data.estado == 'ES' %}selected{% endif %}>Espírito Santo</option>
+                <option value="GO" {% if perfil_data.estado == 'GO' %}selected{% endif %}>Goiás</option>
+                <option value="MA" {% if perfil_data.estado == 'MA' %}selected{% endif %}>Maranhão</option>
+                <option value="MT" {% if perfil_data.estado == 'MT' %}selected{% endif %}>Mato Grosso</option>
+                <option value="MS" {% if perfil_data.estado == 'MS' %}selected{% endif %}>Mato Grosso do Sul</option>
+                <option value="MG" {% if perfil_data.estado == 'MG' %}selected{% endif %}>Minas Gerais</option>
+                <option value="PA" {% if perfil_data.estado == 'PA' %}selected{% endif %}>Pará</option>
+                <option value="PB" {% if perfil_data.estado == 'PB' %}selected{% endif %}>Paraíba</option>
+                <option value="PR" {% if perfil_data.estado == 'PR' %}selected{% endif %}>Paraná</option>
+                <option value="PE" {% if perfil_data.estado == 'PE' %}selected{% endif %}>Pernambuco</option>
+                <option value="PI" {% if perfil_data.estado == 'PI' %}selected{% endif %}>Piauí</option>
+                <option value="RJ" {% if perfil_data.estado == 'RJ' %}selected{% endif %}>Rio de Janeiro</option>
+                <option value="RN" {% if perfil_data.estado == 'RN' %}selected{% endif %}>Rio Grande do Norte</option>
+                <option value="RS" {% if perfil_data.estado == 'RS' %}selected{% endif %}>Rio Grande do Sul</option>
+                <option value="RO" {% if perfil_data.estado == 'RO' %}selected{% endif %}>Rondônia</option>
+                <option value="RR" {% if perfil_data.estado == 'RR' %}selected{% endif %}>Roraima</option>
+                <option value="SC" {% if perfil_data.estado == 'SC' %}selected{% endif %}>Santa Catarina</option>
+                <option value="SP" {% if perfil_data.estado == 'SP' %}selected{% endif %}>São Paulo</option>
+                <option value="SE" {% if perfil_data.estado == 'SE' %}selected{% endif %}>Sergipe</option>
+                <option value="TO" {% if perfil_data.estado == 'TO' %}selected{% endif %}>Tocantins</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="zip_code" class="form-label">CEP *</label>
+              <input type="text" class="form-control" id="zip_code" name="zip_code" 
+                     value="{% if perfil_data.cep %}{{ perfil_data.cep }}{% endif %}" 
+                     required placeholder="00000-000" inputmode="numeric">
+              <div class="form-text">Digite apenas números - máximo 8 dígitos</div>
+            </div>
+          </div>
+          
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-1"></i>
+            Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 
+
+<!-- 🎭 PATCH DE MÁSCARAS - Aplicado diretamente no modal -->
+<script>
+// === MÁSCARAS PARA MODAL DE CONTATO ===
+// Usa as funções já declaradas no modal de informações pessoais
+
+// liga quando o modal abrir
+document.addEventListener('shown.bs.modal', ev => {
+  if (ev.target && ev.target.id === 'editContactModal') {
+    console.log('Modal de contato aberto, aplicando máscaras...');
+    
+    // Verifica se as funções globais existem
+    if (typeof bindMasked === 'function' && typeof fmtPhone === 'function' && typeof fmtCEP === 'function') {
+      const tel = document.getElementById('whatsapp');
+      const cep = document.getElementById('zip_code');
+
+      if (tel && cep) {
+        bindMasked(tel, fmtPhone, 11, new Set([10,11]));
+        bindMasked(cep, fmtCEP, 8, new Set([8]));
+        console.log('✅ Máscaras de contato aplicadas!');
+      } else {
+        console.log('❌ Campos não encontrados:', { tel: !!tel, cep: !!cep });
+      }
+    } else {
+      console.log('❌ Funções de máscara não encontradas. Verificando...');
+      console.log('bindMasked:', typeof bindMasked);
+      console.log('fmtPhone:', typeof fmtPhone);
+      console.log('fmtCEP:', typeof fmtCEP);
+    }
+  }
+});
+
+// também liga se o modal já estiver renderizado na página
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('editContactModal');
+  if (modal && modal.classList.contains('show')) {
+    console.log('Modal de contato já aberto, disparando evento...');
+    const evt = new Event('shown.bs.modal'); evt.target = modal; document.dispatchEvent(evt);
+  }
+});
+</script> 

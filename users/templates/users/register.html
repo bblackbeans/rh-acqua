@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registro - RH Acqua{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body p-5">
+          <div class="text-center mb-4">
+            <h2 class="text-primary">RH Acqua V2</h2>
+            <p class="text-muted">Criar nova conta</p>
+          </div>
+
+          {% if form.errors %}
+          <div class="alert alert-danger">
+            <strong>Por favor, corrija os erros abaixo.</strong>
+          </div>
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }}</label>
+                <input type="text" 
+                       class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" 
+                       id="{{ form.first_name.id_for_label }}" 
+                       name="{{ form.first_name.name }}" 
+                       value="{{ form.first_name.value|default:'' }}"
+                       required>
+                {% if form.first_name.errors %}
+                <div class="invalid-feedback">
+                  {% for error in form.first_name.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }}</label>
+                <input type="text" 
+                       class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" 
+                       id="{{ form.last_name.id_for_label }}" 
+                       name="{{ form.last_name.name }}" 
+                       value="{{ form.last_name.value|default:'' }}"
+                       required>
+                {% if form.last_name.errors %}
+                <div class="invalid-feedback">
+                  {% for error in form.last_name.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+              <input type="email" 
+                     class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                     id="{{ form.email.id_for_label }}" 
+                     name="{{ form.email.name }}" 
+                     value="{{ form.email.value|default:'' }}"
+                     required>
+              {% if form.email.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.email.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.password1.id_for_label }}" class="form-label">
+                {{ form.password1.label }}
+                <i class="bi bi-info-circle text-primary" data-bs-toggle="tooltip" title="Digite sua senha"></i>
+              </label>
+              <input type="password" 
+                     class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                     id="{{ form.password1.id_for_label }}" 
+                     name="{{ form.password1.name }}" 
+                     placeholder="Digite sua senha"
+                     required>
+              {% if form.password1.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.password1.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
+              <input type="password" 
+                     class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                     id="{{ form.password2.id_for_label }}" 
+                     name="{{ form.password2.name }}" 
+                     placeholder="Confirme sua senha"
+                     required>
+              {% if form.password2.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.password2.errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label">{{ form.role.label }}</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" id="id_role_candidate" value="candidate" checked>
+                <label class="form-check-label" for="id_role_candidate">
+                  Candidato
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="role" id="id_role_recruiter" value="recruiter" disabled>
+                <label class="form-check-label" for="id_role_recruiter">
+                  Recrutador (Indisponível)
+                </label>
+              </div>
+              <small class="form-text text-muted">{{ form.role.help_text }}</small>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Registrar</button>
+            </div>
+          </form>
+
+          <div class="text-center mt-3">
+            <p class="mb-0">Já tem uma conta? <a href="{% url 'login' %}" class="text-decoration-none">Faça login</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Inicializar tooltips do Bootstrap
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% load static %}
+
+{% if habilidades_emocionais %}
+    <div class="d-flex flex-wrap gap-2">
+        {% for skill in habilidades_emocionais %}
+        <div class="badge bg-success d-flex align-items-center gap-2">
+            {{ skill.nome }}
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-sm btn-outline-light" 
+                        data-action="edit" data-section="skill-soft" data-id="{{ skill.id }}">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light" 
+                        data-action="delete" data-section="skill-soft" data-id="{{ skill.id }}">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    {% include 'users/partials/empty.html' with icon='heart' section_name='habilidades emocionais' %}
+{% endif %} 

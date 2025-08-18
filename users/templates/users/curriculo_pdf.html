@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currículo - {{ user.get_full_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm;
+            @top-center {
+                content: "Currículo - {{ user.get_full_name }}";
+                font-size: 10pt;
+                color: #666;
+            }
+            @bottom-center {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 10pt;
+                color: #666;
+            }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #007bff;
+            margin: 0;
+            font-size: 28pt;
+        }
+        
+        .header .subtitle {
+            color: #666;
+            font-size: 14pt;
+            margin-top: 10px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section h2 {
+            color: #007bff;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            font-size: 18pt;
+        }
+        
+        .section h3 {
+            color: #495057;
+            margin: 15px 0 8px 0;
+            font-size: 14pt;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+        }
+        
+        .card h4 {
+            color: #007bff;
+            margin: 0 0 8px 0;
+            font-size: 13pt;
+        }
+        
+        .card p {
+            margin: 5px 0;
+            font-size: 11pt;
+        }
+        
+        .badge {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10pt;
+            margin: 2px;
+        }
+        
+        .badge-secondary {
+            background-color: #6c757d;
+        }
+        
+        .badge-success {
+            background-color: #28a745;
+        }
+        
+        .badge-info {
+            background-color: #17a2b8;
+        }
+        
+        .badge-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        .page-break {
+            page-break-before: always;
+        }
+        
+        @media print {
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ user.get_full_name }}</h1>
+        <div class="subtitle">Currículo Profissional</div>
+        <div class="subtitle">Gerado em {{ curriculo_data.ultima_atualizacao }}</div>
+    </div>
+
+    <!-- Informações Pessoais -->
+    <div class="section">
+        <h2>Informações Pessoais</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Nome Completo:</span>
+                <span>{{ curriculo_data.informacoes_pessoais.nome_completo }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Data de Nascimento:</span>
+                <span>{{ curriculo_data.informacoes_pessoais.data_nascimento }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">E-mail:</span>
+                <span>{{ curriculo_data.informacoes_pessoais.email }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Telefone:</span>
+                <span>{{ curriculo_data.informacoes_pessoais.telefone }}</span>
+            </div>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Endereço:</span>
+            <span>{{ curriculo_data.informacoes_pessoais.endereco }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Resumo Profissional:</span>
+            <p>{{ curriculo_data.informacoes_pessoais.resumo_profissional }}</p>
+        </div>
+    </div>
+
+    <!-- Formação Acadêmica -->
+    <div class="section">
+        <h2>Formação Acadêmica</h2>
+        {% if curriculo_data.formacao_academica %}
+            {% for formacao in curriculo_data.formacao_academica %}
+            <div class="card">
+                <h4>{{ formacao.curso }}</h4>
+                <p><strong>Instituição:</strong> {{ formacao.instituicao }}</p>
+                <p><strong>Nível:</strong> {{ formacao.nivel_escolaridade }}</p>
+                <p><strong>Ano de Conclusão:</strong> {{ formacao.ano_conclusao }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                Nenhuma formação acadêmica cadastrada
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Experiência Profissional -->
+    <div class="section">
+        <h2>Experiência Profissional</h2>
+        {% if curriculo_data.experiencia_profissional %}
+            {% for experiencia in curriculo_data.experiencia_profissional %}
+            <div class="card">
+                <h4>{{ experiencia.cargo }}</h4>
+                <p><strong>Empresa:</strong> {{ experiencia.empresa }}</p>
+                <p><strong>Período:</strong> {{ experiencia.periodo }}</p>
+                {% if experiencia.atividades %}
+                <p><strong>Atividades:</strong> {{ experiencia.atividades }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                Nenhuma experiência profissional cadastrada
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Habilidades Técnicas -->
+    <div class="section">
+        <h2>Habilidades Técnicas</h2>
+        {% if curriculo_data.habilidades_tecnicas %}
+            {% for habilidade in curriculo_data.habilidades_tecnicas %}
+            <span class="badge">{{ habilidade.nome }} - {{ habilidade.nivel }}</span>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                Nenhuma habilidade técnica cadastrada
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Habilidades Emocionais -->
+    <div class="section">
+        <h2>Habilidades Emocionais</h2>
+        {% if curriculo_data.habilidades_emocionais %}
+            {% for habilidade in curriculo_data.habilidades_emocionais %}
+            <span class="badge badge-success">{{ habilidade.nome }}</span>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                Nenhuma habilidade emocional cadastrada
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Certificações -->
+    <div class="section">
+        <h2>Certificações</h2>
+        {% if curriculo_data.certificacoes %}
+            {% for certificacao in curriculo_data.certificacoes %}
+            <div class="card">
+                <h4>{{ certificacao.titulo }}</h4>
+                {% if certificacao.orgao %}
+                <p><strong>Órgão:</strong> {{ certificacao.orgao }}</p>
+                {% endif %}
+                <p><strong>Emissão:</strong> {{ certificacao.emissao }}</p>
+                {% if certificacao.validade %}
+                <p><strong>Validade:</strong> {{ certificacao.validade }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                Nenhuma certificação cadastrada
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Idiomas -->
+    <div class="section">
+        <h2>Idiomas</h2>
+        {% if curriculo_data.idiomas %}
+            {% for idioma in curriculo_data.idiomas %}
+            <span class="badge badge-info">{{ idioma.idioma }} - {{ idioma.nivel }}</span>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                Nenhum idioma cadastrado
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html> 

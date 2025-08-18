@@ -1,0 +1,207 @@
+{% load static %}
+<!-- Modal para Editar Foto de Perfil -->
+<div class="modal fade" id="editPhotoModal" tabindex="-1" aria-labelledby="editPhotoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPhotoModalModalLabel">
+          <i class="bi bi-camera me-2"></i>
+          Alterar Foto de Perfil
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit_photo">
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <div class="position-relative d-inline-block">
+              <img
+                src="{% if perfil_data.foto_perfil != 'img/avatar-candidate.png' %}{{ perfil_data.foto_perfil }}{% else %}{% static 'img/avatar-candidate.png' %}{% endif %}"
+                alt="Foto Atual"
+                class="img-fluid rounded-circle border shadow-sm"
+                style="width: 150px; height: 150px; object-fit: cover; max-width: 150px; max-height: 150px; border-radius: 50%;"
+                id="currentPhotoPreview"
+              />
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-circle" 
+                   style="opacity: 0; transition: opacity 0.3s;" id="photoOverlay">
+                <i class="bi bi-camera text-white fs-1"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="profile_picture" class="form-label">Selecionar Nova Foto</label>
+            <input type="file" class="form-control" id="profile_picture" name="profile_picture" 
+                   accept="image/*" onchange="previewImage(this)">
+            <div class="form-text">
+              Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB. Dimensão recomendada: 400x400px.
+            </div>
+          </div>
+          
+          <div class="mb-3" id="newPhotoPreview" style="display: none;">
+            <label class="form-label">Prévia da Nova Foto</label>
+            <div class="text-center">
+              <img
+                src=""
+                alt="Nova Foto"
+                class="img-fluid rounded-circle border"
+                style="width: 120px; height: 120px; object-fit: cover;"
+                id="newPhotoImage"
+              />
+            </div>
+          </div>
+          
+          <div class="alert alert-info">
+            <i class="bi bi-lightbulb me-2"></i>
+            <strong>Dicas para uma boa foto:</strong>
+            <ul class="mb-0 mt-2">
+              <li>Use uma foto profissional e de boa qualidade</li>
+              <li>Mantenha o rosto bem iluminado e centralizado</li>
+              <li>Evite fotos com muitas pessoas ou fundos complexos</li>
+              <li>Use roupas apropriadas para o ambiente profissional</li>
+            </ul>
+          </div>
+          
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="remove_photo" name="remove_photo">
+              <label class="form-check-label" for="remove_photo">
+                Remover foto atual e usar avatar padrão
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="savePhotoBtn" disabled>
+            <i class="bi bi-check-circle me-1"></i>
+            Salvar Foto
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Função para pré-visualizar a nova imagem
+function previewImage(input) {
+  const file = input.files[0];
+  const preview = document.getElementById('newPhotoPreview');
+  const previewImg = document.getElementById('newPhotoImage');
+  const saveBtn = document.getElementById('savePhotoBtn');
+  
+  if (file) {
+    // Validar tamanho do arquivo (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('O arquivo é muito grande. Tamanho máximo permitido: 5MB');
+      input.value = '';
+      preview.style.display = 'none';
+      saveBtn.disabled = true;
+      return;
+    }
+    
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, selecione apenas arquivos de imagem');
+      input.value = '';
+      preview.style.display = 'none';
+      saveBtn.disabled = true;
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      previewImg.src = e.target.result;
+      preview.style.display = 'block';
+      saveBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    preview.style.display = 'none';
+    saveBtn.disabled = true;
+  }
+}
+
+// Função para atualizar a foto na página principal após sucesso
+function updateProfilePicture(newImageSrc) {
+  const profilePicture = document.getElementById('profilePicture');
+  if (profilePicture) {
+    profilePicture.src = newImageSrc;
+  }
+}
+
+// Efeito hover na foto atual
+document.addEventListener('DOMContentLoaded', function() {
+  const photoContainer = document.querySelector('.position-relative');
+  const overlay = document.getElementById('photoOverlay');
+  
+  if (photoContainer && overlay) {
+    photoContainer.addEventListener('mouseenter', function() {
+      overlay.style.opacity = '1';
+    });
+    
+    photoContainer.addEventListener('mouseleave', function() {
+      overlay.style.opacity = '0';
+    });
+  }
+});
+
+// Habilitar botão quando checkbox de remover foto for marcado
+document.getElementById('remove_photo')?.addEventListener('change', function() {
+  const saveBtn = document.getElementById('savePhotoBtn');
+  const fileInput = document.getElementById('profile_picture');
+  
+  if (this.checked) {
+    saveBtn.disabled = false;
+    fileInput.disabled = true;
+  } else {
+    fileInput.disabled = false;
+    if (!fileInput.files[0]) {
+      saveBtn.disabled = true;
+    }
+  }
+});
+
+// Adicionar listener para o formulário
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('#editPhotoModal form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const saveBtn = document.getElementById('savePhotoBtn');
+      saveBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Salvando...';
+      saveBtn.disabled = true;
+    });
+  }
+});
+</script>
+
+<style>
+/* CSS específico para o modal de foto */
+#editPhotoModal .img-fluid.rounded-circle {
+  width: 150px !important;
+  height: 150px !important;
+  max-width: 150px !important;
+  max-height: 150px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  border: 3px solid #fff !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+#editPhotoModal #newPhotoImage {
+  width: 120px !important;
+  height: 120px !important;
+  max-width: 120px !important;
+  max-height: 120px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  border: 2px solid #dee2e6 !important;
+}
+
+/* Garantir que todas as imagens no modal sejam redondas */
+#editPhotoModal img {
+  border-radius: 50% !important;
+}
+</style> 

@@ -1,0 +1,39 @@
+{% load static %}
+
+{% if idiomas %}
+    <div class="row g-3">
+        {% for language in idiomas %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="flex-grow-1">
+                                <h6 class="card-title mb-1 fw-semibold text-primary">
+                                    {% if language.idioma == 'outro' and language.idioma_outro %}
+                                        {{ language.idioma_outro }}
+                                    {% else %}
+                                        {{ language.idioma_display|default:language.idioma|title }}
+                                    {% endif %}
+                                </h6>
+                                <span class="badge bg-light text-dark border fs-7">
+                                    <i class="bi bi-star-fill text-warning me-1"></i>
+                                    {{ language.nivel|title }}
+                                </span>
+                            </div>
+                            <div class="btn-group-vertical btn-group-sm ms-2" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-action="edit" data-section="language" data-id="{{ language.id }}" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" data-action="delete" data-section="language" data-id="{{ language.id }}" title="Excluir">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    {% include 'users/partials/empty.html' with icon='globe' section_name='idiomas' %}
+{% endif %} 
