@@ -1,0 +1,136 @@
+{% macro render_field(field, label_class='', field_class='', show_help=True) %}
+    <div class="mb-3 {% if field.errors %}has-error{% endif %}">
+        {% if field.field.widget.input_type == 'checkbox' %}
+            <div class="form-check">
+                {{ field|add_class:"form-check-input" }}
+                <label for="{{ field.id_for_label }}" class="form-check-label {{ label_class }}">
+                    {{ field.label }}
+                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                </label>
+                {% if show_help and field.help_text %}
+                    <div class="form-text text-muted">{{ field.help_text }}</div>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <label for="{{ field.id_for_label }}" class="form-label {{ label_class }}">
+                {{ field.label }}
+                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {% if field.field.widget.input_type == 'file' %}
+                {{ field|add_class:"form-control"|add_class:field_class }}
+            {% elif field.field.widget.input_type == 'select' %}
+                {{ field|add_class:"form-select"|add_class:field_class }}
+            {% else %}
+                {{ field|add_class:"form-control"|add_class:field_class }}
+            {% endif %}
+            {% if show_help and field.help_text %}
+                <div class="form-text text-muted">{{ field.help_text }}</div>
+            {% endif %}
+            {% for error in field.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_date_field(field, label_class='', field_class='', show_help=True) %}
+    <div class="mb-3 {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}" class="form-label {{ label_class }}">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+        <div class="input-group">
+            {{ field|add_class:"form-control datepicker"|add_class:field_class }}
+            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+        </div>
+        {% if show_help and field.help_text %}
+            <div class="form-text text-muted">{{ field.help_text }}</div>
+        {% endif %}
+        {% for error in field.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro render_time_field(field, label_class='', field_class='', show_help=True) %}
+    <div class="mb-3 {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}" class="form-label {{ label_class }}">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+        <div class="input-group">
+            {{ field|add_class:"form-control timepicker"|add_class:field_class }}
+            <span class="input-group-text"><i class="fas fa-clock"></i></span>
+        </div>
+        {% if show_help and field.help_text %}
+            <div class="form-text text-muted">{{ field.help_text }}</div>
+        {% endif %}
+        {% for error in field.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro render_textarea_field(field, label_class='', field_class='', rows=4, show_help=True) %}
+    <div class="mb-3 {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}" class="form-label {{ label_class }}">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+        {{ field|attr:"rows:"|add_attr:rows|add_class:"form-control"|add_class:field_class }}
+        {% if show_help and field.help_text %}
+            <div class="form-text text-muted">{{ field.help_text }}</div>
+        {% endif %}
+        {% for error in field.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro render_select2_field(field, label_class='', field_class='', show_help=True) %}
+    <div class="mb-3 {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}" class="form-label {{ label_class }}">
+            {{ field.label }}
+            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+        </label>
+        {{ field|add_class:"form-control select2"|add_class:field_class }}
+        {% if show_help and field.help_text %}
+            <div class="form-text text-muted">{{ field.help_text }}</div>
+        {% endif %}
+        {% for error in field.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro render_submit_button(text='Salvar', btn_class='btn-primary', icon='fa-save') %}
+    <button type="submit" class="btn {{ btn_class }}">
+        <i class="fas {{ icon }} me-1"></i> {{ text }}
+    </button>
+{% endmacro %}
+
+{% macro render_cancel_button(url, text='Cancelar', btn_class='btn-secondary', icon='fa-times') %}
+    <a href="{{ url }}" class="btn {{ btn_class }}">
+        <i class="fas {{ icon }} me-1"></i> {{ text }}
+    </a>
+{% endmacro %}
+
+<!-- 
+Uso:
+{% from 'macros/form_macros.html' import render_field, render_date_field, render_textarea_field, render_submit_button, render_cancel_button %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ render_field(form.name) }}
+    {{ render_date_field(form.birth_date) }}
+    {{ render_textarea_field(form.description, rows=6) }}
+    
+    <div class="d-flex justify-content-between mt-4">
+        {{ render_cancel_button(cancel_url) }}
+        {{ render_submit_button() }}
+    </div>
+</form>
+-->

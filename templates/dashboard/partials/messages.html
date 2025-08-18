@@ -1,0 +1,160 @@
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+  <div
+    class="alert alert-{{ message.tags }} alert-dismissible fade show"
+    role="alert"
+  >
+    <div class="alert-content">
+      {% if message.tags == 'success' %}
+      <i class="bi bi-check-circle-fill"></i>
+      {% elif message.tags == 'error' %}
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      {% elif message.tags == 'warning' %}
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      {% elif message.tags == 'info' %}
+      <i class="bi bi-info-circle-fill"></i>
+      {% endif %}
+      <span>{{ message }}</span>
+    </div>
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    >
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<!-- Estilos específicos para mensagens -->
+<style>
+  .messages-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: var(--z-modal);
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .alert {
+    margin-bottom: var(--spacing-3);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    border: none;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .alert-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+  }
+
+  .alert-icon {
+    font-size: var(--text-lg);
+    flex-shrink: 0;
+  }
+
+  .alert-message {
+    flex: 1;
+    font-weight: 500;
+  }
+
+  .alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: var(--text-lg);
+    cursor: pointer;
+    padding: var(--spacing-1);
+    border-radius: var(--border-radius);
+    transition: background-color var(--transition-fast);
+    flex-shrink: 0;
+  }
+
+  .alert-close:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .alert-success {
+    background: linear-gradient(135deg, var(--success-color), #34d399);
+    color: var(--white);
+  }
+
+  .alert-error {
+    background: linear-gradient(135deg, var(--danger-color), #f87171);
+    color: var(--white);
+  }
+
+  .alert-warning {
+    background: linear-gradient(135deg, var(--warning-color), #fbbf24);
+    color: var(--white);
+  }
+
+  .alert-info {
+    background: linear-gradient(135deg, var(--info-color), #22d3ee);
+    color: var(--white);
+  }
+
+  /* Animação de entrada */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .fade-in {
+    animation: slideInRight var(--transition-normal);
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .messages-container {
+      top: 10px;
+      right: 10px;
+      left: 10px;
+      max-width: none;
+    }
+  }
+</style>
+
+<!-- Script para auto-remover mensagens -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const alerts = document.querySelectorAll(".alert");
+
+    alerts.forEach((alert) => {
+      // Auto-remove após 5 segundos
+      setTimeout(() => {
+        alert.style.opacity = "0";
+        alert.style.transform = "translateX(100%)";
+        setTimeout(() => {
+          alert.remove();
+        }, 300);
+      }, 5000);
+
+      // Remove manual
+      const closeBtn = alert.querySelector(".alert-close");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          alert.style.opacity = "0";
+          alert.style.transform = "translateX(100%)";
+          setTimeout(() => {
+            alert.remove();
+          }, 300);
+        });
+      }
+    });
+  });
+</script>

@@ -1,0 +1,295 @@
+{% extends 'dashboard/base.html' %} {% load static %} {% block title %}Dashboard
+do Administrador - RH Acqua123{% endblock %} {% block meta_description %}Painel
+administrativo completo do sistema RH Acqua com estatísticas, gestão de usuários
+e monitoramento do sistema{% endblock %} {% block body_class %}admin-dashboard{%endblock %} {% block extra_css %}{% endblock %} {% block
+breadcrumb %}
+<nav aria-label="breadcrumb" style="margin-left: 0">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="">Dashboard</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Administrador</li>
+  </ol>
+</nav>
+{% block content %}
+<!-- Welcome Card -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Bem-vindo, {{ user.first_name }}!</h5>
+    <p class="card-text">
+      Aqui você pode gerenciar todos os aspectos do sistema de RH.
+    </p>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row">
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div
+              class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+            >
+              Total de Usuários
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">125</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-people fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-success h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div
+              class="text-xs font-weight-bold text-success text-uppercase mb-1"
+            >
+              Unidades Ativas
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-building fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-info h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+              Vagas Ativas
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">42</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-briefcase fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-warning h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div
+              class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+            >
+              Uso do Sistema
+            </div>
+            <div class="row no-gutters align-items-center">
+              <div class="col-auto">
+                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                  78%
+                </div>
+              </div>
+              <div class="col">
+                <div class="progress progress-sm mr-2">
+                  <div
+                    class="progress-bar bg-warning"
+                    role="progressbar"
+                    style="width: 78%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-cpu fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+  <!-- Usuários Recentes -->
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Usuários Recentes</h6>
+        <a href="#" class="btn btn-sm btn-primary">Ver Todos</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Data de Cadastro</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ana Oliveira</td>
+                <td>Recrutador</td>
+                <td>01/06/2025</td>
+                <td>
+                  <span class="status-badge approved">Ativo</span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                </td>
+              </tr>
+              <tr>
+                <td>João Silva</td>
+                <td>Candidato</td>
+                <td>02/06/2025</td>
+                <td>
+                  <span class="status-badge approved">Ativo</span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Maria Santos</td>
+                <td>Candidato</td>
+                <td>03/06/2025</td>
+                <td>
+                  <span class="status-badge approved">Ativo</span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Roberto Alves</td>
+                <td>Recrutador</td>
+                <td>04/06/2025</td>
+                <td>
+                  <span class="status-badge pending">Pendente</span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Editar</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Atividades do Sistema -->
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Atividades do Sistema</h6>
+        <a href="#" class="btn btn-sm btn-primary">Ver Todas</a>
+      </div>
+      <div class="card-body">
+        <div class="list-group">
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">Backup automático concluído</h6>
+              <small class="text-muted">Hoje, 08:30</small>
+            </div>
+            <p class="mb-1">
+              O backup diário do sistema foi concluído com sucesso.
+            </p>
+          </a>
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">Nova unidade cadastrada</h6>
+              <small class="text-muted">Ontem, 14:45</small>
+            </div>
+            <p class="mb-1">
+              A unidade "Hospital São Lucas - Rio de Janeiro" foi cadastrada.
+            </p>
+          </a>
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">Atualização do sistema disponível</h6>
+              <small class="text-muted">03/06/2025, 10:15</small>
+            </div>
+            <p class="mb-1">Nova versão 2.1.5 disponível para instalação.</p>
+          </a>
+          <a href="#" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+              <h6 class="mb-1">Tentativa de login inválida</h6>
+              <small class="text-muted">02/06/2025, 22:30</small>
+            </div>
+            <p class="mb-1">
+              Múltiplas tentativas de login para o usuário admin.
+            </p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Estatísticas do Sistema -->
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+          Estatísticas do Sistema
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h5 class="text-center mb-4">Distribuição de Usuários</h5>
+            <div
+              class="chart-container"
+              style="position: relative; height: 300px; width: 100%"
+            >
+              <!-- Aqui entraria um gráfico de pizza -->
+              <div class="text-center py-5">
+                <p class="text-muted">Gráfico de distribuição de usuários</p>
+                <p>Candidatos: 65%</p>
+                <p>Recrutadores: 30%</p>
+                <p>Administradores: 5%</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h5 class="text-center mb-4">Vagas por Unidade</h5>
+            <div
+              class="chart-container"
+              style="position: relative; height: 300px; width: 100%"
+            >
+              <!-- Aqui entraria um gráfico de barras -->
+              <div class="text-center py-5">
+                <p class="text-muted">Gráfico de vagas por unidade</p>
+                <p>Hospital Santa Clara - SP: 15 vagas</p>
+                <p>Hospital São Lucas - RJ: 12 vagas</p>
+                <p>Hospital Central - MG: 8 vagas</p>
+                <p>Outras unidades: 7 vagas</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}{% endblock %}
+

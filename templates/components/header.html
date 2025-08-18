@@ -1,0 +1,45 @@
+{% load static %}
+<!-- Header Component -->
+<header id="header" class="header fixed-top">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+        <a href="{% url 'home' %}" class="logo d-flex align-items-center">
+            <img src="{% static 'img/logo.png' %}" alt="RH Acqua Logo">
+            <span>RH Acqua123</span>
+        </a>
+        
+        <nav id="navbar" class="navbar">
+            <ul>
+                {% if user.is_authenticated %}
+                    {% if user.profile.role == 'candidate' %}
+                        {% include 'navigation/candidate_menu.html' %}
+                    {% elif user.profile.role == 'recruiter' %}
+                        {% include 'navigation/recruiter_menu.html' %}
+                    {% elif user.profile.role == 'admin' or user.is_staff %}
+                        {% include 'navigation/admin_menu.html' %}
+                    {% else %}
+                        {% include 'navigation/default_menu.html' %}
+                    {% endif %}
+                    
+                    <li class="dropdown">
+                        <a href="#">
+                            <span>{{ user.get_full_name|default:user.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </a>
+                        <ul>
+                            <li><a href="{% url 'users:profile' %}">Meu Perfil</a></li>
+                            <li><a href="#">Configurações</a></li>
+                            <li><a href="#">Notificações</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a href="{% url 'users:logout' %}">Sair</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    {% include 'navigation/public_menu.html' %}
+                    <li><a class="nav-link scrollto" href="{% url 'users:login' %}">Entrar</a></li>
+                    <li><a class="getstarted scrollto" href="{% url 'users:register' %}">Cadastre-se</a></li>
+                {% endif %}
+            </ul>
+            <i class="fas fa-bars mobile-nav-toggle"></i>
+        </nav>
+    </div>
+</header>

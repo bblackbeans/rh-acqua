@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua V2 - Demo</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/demo.css">
+</head>
+<body>
+    <div class="demo-container">
+        <header class="demo-header">
+            <h1>Sistema RH Acqua V2 - Demonstração de Layout</h1>
+            <p>Visualize os diferentes perfis de usuário e suas interfaces</p>
+        </header>
+        
+        <div class="demo-tabs">
+            <ul class="nav nav-tabs" id="demoTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="candidate-tab" data-bs-toggle="tab" data-bs-target="#candidate" type="button" role="tab" aria-controls="candidate" aria-selected="true">
+                        <i class="bi bi-person"></i> Candidato
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="recruiter-tab" data-bs-toggle="tab" data-bs-target="#recruiter" type="button" role="tab" aria-controls="recruiter" aria-selected="false">
+                        <i class="bi bi-briefcase"></i> Recrutador
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab" aria-controls="admin" aria-selected="false">
+                        <i class="bi bi-gear"></i> Administrador
+                    </button>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="tab-content" id="demoTabsContent">
+            <!-- Candidato -->
+            <div class="tab-pane fade show active" id="candidate" role="tabpanel" aria-labelledby="candidate-tab">
+                <div class="demo-frame-container">
+                    <div class="demo-controls">
+                        <div class="demo-device-selector">
+                            <button class="btn btn-sm btn-outline-primary active" data-device="desktop">
+                                <i class="bi bi-display"></i> Desktop
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" data-device="tablet">
+                                <i class="bi bi-tablet"></i> Tablet
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" data-device="mobile">
+                                <i class="bi bi-phone"></i> Mobile
+                            </button>
+                        </div>
+                        <div class="demo-page-selector">
+                            <select class="form-select form-select-sm" id="candidatePageSelect">
+                                <option value="candidate_dashboard.html">Dashboard</option>
+                                <option value="candidate_vacancies.html">Vagas Disponíveis</option>
+                                <option value="candidate_applications.html">Minhas Candidaturas</option>
+                                <option value="candidate_profile.html">Meu Perfil</option>
+                                <option value="candidate_resume.html">Meu Currículo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="demo-frame-wrapper desktop">
+                        <iframe id="candidateFrame" src="candidate_dashboard.html" title="Visão do Candidato"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recrutador -->
+            <div class="tab-pane fade" id="recruiter" role="tabpanel" aria-labelledby="recruiter-tab">
+                <div class="demo-frame-container">
+                    <div class="demo-controls">
+                        <div class="demo-device-selector">
+                            <button class="btn btn-sm btn-outline-primary active" data-device="desktop">
+                                <i class="bi bi-display"></i> Desktop
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" data-device="tablet">
+                                <i class="bi bi-tablet"></i> Tablet
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" data-device="mobile">
+                                <i class="bi bi-phone"></i> Mobile
+                            </button>
+                        </div>
+                        <div class="demo-page-selector">
+                            <select class="form-select form-select-sm" id="recruiterPageSelect">
+                                <option value="recruiter_dashboard.html">Dashboard</option>
+                                <option value="recruiter_vacancies.html">Gestão de Vagas</option>
+                                <option value="recruiter_applications.html">Candidaturas</option>
+                                <option value="recruiter_interviews.html">Entrevistas</option>
+                                <option value="recruiter_candidates.html">Banco de Talentos</option>
+                                <option value="recruiter_reports.html">Relatórios</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="demo-frame-wrapper desktop">
+                        <iframe id="recruiterFrame" src="recruiter_dashboard.html" title="Visão do Recrutador"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Administrador -->
+            <div class="tab-pane fade" id="admin" role="tabpanel" aria-labelledby="admin-tab">
+                <div class="demo-frame-container">
+                    <div class="demo-controls">
+                        <div class="demo-device-selector">
+                            <button class="btn btn-sm btn-outline-primary active" data-device="desktop">
+                                <i class="bi bi-display"></i> Desktop
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" data-device="tablet">
+                                <i class="bi bi-tablet"></i> Tablet
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" data-device="mobile">
+                                <i class="bi bi-phone"></i> Mobile
+                            </button>
+                        </div>
+                        <div class="demo-page-selector">
+                            <select class="form-select form-select-sm" id="adminPageSelect">
+                                <option value="admin_dashboard.html">Dashboard</option>
+                                <option value="admin_users.html">Gestão de Usuários</option>
+                                <option value="admin_units.html">Unidades Hospitalares</option>
+                                <option value="admin_departments.html">Setores</option>
+                                <option value="admin_settings.html">Configurações</option>
+                                <option value="admin_logs.html">Logs do Sistema</option>
+                                <option value="admin_reports.html">Relatórios Avançados</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="demo-frame-wrapper desktop">
+                        <iframe id="adminFrame" src="admin_dashboard.html" title="Visão do Administrador"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Demo JS -->
+    <script src="js/demo.js"></script>
+</body>
+</html>

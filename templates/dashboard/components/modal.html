@@ -1,0 +1,147 @@
+{% comment %}
+Componente Modal Reutilizável
+
+Uso:
+{% include 'admin/components/modal.html' with modal_id="myModal" modal_title="Título do Modal" %}
+
+Conteúdo do modal:
+{% block modal_content %}
+    <p>Conteúdo do modal aqui...</p>
+{% endblock %}
+
+{% block modal_footer %}
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+    <button type="button" class="btn btn-primary">Salvar</button>
+{% endblock %}
+{% endcomment %}
+
+<div class="modal" id="{{ modal_id|default:'defaultModal' }}">
+    <div class="modal-dialog {% if modal_size %}{{ modal_size }}{% endif %}">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ modal_title|default:"Modal" }}</h3>
+            <button type="button" class="modal-close" aria-label="Fechar">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            {% block modal_content %}
+                {{ modal_content|safe }}
+            {% endblock %}
+        </div>
+        
+        {% block modal_footer %}
+        <div class="modal-footer">
+            {{ modal_footer|safe }}
+        </div>
+        {% endblock %}
+    </div>
+</div>
+
+<!-- Estilos específicos para modais -->
+<style>
+.modal-dialog.small {
+    max-width: 400px;
+}
+
+.modal-dialog.medium {
+    max-width: 600px;
+}
+
+.modal-dialog.large {
+    max-width: 800px;
+}
+
+.modal-dialog.xlarge {
+    max-width: 1000px;
+}
+
+.modal-dialog.fullscreen {
+    max-width: 95vw;
+    max-height: 95vh;
+    width: 95vw;
+    height: 95vh;
+}
+
+.modal-dialog.fullscreen .modal-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Modal com formulário */
+.modal-form .modal-body {
+    padding: 0;
+}
+
+.modal-form .form-section {
+    padding: var(--spacing-6);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.modal-form .form-section:last-child {
+    border-bottom: none;
+}
+
+.modal-form .form-section-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-4);
+}
+
+/* Modal de confirmação */
+.modal-confirmation .modal-body {
+    text-align: center;
+    padding: var(--spacing-8);
+}
+
+.modal-confirmation .confirmation-icon {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--spacing-4);
+}
+
+.modal-confirmation .confirmation-title {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-3);
+}
+
+.modal-confirmation .confirmation-message {
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-6);
+}
+
+/* Modal de loading */
+.modal-loading .modal-body {
+    text-align: center;
+    padding: var(--spacing-8);
+}
+
+.modal-loading .loading-spinner {
+    font-size: var(--text-3xl);
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-4);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .modal-dialog {
+        width: 95vw;
+        margin: 2.5vh auto;
+    }
+    
+    .modal-dialog.fullscreen {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        border-radius: 0;
+    }
+}
+</style> 

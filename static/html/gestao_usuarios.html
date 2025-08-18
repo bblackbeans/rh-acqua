@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Gestão de Usuários</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="admin-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="admin_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="gestao_usuarios.html" class="active">
+                        <i class="bi bi-people"></i> Gestão de Usuários
+                    </a>
+                </li>
+                <li>
+                    <a href="unidades_hospitalares.html">
+                        <i class="bi bi-building"></i> Unidades Hospitalares
+                    </a>
+                </li>
+                <li>
+                    <a href="setores.html">
+                        <i class="bi bi-diagram-3"></i> Setores
+                    </a>
+                </li>
+                <li>
+                    <a href="configuracoes.html">
+                        <i class="bi bi-gear"></i> Configurações
+                    </a>
+                </li>
+                <li>
+                    <a href="logs_sistema.html">
+                        <i class="bi bi-journal-text"></i> Logs do Sistema
+                    </a>
+                </li>
+                <li>
+                    <a href="relatorios_avancados.html">
+                        <i class="bi bi-bar-chart"></i> Relatórios Avançados
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-admin.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Carlos Mendes</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Gestão de Usuários</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Novo usuário cadastrado</a>
+                                <a class="dropdown-item" href="#">Backup automático concluído</a>
+                                <a class="dropdown-item" href="#">Atualização do sistema disponível</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="roleFilter" class="form-label">Tipo de Usuário</label>
+                                    <select class="form-select" id="roleFilter">
+                                        <option value="">Todos</option>
+                                        <option value="admin">Administrador</option>
+                                        <option value="recruiter">Recrutador</option>
+                                        <option value="candidate">Candidato</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="statusFilter" class="form-label">Status</label>
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">Todos</option>
+                                        <option value="active">Ativo</option>
+                                        <option value="inactive">Inativo</option>
+                                        <option value="pending">Pendente</option>
+                                        <option value="blocked">Bloqueado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="unitFilter" class="form-label">Unidade</label>
+                                    <select class="form-select" id="unitFilter">
+                                        <option value="">Todas</option>
+                                        <option value="1">Hospital São Paulo</option>
+                                        <option value="2">Hospital Rio de Janeiro</option>
+                                        <option value="3">Hospital Belo Horizonte</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="searchFilter" class="form-label">Busca</label>
+                                    <input type="text" class="form-control" id="searchFilter" placeholder="Nome, email...">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-end">
+                                    <button type="button" class="btn btn-secondary me-2">Limpar</button>
+                                    <button type="button" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Usuários do Sistema</h5>
+                    <div>
+                        <button class="btn btn-primary me-2">
+                            <i class="bi bi-plus-circle"></i> Novo Usuário
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="bi bi-upload"></i> Importar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabela de Usuários -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>Tipo</th>
+                                        <th>Unidade</th>
+                                        <th>Data de Cadastro</th>
+                                        <th>Último Acesso</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="img/avatar-admin.png" alt="Usuário" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                                <div>
+                                                    <div class="fw-bold">Carlos Mendes</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>carlos.mendes@rhacqua.com</td>
+                                        <td>Administrador</td>
+                                        <td>Todas</td>
+                                        <td>01/01/2025</td>
+                                        <td>06/06/2025</td>
+                                        <td><span class="status-badge approved">Ativo</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-danger">Bloquear</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="img/avatar-recruiter.png" alt="Usuário" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                                <div>
+                                                    <div class="fw-bold">Ana Oliveira</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>ana.oliveira@rhacqua.com</td>
+                                        <td>Recrutador</td>
+                                        <td>Hospital São Paulo</td>
+                                        <td>15/01/2025</td>
+                                        <td>06/06/2025</td>
+                                        <td><span class="status-badge approved">Ativo</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-danger">Bloquear</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="img/avatar-candidate-1.png" alt="Usuário" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                                <div>
+                                                    <div class="fw-bold">João Silva</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>joao.silva@email.com</td>
+                                        <td>Candidato</td>
+                                        <td>-</td>
+                                        <td>01/06/2025</td>
+                                        <td>05/06/2025</td>
+                                        <td><span class="status-badge approved">Ativo</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-danger">Bloquear</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="img/avatar-recruiter-2.png" alt="Usuário" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                                <div>
+                                                    <div class="fw-bold">Roberto Alves</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>roberto.alves@rhacqua.com</td>
+                                        <td>Recrutador</td>
+                                        <td>Hospital Rio de Janeiro</td>
+                                        <td>04/06/2025</td>
+                                        <td>-</td>
+                                        <td><span class="status-badge pending">Pendente</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-success">Aprovar</button>
+                                                <button class="btn btn-sm btn-danger">Rejeitar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="img/avatar-candidate-2.png" alt="Usuário" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                                <div>
+                                                    <div class="fw-bold">Maria Santos</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>maria.santos@email.com</td>
+                                        <td>Candidato</td>
+                                        <td>-</td>
+                                        <td>02/06/2025</td>
+                                        <td>04/06/2025</td>
+                                        <td><span class="status-badge approved">Ativo</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-danger">Bloquear</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="img/avatar-admin-2.png" alt="Usuário" class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                                <div>
+                                                    <div class="fw-bold">Paulo Ferreira</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>paulo.ferreira@rhacqua.com</td>
+                                        <td>Administrador</td>
+                                        <td>Hospital Belo Horizonte</td>
+                                        <td>10/05/2025</td>
+                                        <td>01/06/2025</td>
+                                        <td><span class="status-badge closed">Bloqueado</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-success">Desbloquear</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Paginação -->
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Próximo</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Banco de Talentos</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="recruiter-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="recruiter_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="gestao_vagas.html">
+                        <i class="bi bi-briefcase"></i> Gestão de Vagas
+                    </a>
+                </li>
+                <li>
+                    <a href="candidaturas.html">
+                        <i class="bi bi-file-earmark-text"></i> Candidaturas
+                    </a>
+                </li>
+                <li>
+                    <a href="entrevistas.html">
+                        <i class="bi bi-calendar-event"></i> Entrevistas
+                    </a>
+                </li>
+                <li>
+                    <a href="banco_talentos.html" class="active">
+                        <i class="bi bi-people"></i> Banco de Talentos
+                    </a>
+                </li>
+                <li>
+                    <a href="relatorios.html">
+                        <i class="bi bi-graph-up"></i> Relatórios
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-recruiter.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Ana Oliveira</span>
+                        <span class="user-role">Recrutador</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Banco de Talentos</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    5
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Nova candidatura recebida</a>
+                                <a class="dropdown-item" href="#">Entrevista agendada para hoje</a>
+                                <a class="dropdown-item" href="#">Vaga próxima do vencimento</a>
+                                <a class="dropdown-item" href="#">Candidato atualizou currículo</a>
+                                <a class="dropdown-item" href="#">Feedback pendente de entrevista</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Filtros Avançados -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Filtros Avançados</h6>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="skillsFilter" class="form-label">Habilidades</label>
+                                    <select class="form-select" id="skillsFilter" multiple>
+                                        <option value="1">Enfermagem UTI</option>
+                                        <option value="2">Instrumentação Cirúrgica</option>
+                                        <option value="3">Pediatria</option>
+                                        <option value="4">Emergência</option>
+                                        <option value="5">Gestão de Equipes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="experienceFilter" class="form-label">Experiência</label>
+                                    <select class="form-select" id="experienceFilter">
+                                        <option value="">Qualquer</option>
+                                        <option value="junior">Júnior (0-2 anos)</option>
+                                        <option value="pleno">Pleno (3-5 anos)</option>
+                                        <option value="senior">Sênior (6+ anos)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="educationFilter" class="form-label">Formação</label>
+                                    <select class="form-select" id="educationFilter">
+                                        <option value="">Qualquer</option>
+                                        <option value="tecnico">Técnico</option>
+                                        <option value="graduacao">Graduação</option>
+                                        <option value="especializacao">Especialização</option>
+                                        <option value="mestrado">Mestrado</option>
+                                        <option value="doutorado">Doutorado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="locationFilter" class="form-label">Localização</label>
+                                    <select class="form-select" id="locationFilter">
+                                        <option value="">Qualquer</option>
+                                        <option value="sp">São Paulo</option>
+                                        <option value="rj">Rio de Janeiro</option>
+                                        <option value="mg">Belo Horizonte</option>
+                                        <option value="rs">Porto Alegre</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="availabilityFilter" class="form-label">Disponibilidade</label>
+                                    <select class="form-select" id="availabilityFilter">
+                                        <option value="">Qualquer</option>
+                                        <option value="immediate">Imediata</option>
+                                        <option value="15days">15 dias</option>
+                                        <option value="30days">30 dias</option>
+                                        <option value="negotiable">A negociar</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="lastInterviewFilter" class="form-label">Última Entrevista</label>
+                                    <select class="form-select" id="lastInterviewFilter">
+                                        <option value="">Qualquer</option>
+                                        <option value="never">Nunca entrevistado</option>
+                                        <option value="30days">Últimos 30 dias</option>
+                                        <option value="90days">Últimos 90 dias</option>
+                                        <option value="6months">Últimos 6 meses</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="scoreFilter" class="form-label">Score Mínimo</label>
+                                    <input type="range" class="form-range" min="0" max="100" value="70" id="scoreFilter">
+                                    <div class="d-flex justify-content-between">
+                                        <small>0</small>
+                                        <small>50</small>
+                                        <small>100</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="searchFilter" class="form-label">Busca</label>
+                                    <input type="text" class="form-control" id="searchFilter" placeholder="Nome, email, palavras-chave...">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-end">
+                                    <button type="button" class="btn btn-secondary me-2">Limpar</button>
+                                    <button type="button" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Resultados -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Talentos Encontrados (42)</h5>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary active">
+                            <i class="bi bi-grid"></i> Cards
+                        </button>
+                        <button type="button" class="btn btn-outline-primary">
+                            <i class="bi bi-list"></i> Lista
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visualização em Cards -->
+                <div class="row">
+                    <!-- Card 1 -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <div class="score-indicator score-high">95</div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item" href="#">Ver Currículo</a>
+                                        <a class="dropdown-item" href="#">Adicionar Nota</a>
+                                        <a class="dropdown-item" href="#">Agendar Entrevista</a>
+                                        <a class="dropdown-item" href="#">Associar à Vaga</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <img src="img/avatar-candidate-1.png" alt="Candidato" class="rounded-circle" style="width: 80px; height: 80px;">
+                                    <h5 class="mt-2 mb-0">João Silva</h5>
+                                    <p class="text-muted">Enfermeiro UTI</p>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-1"><i class="bi bi-geo-alt"></i> São Paulo, SP</p>
+                                    <p class="mb-1"><i class="bi bi-briefcase"></i> 7 anos de experiência</p>
+                                    <p class="mb-1"><i class="bi bi-mortarboard"></i> Especialização</p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge bg-light text-dark me-1 mb-1">Enfermagem UTI</span>
+                                    <span class="badge bg-light text-dark me-1 mb-1">Emergência</span>
+                                    <span class="badge bg-light text-dark me-1 mb-1">Gestão de Equipes</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-sm">Contatar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <div class="score-indicator score-high">90</div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item" href="#">Ver Currículo</a>
+                                        <a class="dropdown-item" href="#">Adicionar Nota</a>
+                                        <a class="dropdown-item" href="#">Agendar Entrevista</a>
+                                        <a class="dropdown-item" href="#">Associar à Vaga</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <img src="img/avatar-candidate-2.png" alt="Candidato" class="rounded-circle" style="width: 80px; height: 80px;">
+                                    <h5 class="mt-2 mb-0">Maria Santos</h5>
+                                    <p class="text-muted">Técnico de Enfermagem</p>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-1"><i class="bi bi-geo-alt"></i> Rio de Janeiro, RJ</p>
+                                    <p class="mb-1"><i class="bi bi-briefcase"></i> 5 anos de experiência</p>
+                                    <p class="mb-1"><i class="bi bi-mortarboard"></i> Técnico</p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge bg-light text-dark me-1 mb-1">Instrumentação Cirúrgica</span>
+                                    <span class="badge bg-light text-dark me-1 mb-1">Centro Cirúrgico</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-sm">Contatar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <div class="score-indicator score-high">98</div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item" href="#">Ver Currículo</a>
+                                        <a class="dropdown-item" href="#">Adicionar Nota</a>
+                                        <a class="dropdown-item" href="#">Agendar Entrevista</a>
+                                        <a class="dropdown-item" href="#">Associar à Vaga</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <img src="img/avatar-candidate-5.png" alt="Candidato" class="rounded-circle" style="width: 80px; height: 80px;">
+                                    <h5 class="mt-2 mb-0">Carlos Mendes</h5>
+                                    <p class="text-muted">Médico Pediatra</p>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-1"><i class="bi bi-geo-alt"></i> Belo Horizonte, MG</p>
+                                    <p class="mb-1"><i class="bi bi-briefcase"></i> 10 anos de experiência</p>
+                                    <p class="mb-1"><i class="bi bi-mortarboard"></i> Doutorado</p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge bg-light text-dark me-1 mb-1">Pediatria</span>
+                                    <span class="badge bg-light text-dark me-1 mb-1">UTI Pediátrica</span>
+                                    <span class="badge bg-light text-dark me-1 mb-1">Docência</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-sm">Contatar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card shadow h-100">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <div class="score-indicator score-medium">75</div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item" href="#">Ver Currículo</a>
+                                        <a class="dropdown-item" href="#">Adicionar Nota</a>
+                                        <a class="dropdown-item" href="#">Agendar Entrevista</a>
+                                        <a class="dropdown-item" href="#">Associar à Vaga</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <img src="img/avatar-candidate-3.png" alt="Candidato" class="rounded-circle" style="width: 80px; height: 80px;">
+                                    <h5 class="mt-2 mb-0">Pedro Oliveira</h5>
+                                    <p class="text-muted">Enfermeiro</p>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="mb-1"><i class="bi bi-geo-alt"></i> São Paulo, SP</p>
+                                    <p class="mb-1"><i class="bi bi-briefcase"></i> 3 anos de experiência</p>
+                                    <p class="mb-1"><i class="bi bi-mortarboard"></i> Graduação</p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge bg-light text-dark me-1 mb-1">Centro Cirúrgico</span>
+                                    <span class="badge bg-light text-dark me-1 mb-1">Instrumentação</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-sm">Contatar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paginação -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Próximo</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

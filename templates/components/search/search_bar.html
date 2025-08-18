@@ -1,0 +1,37 @@
+<!-- Componente de Busca -->
+<div class="search-component mb-4">
+    <form method="get" action="{{ search_url|default:'#' }}">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="{{ placeholder|default:'Buscar...' }}" value="{{ request.GET.q|default:'' }}" aria-label="Buscar">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i>
+                <span class="d-none d-md-inline ms-1">Buscar</span>
+            </button>
+            {% if advanced_search_url %}
+                <a href="{{ advanced_search_url }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-sliders-h"></i>
+                    <span class="d-none d-md-inline ms-1">Busca Avançada</span>
+                </a>
+            {% endif %}
+            {% if request.GET.q %}
+                <a href="{{ clear_search_url|default:request.path }}" class="btn btn-outline-danger">
+                    <i class="fas fa-times"></i>
+                    <span class="d-none d-md-inline ms-1">Limpar</span>
+                </a>
+            {% endif %}
+        </div>
+        {% if search_help_text %}
+            <small class="form-text text-muted mt-1">{{ search_help_text }}</small>
+        {% endif %}
+    </form>
+</div>
+
+<!-- 
+Uso:
+{% include 'components/search/search_bar.html' with 
+    search_url=request.path
+    placeholder='Buscar vagas por título, departamento ou habilidades...'
+    advanced_search_url=url('vacancies:advanced_search')
+    search_help_text='Digite palavras-chave para buscar vagas. Use aspas para busca exata.'
+%}
+-->

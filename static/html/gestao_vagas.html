@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Gestão de Vagas</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="recruiter-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="recruiter_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="gestao_vagas.html" class="active">
+                        <i class="bi bi-briefcase"></i> Gestão de Vagas
+                    </a>
+                </li>
+                <li>
+                    <a href="candidaturas.html">
+                        <i class="bi bi-file-earmark-text"></i> Candidaturas
+                    </a>
+                </li>
+                <li>
+                    <a href="entrevistas.html">
+                        <i class="bi bi-calendar-event"></i> Entrevistas
+                    </a>
+                </li>
+                <li>
+                    <a href="banco_talentos.html">
+                        <i class="bi bi-people"></i> Banco de Talentos
+                    </a>
+                </li>
+                <li>
+                    <a href="relatorios.html">
+                        <i class="bi bi-graph-up"></i> Relatórios
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-recruiter.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Ana Oliveira</span>
+                        <span class="user-role">Recrutador</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Gestão de Vagas</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    5
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Nova candidatura recebida</a>
+                                <a class="dropdown-item" href="#">Entrevista agendada para hoje</a>
+                                <a class="dropdown-item" href="#">Vaga próxima do vencimento</a>
+                                <a class="dropdown-item" href="#">Candidato atualizou currículo</a>
+                                <a class="dropdown-item" href="#">Feedback pendente de entrevista</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="statusFilter" class="form-label">Status</label>
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">Todos</option>
+                                        <option value="open">Aberta</option>
+                                        <option value="closed">Fechada</option>
+                                        <option value="draft">Rascunho</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="unitFilter" class="form-label">Unidade</label>
+                                    <select class="form-select" id="unitFilter">
+                                        <option value="">Todas</option>
+                                        <option value="1">Hospital São Paulo</option>
+                                        <option value="2">Hospital Rio de Janeiro</option>
+                                        <option value="3">Hospital Belo Horizonte</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="departmentFilter" class="form-label">Setor</label>
+                                    <select class="form-select" id="departmentFilter">
+                                        <option value="">Todos</option>
+                                        <option value="1">UTI</option>
+                                        <option value="2">Centro Cirúrgico</option>
+                                        <option value="3">Emergência</option>
+                                        <option value="4">Pediatria</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="searchFilter" class="form-label">Busca</label>
+                                    <input type="text" class="form-control" id="searchFilter" placeholder="Título, código...">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-end">
+                                    <button type="button" class="btn btn-secondary me-2">Limpar</button>
+                                    <button type="button" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Vagas Cadastradas</h5>
+                    <button class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nova Vaga
+                    </button>
+                </div>
+
+                <!-- Tabela de Vagas -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Título</th>
+                                        <th>Unidade</th>
+                                        <th>Setor</th>
+                                        <th>Data de Abertura</th>
+                                        <th>Data de Fechamento</th>
+                                        <th>Candidaturas</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>VAG-2025-001</td>
+                                        <td>Enfermeiro UTI</td>
+                                        <td>Hospital São Paulo</td>
+                                        <td>UTI</td>
+                                        <td>01/05/2025</td>
+                                        <td>30/06/2025</td>
+                                        <td>12</td>
+                                        <td><span class="status-badge open">Aberta</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Fechar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>VAG-2025-002</td>
+                                        <td>Técnico de Enfermagem</td>
+                                        <td>Hospital São Paulo</td>
+                                        <td>Centro Cirúrgico</td>
+                                        <td>05/05/2025</td>
+                                        <td>05/07/2025</td>
+                                        <td>8</td>
+                                        <td><span class="status-badge open">Aberta</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Fechar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>VAG-2025-003</td>
+                                        <td>Médico Pediatra</td>
+                                        <td>Hospital Rio de Janeiro</td>
+                                        <td>Pediatria</td>
+                                        <td>10/05/2025</td>
+                                        <td>10/06/2025</td>
+                                        <td>5</td>
+                                        <td><span class="status-badge open">Aberta</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Fechar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>VAG-2025-004</td>
+                                        <td>Enfermeiro Emergência</td>
+                                        <td>Hospital Belo Horizonte</td>
+                                        <td>Emergência</td>
+                                        <td>15/04/2025</td>
+                                        <td>15/05/2025</td>
+                                        <td>15</td>
+                                        <td><span class="status-badge closed">Fechada</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-success">Reabrir</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>VAG-2025-005</td>
+                                        <td>Fisioterapeuta</td>
+                                        <td>Hospital São Paulo</td>
+                                        <td>Reabilitação</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>0</td>
+                                        <td><span class="status-badge pending">Rascunho</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-success">Publicar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Paginação -->
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Próximo</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

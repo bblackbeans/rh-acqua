@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Real do Perfil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .status { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>🧪 Teste Real do Perfil - RH Acqua</h1>
+        
+        <div id="status" class="status">Carregando...</div>
+        
+        <!-- Botão para abrir modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editPersonalModal">
+            Abrir Modal de Informações Pessoais
+        </button>
+        
+        <button onclick="checkMasks()" class="btn btn-info ms-2">🔍 Verificar Máscaras</button>
+        <button onclick="forceApply()" class="btn btn-warning ms-2">⚡ Forçar Aplicação</button>
+        
+        <div id="results" class="mt-3"></div>
+        
+        <!-- Modal de Informações Pessoais (igual ao real) -->
+        <div class="modal fade" id="editPersonalModal" tabindex="-1" aria-labelledby="editPersonalModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editPersonalModalLabel">
+                            Editar Informações Pessoais
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post">
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="cpf" class="form-label">CPF *</label>
+                                    <input type="text" class="form-control cpf-mask" id="cpf" name="cpf" 
+                                           value="12312312312312312312332132132231" 
+                                           required placeholder="000.000.000-00">
+                                    <div class="form-text">Digite apenas números - máximo 11 dígitos</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="pis" class="form-label">PIS *</label>
+                                    <input type="text" class="form-control pis-mask" id="pis" name="pis" 
+                                           value="12313123123123" 
+                                           required placeholder="000.00000.00-0">
+                                    <div class="form-text">Digite apenas números - máximo 11 dígitos</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="rg" class="form-label">RG</label>
+                                    <input type="text" class="form-control rg-mask" id="rg" name="rg" 
+                                           value="sdad112321323124" 
+                                           placeholder="Digite apenas números (máx. 12 dígitos)">
+                                    <div class="form-text">Apenas números - máximo 12 dígitos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de Contato (igual ao real) -->
+        <div class="modal fade" id="editContactModal" tabindex="-1" aria-labelledby="editContactModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editContactModalLabel">
+                            Editar Informações de Contato
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="post">
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="whatsapp" class="form-label">Telefone com WhatsApp *</label>
+                                    <input type="tel" class="form-control phone-mask" id="whatsapp" name="whatsapp" 
+                                           value="213213213dqsd12" 
+                                           required placeholder="(00) 00000-0000" maxlength="15">
+                                    <div class="form-text">Telefone para contato via WhatsApp - apenas números</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="zip_code" class="form-label">CEP *</label>
+                                    <input type="text" class="form-control cep-mask" id="zip_code" name="zip_code" 
+                                           value="12e121dsdad" 
+                                           required placeholder="00000-000">
+                                    <div class="form-text">Digite apenas números - máximo 8 dígitos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#editContactModal">
+            Abrir Modal de Contato
+        </button>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        console.log('🚀 Página carregando...');
+        
+        function checkMasks() {
+            const status = document.getElementById('status');
+            const results = document.getElementById('results');
+            
+            if (typeof window.applyMasks === 'function') {
+                status.textContent = '✅ Função applyMasks encontrada!';
+                status.className = 'status success';
+                
+                // Conta campos com máscaras aplicadas
+                const fields = document.querySelectorAll('.cpf-mask, .pis-mask, .rg-mask, .phone-mask, .cep-mask');
+                let appliedMasks = 0;
+                
+                fields.forEach(field => {
+                    if (field.dataset.maskApplied) {
+                        appliedMasks++;
+                    }
+                });
+                
+                if (appliedMasks === fields.length) {
+                    results.innerHTML = `<div class="status success">🎉 SUCESSO! Todas as ${fields.length} máscaras estão funcionando!</div>`;
+                } else {
+                    results.innerHTML = `<div class="status error">⚠️ Apenas ${appliedMasks} de ${fields.length} máscaras estão funcionando.</div>`;
+                }
+                
+            } else {
+                status.textContent = '❌ Função applyMasks NÃO encontrada!';
+                status.className = 'status error';
+                results.innerHTML = '<div class="status error">❌ O arquivo masks.js não foi carregado corretamente.</div>';
+            }
+        }
+        
+        function forceApply() {
+            if (typeof window.applyMasks === 'function') {
+                window.applyMasks();
+                setTimeout(checkMasks, 500);
+            } else {
+                alert('Função applyMasks não encontrada!');
+            }
+        }
+        
+        // Verifica quando a página carrega
+        window.addEventListener('load', function() {
+            console.log('📄 Página carregada completamente');
+            setTimeout(checkMasks, 1000);
+        });
+        
+        // Verifica quando o DOM está pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎭 DOM carregado');
+            setTimeout(checkMasks, 500);
+        });
+        
+        // Verifica quando modais são abertos
+        document.addEventListener('shown.bs.modal', function() {
+            console.log('🚪 Modal aberto, verificando máscaras...');
+            setTimeout(checkMasks, 100);
+        });
+    </script>
+    
+    <!-- Carrega o arquivo de máscaras -->
+    <script src="js/masks.js"></script>
+</body>
+</html> 

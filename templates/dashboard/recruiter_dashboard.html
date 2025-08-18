@@ -1,0 +1,402 @@
+{% extends 'dashboard/base.html' %} {% load static %} {% block title %}Dashboard
+do Recrutador - RH Acqua{% endblock %} {% block meta_description %}Painel do
+recrutador do sistema RH Acqua com gestão de vagas, candidaturas e entrevistas{%
+endblock %} {% block body_class %}recruiter-dashboard{% endblock %} {% block
+extra_css %}{% endblock %} {% block breadcrumb %}
+
+<!-- Welcome Card -->
+<div class="card mb-4">
+  <div class="card-body">
+    <h5 class="card-title">Bem-vinda, {{ user.first_name }}!</h5>
+    <p class="card-text">
+      Aqui você pode gerenciar vagas, candidaturas e entrevistas.
+    </p>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row">
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div
+              class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+            >
+              Vagas Ativas
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-briefcase fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-success h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div
+              class="text-xs font-weight-bold text-success text-uppercase mb-1"
+            >
+              Candidaturas Novas
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">28</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-file-earmark-text fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-info h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+              Entrevistas Hoje
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">5</div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-calendar-event fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-warning h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div
+              class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+            >
+              Taxa de Conversão
+            </div>
+            <div class="row no-gutters align-items-center">
+              <div class="col-auto">
+                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                  65%
+                </div>
+              </div>
+              <div class="col">
+                <div class="progress progress-sm mr-2">
+                  <div
+                    class="progress-bar bg-warning"
+                    role="progressbar"
+                    style="width: 65%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-graph-up fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+  <!-- Candidaturas Recentes -->
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Candidaturas Recentes</h6>
+        <a href="#" class="btn btn-sm btn-primary">Ver Todas</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Candidato</th>
+                <th>Vaga</th>
+                <th>Data</th>
+                <th>Score</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>João Silva</td>
+                <td>Enfermeiro UTI</td>
+                <td>01/06/2025</td>
+                <td>
+                  <span class="badge bg-success">95</span>
+                </td>
+                <td><span class="badge bg-info">Entrevista</span></td>
+              </tr>
+              <tr>
+                <td>Maria Santos</td>
+                <td>Técnico de Enfermagem</td>
+                <td>02/06/2025</td>
+                <td>
+                  <span class="badge bg-success">90</span>
+                </td>
+                <td><span class="badge bg-warning">Em análise</span></td>
+              </tr>
+              <tr>
+                <td>Pedro Oliveira</td>
+                <td>Enfermeiro Centro Cirúrgico</td>
+                <td>03/06/2025</td>
+                <td>
+                  <span class="badge bg-warning">75</span>
+                </td>
+                <td><span class="badge bg-warning">Em análise</span></td>
+              </tr>
+              <tr>
+                <td>Ana Costa</td>
+                <td>Enfermeiro UTI</td>
+                <td>03/06/2025</td>
+                <td>
+                  <span class="badge bg-danger">60</span>
+                </td>
+                <td><span class="badge bg-danger">Rejeitado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entrevistas Agendadas -->
+  <div class="col-lg-6 mb-4">
+    <div class="card shadow mb-4">
+      <div
+        class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+      >
+        <h6 class="m-0 font-weight-bold text-primary">Entrevistas Agendadas</h6>
+        <a href="#" class="btn btn-sm btn-primary">Ver Todas</a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Candidato</th>
+                <th>Vaga</th>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>João Silva</td>
+                <td>Enfermeiro UTI</td>
+                <td>10/06/2025</td>
+                <td>14:30</td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Detalhes</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Carla Mendes</td>
+                <td>Médico Clínico</td>
+                <td>10/06/2025</td>
+                <td>16:00</td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Detalhes</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Roberto Alves</td>
+                <td>Fisioterapeuta</td>
+                <td>11/06/2025</td>
+                <td>09:30</td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Detalhes</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Juliana Ferreira</td>
+                <td>Nutricionista</td>
+                <td>11/06/2025</td>
+                <td>11:00</td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Detalhes</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Marcos Souza</td>
+                <td>Técnico de Radiologia</td>
+                <td>12/06/2025</td>
+                <td>10:00</td>
+                <td>
+                  <button class="btn btn-sm btn-primary">Detalhes</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Kanban de Candidaturas -->
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+          Kanban de Candidaturas - Enfermeiro UTI
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-2">
+            <div class="card border-primary">
+              <div class="card-header bg-primary text-white">
+                Candidatados (8)
+              </div>
+              <div class="card-body">
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">Maria Santos</h6>
+                      <span class="badge bg-success">92</span>
+                    </div>
+                    <p class="mb-1 small">São Paulo, SP</p>
+                    <small class="text-muted">Candidatura: 02/06/2025</small>
+                  </div>
+                </div>
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">Pedro Oliveira</h6>
+                      <span class="badge bg-warning">78</span>
+                    </div>
+                    <p class="mb-1 small">São Paulo, SP</p>
+                    <small class="text-muted">Candidatura: 03/06/2025</small>
+                  </div>
+                </div>
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">Ana Costa</h6>
+                      <span class="badge bg-danger">65</span>
+                    </div>
+                    <p class="mb-1 small">Guarulhos, SP</p>
+                    <small class="text-muted">Candidatura: 03/06/2025</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="card border-warning">
+              <div class="card-header bg-warning text-dark">Em Análise (3)</div>
+              <div class="card-body">
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">Carlos Mendes</h6>
+                      <span class="badge bg-success">88</span>
+                    </div>
+                    <p class="mb-1 small">São Paulo, SP</p>
+                    <small class="text-muted">Candidatura: 01/06/2025</small>
+                  </div>
+                </div>
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">Fernanda Lima</h6>
+                      <span class="badge bg-success">85</span>
+                    </div>
+                    <p class="mb-1 small">Osasco, SP</p>
+                    <small class="text-muted">Candidatura: 01/06/2025</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="card border-info">
+              <div class="card-header bg-info text-white">Entrevista (2)</div>
+              <div class="card-body">
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">João Silva</h6>
+                      <span class="badge bg-success">95</span>
+                    </div>
+                    <p class="mb-1 small">São Paulo, SP</p>
+                    <small class="text-muted"
+                      >Entrevista: 10/06/2025 14:30</small
+                    >
+                  </div>
+                </div>
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">Mariana Costa</h6>
+                      <span class="badge bg-success">90</span>
+                    </div>
+                    <p class="mb-1 small">São Paulo, SP</p>
+                    <small class="text-muted"
+                      >Entrevista: 11/06/2025 10:00</small
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="card border-success">
+              <div class="card-header bg-success text-white">Aprovados (1)</div>
+              <div class="card-body">
+                <div class="card mb-2">
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">Roberto Alves</h6>
+                      <span class="badge bg-success">98</span>
+                    </div>
+                    <p class="mb-1 small">São Paulo, SP</p>
+                    <small class="text-muted">Aprovado em: 03/06/2025</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-2">
+            <div class="card border-secondary">
+              <div class="card-header bg-secondary text-white">
+                Contratados (0)
+              </div>
+              <div class="card-body">
+                <p class="text-muted small text-center">
+                  Sem candidatos nesta coluna
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}{% endblock %}
+

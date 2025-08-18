@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Logs do Sistema</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="admin-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="admin_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="gestao_usuarios.html">
+                        <i class="bi bi-people"></i> Gestão de Usuários
+                    </a>
+                </li>
+                <li>
+                    <a href="unidades_hospitalares.html">
+                        <i class="bi bi-building"></i> Unidades Hospitalares
+                    </a>
+                </li>
+                <li>
+                    <a href="setores.html">
+                        <i class="bi bi-diagram-3"></i> Setores
+                    </a>
+                </li>
+                <li>
+                    <a href="configuracoes.html">
+                        <i class="bi bi-gear"></i> Configurações
+                    </a>
+                </li>
+                <li>
+                    <a href="logs_sistema.html" class="active">
+                        <i class="bi bi-journal-text"></i> Logs do Sistema
+                    </a>
+                </li>
+                <li>
+                    <a href="relatorios_avancados.html">
+                        <i class="bi bi-bar-chart"></i> Relatórios Avançados
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-admin.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Carlos Mendes</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Logs do Sistema</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Novo usuário cadastrado</a>
+                                <a class="dropdown-item" href="#">Backup automático concluído</a>
+                                <a class="dropdown-item" href="#">Atualização do sistema disponível</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="logType" class="form-label">Tipo de Log</label>
+                                    <select class="form-select" id="logType">
+                                        <option value="">Todos</option>
+                                        <option value="info">Informação</option>
+                                        <option value="warning">Aviso</option>
+                                        <option value="error">Erro</option>
+                                        <option value="critical">Crítico</option>
+                                        <option value="security">Segurança</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="dateRange" class="form-label">Período</label>
+                                    <select class="form-select" id="dateRange">
+                                        <option value="today">Hoje</option>
+                                        <option value="yesterday">Ontem</option>
+                                        <option value="week" selected>Última Semana</option>
+                                        <option value="month">Último Mês</option>
+                                        <option value="custom">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="userFilter" class="form-label">Usuário</label>
+                                    <input type="text" class="form-control" id="userFilter" placeholder="Nome ou ID">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="moduleFilter" class="form-label">Módulo</label>
+                                    <select class="form-select" id="moduleFilter">
+                                        <option value="">Todos</option>
+                                        <option value="auth">Autenticação</option>
+                                        <option value="vacancy">Vagas</option>
+                                        <option value="candidate">Candidatos</option>
+                                        <option value="interview">Entrevistas</option>
+                                        <option value="admin">Administração</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="messageFilter" class="form-label">Mensagem</label>
+                                    <input type="text" class="form-control" id="messageFilter" placeholder="Buscar na mensagem...">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="ipFilter" class="form-label">Endereço IP</label>
+                                    <input type="text" class="form-control" id="ipFilter" placeholder="Ex: 192.168.1.1">
+                                </div>
+                                <div class="col-md-3 mb-3 d-flex align-items-end">
+                                    <div class="w-100 text-end">
+                                        <button type="button" class="btn btn-secondary me-2">Limpar</button>
+                                        <button type="button" class="btn btn-primary">Filtrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Registros de Log</h5>
+                    <div>
+                        <button class="btn btn-outline-primary me-2">
+                            <i class="bi bi-download"></i> Exportar
+                        </button>
+                        <button class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i> Limpar Logs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resumo -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total de Logs</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">1,248</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-journal-text fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Informações</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">842</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-info-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Avisos</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">294</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-exclamation-triangle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            Erros</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">112</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-x-circle fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Logs -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Data/Hora</th>
+                                        <th>Tipo</th>
+                                        <th>Módulo</th>
+                                        <th>Usuário</th>
+                                        <th>IP</th>
+                                        <th>Mensagem</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>06/06/2025 18:25:12</td>
+                                        <td><span class="badge bg-danger">Erro</span></td>
+                                        <td>Autenticação</td>
+                                        <td>usuario@email.com</td>
+                                        <td>192.168.1.105</td>
+                                        <td>Falha na autenticação: Credenciais inválidas (tentativa 3 de 5)</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 18:20:45</td>
+                                        <td><span class="badge bg-success">Info</span></td>
+                                        <td>Vagas</td>
+                                        <td>ana.oliveira</td>
+                                        <td>192.168.1.42</td>
+                                        <td>Nova vaga criada: Enfermeiro UTI (ID: 1245)</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 18:15:33</td>
+                                        <td><span class="badge bg-success">Info</span></td>
+                                        <td>Autenticação</td>
+                                        <td>carlos.mendes</td>
+                                        <td>192.168.1.10</td>
+                                        <td>Login bem-sucedido</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 17:58:21</td>
+                                        <td><span class="badge bg-warning">Aviso</span></td>
+                                        <td>Sistema</td>
+                                        <td>sistema</td>
+                                        <td>localhost</td>
+                                        <td>Uso de CPU acima de 80% por mais de 5 minutos</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 17:45:09</td>
+                                        <td><span class="badge bg-primary">Segurança</span></td>
+                                        <td>Administração</td>
+                                        <td>carlos.mendes</td>
+                                        <td>192.168.1.10</td>
+                                        <td>Permissões de usuário alteradas: ana.oliveira</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 17:30:55</td>
+                                        <td><span class="badge bg-success">Info</span></td>
+                                        <td>Candidatos</td>
+                                        <td>joao.silva</td>
+                                        <td>200.178.45.32</td>
+                                        <td>Currículo atualizado</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 17:22:18</td>
+                                        <td><span class="badge bg-success">Info</span></td>
+                                        <td>Entrevistas</td>
+                                        <td>ana.oliveira</td>
+                                        <td>192.168.1.42</td>
+                                        <td>Entrevista agendada: Maria Santos para vaga de Enfermeiro UTI</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 17:15:03</td>
+                                        <td><span class="badge bg-danger">Erro</span></td>
+                                        <td>Sistema</td>
+                                        <td>sistema</td>
+                                        <td>localhost</td>
+                                        <td>Falha na conexão com o banco de dados (reconectado após 5s)</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 17:00:42</td>
+                                        <td><span class="badge bg-success">Info</span></td>
+                                        <td>Sistema</td>
+                                        <td>sistema</td>
+                                        <td>localhost</td>
+                                        <td>Backup diário concluído com sucesso</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>06/06/2025 16:45:30</td>
+                                        <td><span class="badge bg-warning">Aviso</span></td>
+                                        <td>Vagas</td>
+                                        <td>roberto.alves</td>
+                                        <td>192.168.1.55</td>
+                                        <td>Vaga próxima do vencimento: Técnico de Enfermagem (ID: 1238)</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info">Detalhes</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Paginação -->
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Próximo</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Modal de Detalhes do Log -->
+                <div class="modal fade" id="logDetailModal" tabindex="-1" aria-labelledby="logDetailModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="logDetailModalLabel">Detalhes do Log</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p><strong>ID:</strong> LOG-20250606-182512</p>
+                                        <p><strong>Data/Hora:</strong> 06/06/2025 18:25:12</p>
+                                        <p><strong>Tipo:</strong> <span class="badge bg-danger">Erro</span></p>
+                                        <p><strong>Módulo:</strong> Autenticação</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Usuário:</strong> usuario@email.com</p>
+                                        <p><strong>IP:</strong> 192.168.1.105</p>
+                                        <p><strong>Navegador:</strong> Chrome 112.0.5615.138</p>
+                                        <p><strong>Sistema Operacional:</strong> Windows 11</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <p><strong>Mensagem:</strong> Falha na autenticação: Credenciais inválidas (tentativa 3 de 5)</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <p><strong>Detalhes Técnicos:</strong></p>
+                                        <pre class="bg-light p-3 rounded">
+{
+  "event": "auth_failure",
+  "timestamp": "2025-06-06T18:25:12.345Z",
+  "user_id": null,
+  "email": "usuario@email.com",
+  "ip": "192.168.1.105",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.5615.138 Safari/537.36",
+  "failure_reason": "invalid_credentials",
+  "attempt_count": 3,
+  "max_attempts": 5,
+  "location": {
+    "city": "São Paulo",
+    "country": "Brasil",
+    "country_code": "BR"
+  }
+}
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

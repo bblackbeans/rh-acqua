@@ -1,0 +1,34 @@
+<!-- Card de Entrevista -->
+<div class="card interview-card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">{{ interview.title }}</h5>
+        <span class="badge bg-{{ interview.get_status_color }}">{{ interview.get_status_display }}</span>
+    </div>
+    <div class="card-body">
+        <div class="interview-info mb-3">
+            <p><i class="fas fa-user me-2"></i> Candidato: {{ interview.application.candidate.user.get_full_name }}</p>
+            <p><i class="fas fa-briefcase me-2"></i> Vaga: {{ interview.application.vacancy.title }}</p>
+            <p><i class="fas fa-calendar-alt me-2"></i> Data: {{ interview.scheduled_date|date:"d/m/Y" }}</p>
+            <p><i class="fas fa-clock me-2"></i> Horário: {{ interview.scheduled_date|date:"H:i" }}</p>
+            <p><i class="fas fa-map-marker-alt me-2"></i> Local: {{ interview.location }}</p>
+            <p><i class="fas fa-user-tie me-2"></i> Entrevistador: {{ interview.interviewer.get_full_name }}</p>
+        </div>
+        <p class="card-text">{{ interview.notes|truncatewords:20 }}</p>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted">Criada em {{ interview.created_at|date:"d/m/Y" }}</small>
+        <div class="btn-group">
+            <a href="{% url 'interviews:interview_detail' interview.id %}" class="btn btn-primary btn-sm">Ver detalhes</a>
+            {% if interview.status == 'scheduled' %}
+                <a href="{% url 'interviews:interview_feedback' interview.id %}" class="btn btn-success btn-sm">Registrar feedback</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 
+Uso:
+{% include 'components/cards/interview_card.html' with interview=interview %}
+
+Onde interview é um objeto do modelo Interview
+-->

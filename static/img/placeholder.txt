@@ -1,0 +1,47 @@
+IMAGENS NECESSÁRIAS PARA O SISTEMA
+====================================
+
+Este arquivo lista as imagens que precisam ser adicionadas ao sistema:
+
+1. logo.png - Logo principal do RH Acqua (200x60px recomendado)
+2. favicon.ico - Favicon do site (32x32px)
+3. default-avatar.png - Avatar padrão para usuários (100x100px)
+
+Para adicionar as imagens:
+1. Coloque os arquivos nesta pasta (static/img/)
+2. Certifique-se de que os nomes dos arquivos correspondem aos usados nos templates
+3. Use formatos otimizados (PNG para logos, ICO para favicon)
+
+IMAGENS TEMPORÁRIAS:
+- Se não tiver as imagens oficiais, você pode usar serviços como:
+  * https://placeholder.com/ para placeholders
+  * https://ui-avatars.com/ para avatars baseados em texto
+  * https://favicon.io/ para gerar favicons
+
+EXEMPLO DE USO:
+- Logo: https://via.placeholder.com/200x60/2563eb/ffffff?text=RH+Acqua
+- Avatar: https://ui-avatars.com/api/?name=Admin&background=2563eb&color=fff&size=100
+- Favicon: https://favicon.io/favicon-generator/?t=RH&ff=Inter&fs=60&fc=2563eb&b=rounded&bc=ffffff
+
+Esta pasta deve conter as seguintes imagens:
+
+1. logo-acqua.png - Logo da empresa Acqua
+2. favicon.ico - Favicon do site
+3. default-avatar.png - Avatar padrão para usuários
+4. hero-bg.jpg - Imagem de fundo para seções hero
+5. dashboard-bg.jpg - Imagem de fundo para dashboard
+
+Para adicionar imagens:
+1. Use formatos otimizados (PNG para logos, JPG para fotos)
+2. Mantenha tamanhos apropriados
+3. Use nomes descritivos
+4. Considere versões para diferentes densidades de tela (@2x, @3x)
+
+Exemplo de estrutura:
+img/
+├── logo-acqua.png
+├── logo-acqua@2x.png
+├── favicon.ico
+├── default-avatar.png
+├── hero-bg.jpg
+└── dashboard-bg.jpg 

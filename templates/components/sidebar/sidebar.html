@@ -1,0 +1,87 @@
+<!-- Sidebar Component -->
+{% comment %} <div class="sidebar">
+    <div class="sidebar-header">
+        <h3>{{ sidebar_title|default:'Dashboard' }}</h3>
+        <button class="btn btn-link d-md-none sidebar-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="sidebar-user">
+        <div class="sidebar-user-info">
+            <img src="{{ user.profile.get_avatar_url|default:'#' }}" alt="Avatar" class="sidebar-avatar">
+            <div>
+                <h6>{{ user.get_full_name|default:user.username }}</h6>
+                <span class="badge bg-primary">{{ user.profile.get_role_display }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <ul class="sidebar-nav">
+        {% for item in sidebar_items %}
+            {% if item.children %}
+                <li class="sidebar-item has-submenu {% if item.active %}active{% endif %}">
+                    <a href="#" class="sidebar-link" data-bs-toggle="collapse" data-bs-target="#submenu-{{ forloop.counter }}">
+                        <i class="fas {{ item.icon }}"></i>
+                        <span>{{ item.title }}</span>
+                        <i class="fas fa-chevron-down submenu-icon"></i>
+                    </a>
+                    <ul id="submenu-{{ forloop.counter }}" class="collapse submenu {% if item.active %}show{% endif %}">
+                        {% for child in item.children %}
+                            <li class="sidebar-item {% if child.active %}active{% endif %}">
+                                <a href="{{ child.url }}" class="sidebar-link">
+                                    <i class="fas {{ child.icon }}"></i>
+                                    <span>{{ child.title }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% else %}
+                <li class="sidebar-item {% if item.active %}active{% endif %}">
+                    <a href="{{ item.url }}" class="sidebar-link">
+                        <i class="fas {{ item.icon }}"></i>
+                        <span>{{ item.title }}</span>
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div> {% endcomment %}
+
+<!-- 
+Uso:
+{% include 'components/sidebar/sidebar.html' with 
+    sidebar_title='Dashboard do Recrutador'
+    sidebar_items=sidebar_items
+%}
+
+Onde sidebar_items é uma lista de dicionários com a seguinte estrutura:
+[
+    {
+        'title': 'Dashboard',
+        'url': reverse('home'),
+        'icon': 'fa-tachometer-alt',
+        'active': True
+    },
+    {
+        'title': 'Vagas',
+        'icon': 'fa-briefcase',
+        'active': False,
+        'children': [
+            {
+                'title': 'Listar Vagas',
+                'url': reverse('vacancies:vacancy_list_admin'),
+                'icon': 'fa-list',
+                'active': False
+            },
+            {
+                'title': 'Criar Nova Vaga',
+                'url': reverse('vacancies:vacancy_create'),
+                'icon': 'fa-plus',
+                'active': False
+            }
+        ]
+    }
+]
+-->

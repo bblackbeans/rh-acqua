@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro - Sistema RH Acqua V2</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+      body {
+        background-color: #f8f9fa;
+        padding-top: 50px;
+        padding-bottom: 50px;
+      }
+      .register-container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .logo h1 {
+        color: #2980b9;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+      .form-control:focus {
+        border-color: #2980b9;
+        box-shadow: 0 0 0 0.2rem rgba(40, 128, 185, 0.25);
+      }
+      .btn-primary {
+        background-color: #2980b9;
+        border-color: #2980b9;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 8px;
+      }
+      .btn-primary:hover {
+        background-color: #1f5f8b;
+        border-color: #1f5f8b;
+      }
+      
+      /* Estilos para o indicador de força da senha */
+      .password-strength-meter {
+        margin-top: 8px;
+      }
+      
+      .progress {
+        border-radius: 10px;
+        background-color: #e9ecef;
+        height: 6px !important;
+      }
+      
+      .progress-bar {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+      
+
+      
+      /* Estilos para os radio buttons */
+      .form-check {
+        margin-bottom: 8px;
+      }
+      
+      .form-check-input:checked {
+        background-color: #2980b9;
+        border-color: #2980b9;
+      }
+      
+      .form-check-label {
+        color: #495057;
+        font-weight: 500;
+      }
+      
+      /* Estilos para o ícone de informação */
+      .bi-info-circle {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      .bi-info-circle:hover {
+        transform: scale(1.1);
+        color: #0d6efd !important;
+      }
+      
+      
+      
+      
+      
+      /* Melhora a aparência do indicador de força */
+      .password-strength-meter {
+        margin-top: 8px;
+      }
+      
+      .progress {
+        border-radius: 10px;
+        background-color: #e9ecef;
+        height: 6px !important;
+      }
+      
+      .progress-bar {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+        /* Estilos para o popover personalizado */
+        .password-requirements-popover {
+          position: fixed;
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 12px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+          padding: 16px;
+          max-width: 320px;
+          z-index: 1050;
+        }
+        
+        .password-requirements-popover h6 {
+          color: #0d6efd;
+          font-weight: 600;
+          font-size: 0.95rem;
+          margin-bottom: 12px;
+        }
+        
+        .password-requirements-popover ul {
+          padding-left: 0;
+          list-style: none;
+          margin-bottom: 0;
+        }
+        
+        .password-requirements-popover li {
+          margin-bottom: 8px;
+          font-size: 0.85rem;
+          line-height: 1.3;
+          display: flex;
+          align-items: flex-start;
+        }
+        
+        .password-requirements-popover .bi {
+          font-size: 0.8rem;
+          margin-top: 2px;
+        }
+        
+        .password-info-icon {
+          position: relative;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="register-container">
+        <div class="logo">
+          <h1>RH Acqua V2</h1>
+          <p class="text-muted">Criar nova conta</p>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+          Por favor, corrija os erros abaixo.
+        </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="id_first_name" class="form-label">Nome</label>
+              <input
+                type="text"
+                name="first_name"
+                class="form-control {% if form.first_name.errors %}is-invalid{% endif %}"
+                id="id_first_name"
+                required
+              />
+              {% if form.first_name.errors %}
+              <div class="invalid-feedback">{{ form.first_name.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <label for="id_last_name" class="form-label">Sobrenome</label>
+              <input
+                type="text"
+                name="last_name"
+                class="form-control {% if form.last_name.errors %}is-invalid{% endif %}"
+                id="id_last_name"
+                required
+              />
+              {% if form.last_name.errors %}
+              <div class="invalid-feedback">{{ form.last_name.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="id_email" class="form-label">Email</label>
+            <input
+              type="email"
+              name="email"
+              class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+              id="id_email"
+              required
+            />
+            {% if form.email.errors %}
+            <div class="invalid-feedback">{{ form.email.errors }}</div>
+            {% endif %}
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="id_password1" class="form-label">
+                Senha
+                <i class="bi bi-info-circle text-primary ms-1 password-info-icon" 
+                   id="passwordInfoIcon"
+                   style="cursor: pointer;"></i>
+              </label>
+              <input
+                type="password"
+                name="password1"
+                class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                id="id_password1"
+                required
+              />
+              {% if form.password1.errors %}
+              <div class="invalid-feedback">{{ form.password1.errors }}</div>
+              {% endif %}
+              
+              <!-- Indicador de força da senha -->
+              <div class="mt-2">
+                <div class="password-strength-meter">
+                  <div class="progress" style="height: 5px;">
+                    <div class="progress-bar" id="password-strength-bar" role="progressbar" style="width: 0%"></div>
+                  </div>
+                  <small class="text-muted mt-1 d-block" id="password-strength-text">Digite sua senha</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="id_password2" class="form-label">Confirmar senha</label>
+              <input
+                type="password"
+                name="password2"
+                class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                id="id_password2"
+                required
+              />
+              {% if form.password2.errors %}
+              <div class="invalid-feedback">{{ form.password2.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- Popover personalizado para requisitos de senha -->
+          <div id="passwordRequirementsPopover" class="password-requirements-popover" style="display: none;">
+            <div class="popover-content">
+              <h6 class="mb-2">
+                <i class="bi bi-shield-lock me-2"></i>
+                Requisitos da senha
+              </h6>
+              <ul class="mb-0 small">
+                <li><i class="bi bi-check-circle text-success me-2"></i>Mínimo de 8 caracteres</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Pelo menos uma letra maiúscula (A-Z)</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Pelo menos uma letra minúscula (a-z)</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Pelo menos um número (0-9)</li>
+                <li><i class="bi bi-info-circle text-primary me-2"></i>Evite usar informações pessoais</li>
+                <li><i class="bi bi-info-circle text-primary me-2"></i>Use uma combinação única</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Tipo de conta</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="role" id="id_role_candidate" value="candidate" checked disabled>
+              <label class="form-check-label" for="id_role_candidate">
+                Candidato
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="role" id="id_role_recruiter" value="recrutador" disabled>
+              <label class="form-check-label text-muted" for="id_role_recruiter" style="opacity: 0.6;">
+                Recrutador (Indisponível)
+              </label>
+            </div>
+            <small class="text-muted d-block mt-2">
+              <i class="bi bi-info-circle me-1"></i>
+              Por enquanto, apenas candidatos podem se registrar. Recrutadores devem ser adicionados pelos administradores do sistema.
+            </small>
+            {% if form.role.errors %}
+            <div class="invalid-feedback d-block">
+              {{ form.role.errors }}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Registrar</button>
+          </div>
+        </form>
+
+        <div class="text-center mt-3">
+          <p>Já tem uma conta? <a href="{% url 'login' %}" class="text-decoration-none">Faça login</a></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script para indicador de força da senha -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Controle do popover personalizado
+        const passwordInfoIcon = document.getElementById('passwordInfoIcon');
+        const passwordRequirementsPopover = document.getElementById('passwordRequirementsPopover');
+        let popoverTimeout;
+        
+        // Mostra o popover ao passar o mouse
+        passwordInfoIcon.addEventListener('mouseenter', function() {
+          clearTimeout(popoverTimeout);
+          showPopover();
+        });
+        
+        // Esconde o popover ao sair do mouse
+        passwordInfoIcon.addEventListener('mouseleave', function() {
+          popoverTimeout = setTimeout(hidePopover, 300);
+        });
+        
+        // Mostra o popover ao clicar
+        passwordInfoIcon.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (passwordRequirementsPopover.style.display === 'none') {
+            showPopover();
+          } else {
+            hidePopover();
+          }
+        });
+        
+        // Esconde o popover ao clicar fora
+        document.addEventListener('click', function(e) {
+          if (!passwordInfoIcon.contains(e.target) && !passwordRequirementsPopover.contains(e.target)) {
+            hidePopover();
+          }
+        });
+        
+        function showPopover() {
+          const iconRect = passwordInfoIcon.getBoundingClientRect();
+          passwordRequirementsPopover.style.display = 'block';
+          
+          // Calcula a posição para centralizar o popover em relação ao ícone
+          const popoverWidth = 320; // largura máxima do popover
+          const popoverHeight = 200; // altura estimada do popover
+          
+          let left = iconRect.left - (popoverWidth / 2) + 10; // 10px de offset
+          let top = iconRect.bottom + 10;
+          
+          // Ajusta se o popover sair da tela pela esquerda
+          if (left < 10) left = 10;
+          
+          // Ajusta se o popover sair da tela pela direita
+          if (left + popoverWidth > window.innerWidth - 10) {
+            left = window.innerWidth - popoverWidth - 10;
+          }
+          
+          // Ajusta se o popover sair da tela por baixo
+          if (top + popoverHeight > window.innerHeight - 10) {
+            top = iconRect.top - popoverHeight - 10;
+          }
+          
+          passwordRequirementsPopover.style.left = left + 'px';
+          passwordRequirementsPopover.style.top = top + 'px';
+        }
+        
+        function hidePopover() {
+          passwordRequirementsPopover.style.display = 'none';
+        }
+        
+        const passwordInput = document.getElementById('id_password1');
+        const strengthBar = document.getElementById('password-strength-bar');
+        const strengthText = document.getElementById('password-strength-text');
+        
+        passwordInput.addEventListener('input', function() {
+          const password = this.value;
+          const strength = calculatePasswordStrength(password);
+          updateStrengthIndicator(strength);
+        });
+        
+        function calculatePasswordStrength(password) {
+          let score = 0;
+          let feedback = [];
+          
+          if (password.length >= 8) score += 1;
+          if (/[a-z]/.test(password)) score += 1;
+          if (/[A-Z]/.test(password)) score += 1;
+          if (/[0-9]/.test(password)) score += 1;
+          if (/[^A-Za-z0-9]/.test(password)) score += 1;
+          
+          // Penaliza senhas muito similares ao nome
+          const firstName = document.getElementById('id_first_name').value.toLowerCase();
+          const lastName = document.getElementById('id_last_name').value.toLowerCase();
+          if (password.toLowerCase().includes(firstName) || password.toLowerCase().includes(lastName)) {
+            score = Math.max(0, score - 1);
+            feedback.push('Evite usar seu nome na senha');
+          }
+          
+          return { score, feedback };
+        }
+        
+        function updateStrengthIndicator(strength) {
+          const percentage = (strength.score / 5) * 100;
+          let color = 'danger';
+          let text = 'Muito fraca';
+          
+          if (strength.score >= 4) {
+            color = 'success';
+            text = 'Forte';
+          } else if (strength.score >= 3) {
+            color = 'warning';
+            text = 'Média';
+          } else if (strength.score >= 2) {
+            color = 'info';
+            text = 'Fraca';
+          }
+          
+          strengthBar.style.width = percentage + '%';
+          strengthBar.className = 'progress-bar bg-' + color;
+          strengthText.textContent = text;
+          
+          if (strength.feedback.length > 0) {
+            strengthText.textContent += ' - ' + strength.feedback.join(', ');
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
+

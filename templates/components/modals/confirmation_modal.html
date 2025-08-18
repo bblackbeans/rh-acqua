@@ -1,0 +1,39 @@
+<!-- Modal de Confirmação -->
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-labelledby="{{ modal_id }}-label" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modal_id }}-label">{{ modal_title|default:'Confirmação' }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ confirmation_message }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="{{ modal_id }}-confirm">{{ confirm_button_text|default:'Confirmar' }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 
+Uso:
+{% include 'components/modals/confirmation_modal.html' with 
+    modal_id='delete-confirmation' 
+    modal_title='Confirmar Exclusão' 
+    confirmation_message='Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.'
+    confirm_button_text='Excluir' 
+%}
+
+Para abrir o modal e configurar a ação de confirmação via JavaScript:
+<script>
+    document.getElementById('delete-confirmation-confirm').addEventListener('click', function() {
+        // Ação a ser executada quando o botão de confirmação for clicado
+        document.getElementById('delete-form').submit();
+    });
+    
+    var confirmationModal = new bootstrap.Modal(document.getElementById('delete-confirmation'));
+    confirmationModal.show();
+</script>
+-->

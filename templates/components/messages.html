@@ -1,0 +1,60 @@
+<!-- Messages Component -->
+<div class="messages-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" data-timestamp="{{ message.timestamp|default:'' }}">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<script>
+    // Auto-hide messages after 5 seconds and clear old messages
+    document.addEventListener('DOMContentLoaded', function() {
+        // Remove messages antigas que podem estar bugadas
+        const oldMessages = document.querySelectorAll('.alert');
+        oldMessages.forEach(function(alert) {
+            // Se a mensagem tem mais de 10 segundos, remove imediatamente
+            if (alert.dataset.timestamp) {
+                const timestamp = parseInt(alert.dataset.timestamp);
+                const now = Date.now();
+                if (now - timestamp > 10000) {
+                    alert.remove();
+                    return;
+                }
+            }
+            
+            // Auto-hide após 5 segundos
+        setTimeout(function() {
+                if (alert.parentNode) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+                }
+        }, 5000);
+    });
+    });
+    
+    // Função para limpar todas as mensagens
+    function clearAllMessages() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            alert.remove();
+        });
+    }
+    
+    // Limpa mensagens ao fazer login/logout
+    if (window.location.pathname.includes('/login') || window.location.pathname.includes('/logout')) {
+        clearAllMessages();
+    }
+</script>

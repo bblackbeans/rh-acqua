@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Minhas Candidaturas</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="candidate-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="candidate_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="vagas_disponiveis.html">
+                        <i class="bi bi-briefcase"></i> Vagas Disponíveis
+                    </a>
+                </li>
+                <li>
+                    <a href="minhas_candidaturas.html" class="active">
+                        <i class="bi bi-file-earmark-text"></i> Minhas Candidaturas
+                    </a>
+                </li>
+                <li>
+                    <a href="meu_perfil.html">
+                        <i class="bi bi-person"></i> Meu Perfil
+                    </a>
+                </li>
+                <li>
+                    <a href="meu_curriculo.html">
+                        <i class="bi bi-file-earmark-person"></i> Meu Currículo
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-candidate.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">João Silva</span>
+                        <span class="user-role">Candidato</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Minhas Candidaturas</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    2
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Entrevista agendada para 10/06</a>
+                                <a class="dropdown-item" href="#">Candidatura em análise</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Filters -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Filtros</h5>
+                        <form class="row g-3">
+                            <div class="col-md-4">
+                                <label for="status" class="form-label">Status</label>
+                                <select id="status" class="form-select">
+                                    <option value="" selected>Todos</option>
+                                    <option value="1">Em análise</option>
+                                    <option value="2">Entrevista</option>
+                                    <option value="3">Aprovado</option>
+                                    <option value="4">Reprovado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="unidade" class="form-label">Unidade</label>
+                                <select id="unidade" class="form-select">
+                                    <option value="" selected>Todas</option>
+                                    <option value="1">Hospital Santa Clara - São Paulo, SP</option>
+                                    <option value="2">Hospital São Lucas - Rio de Janeiro, RJ</option>
+                                    <option value="3">Hospital Central - Belo Horizonte, MG</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="data" class="form-label">Data</label>
+                                <select id="data" class="form-select">
+                                    <option value="" selected>Todas</option>
+                                    <option value="1">Últimos 7 dias</option>
+                                    <option value="2">Últimos 30 dias</option>
+                                    <option value="3">Últimos 90 dias</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn candidate-btn-primary">Filtrar</button>
+                                <button type="reset" class="btn btn-outline-secondary">Limpar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Candidaturas -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Minhas Candidaturas</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Vaga</th>
+                                        <th>Unidade</th>
+                                        <th>Data da Candidatura</th>
+                                        <th>Status</th>
+                                        <th>Próxima Etapa</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Enfermeiro(a) UTI</td>
+                                        <td>Hospital Santa Clara - São Paulo, SP</td>
+                                        <td>01/06/2025</td>
+                                        <td><span class="badge bg-info">Entrevista</span></td>
+                                        <td>Entrevista presencial em 10/06/2025</td>
+                                        <td>
+                                            <button class="btn btn-sm candidate-btn-primary">Ver Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Técnico(a) de Enfermagem</td>
+                                        <td>Hospital São Lucas - Rio de Janeiro, RJ</td>
+                                        <td>28/05/2025</td>
+                                        <td><span class="badge bg-warning">Em análise</span></td>
+                                        <td>Aguardando análise do currículo</td>
+                                        <td>
+                                            <button class="btn btn-sm candidate-btn-primary">Ver Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Enfermeiro(a) Centro Cirúrgico</td>
+                                        <td>Hospital Santa Clara - São Paulo, SP</td>
+                                        <td>25/05/2025</td>
+                                        <td><span class="badge bg-warning">Em análise</span></td>
+                                        <td>Aguardando análise do currículo</td>
+                                        <td>
+                                            <button class="btn btn-sm candidate-btn-primary">Ver Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Médico(a) Clínico Geral</td>
+                                        <td>Hospital Central - Belo Horizonte, MG</td>
+                                        <td>15/05/2025</td>
+                                        <td><span class="badge bg-danger">Reprovado</span></td>
+                                        <td>Candidatura encerrada</td>
+                                        <td>
+                                            <button class="btn btn-sm candidate-btn-primary">Ver Detalhes</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fisioterapeuta</td>
+                                        <td>Hospital São Lucas - Rio de Janeiro, RJ</td>
+                                        <td>10/05/2025</td>
+                                        <td><span class="badge bg-success">Aprovado</span></td>
+                                        <td>Aguardando contato do RH</td>
+                                        <td>
+                                            <button class="btn btn-sm candidate-btn-primary">Ver Detalhes</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Próximas Entrevistas -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Próximas Entrevistas</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Vaga</th>
+                                        <th>Local</th>
+                                        <th>Data</th>
+                                        <th>Horário</th>
+                                        <th>Tipo</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Enfermeiro(a) UTI</td>
+                                        <td>Hospital Santa Clara - São Paulo, SP</td>
+                                        <td>10/06/2025</td>
+                                        <td>14:30</td>
+                                        <td>Presencial</td>
+                                        <td>
+                                            <button class="btn btn-sm candidate-btn-primary">Ver Detalhes</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer mt-auto py-3">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <span class="text-muted">&copy; 2025 Instituto Acqua. Todos os direitos reservados.</span>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="text-muted">Sistema de RH v2.0</span>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery (necessário para algumas funcionalidades) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

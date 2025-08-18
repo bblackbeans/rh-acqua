@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Relatórios Avançados</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="admin-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="admin_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="gestao_usuarios.html">
+                        <i class="bi bi-people"></i> Gestão de Usuários
+                    </a>
+                </li>
+                <li>
+                    <a href="unidades_hospitalares.html">
+                        <i class="bi bi-building"></i> Unidades Hospitalares
+                    </a>
+                </li>
+                <li>
+                    <a href="setores.html">
+                        <i class="bi bi-diagram-3"></i> Setores
+                    </a>
+                </li>
+                <li>
+                    <a href="configuracoes.html">
+                        <i class="bi bi-gear"></i> Configurações
+                    </a>
+                </li>
+                <li>
+                    <a href="logs_sistema.html">
+                        <i class="bi bi-journal-text"></i> Logs do Sistema
+                    </a>
+                </li>
+                <li>
+                    <a href="relatorios_avancados.html" class="active">
+                        <i class="bi bi-bar-chart"></i> Relatórios Avançados
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-admin.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Carlos Mendes</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Relatórios Avançados</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Novo usuário cadastrado</a>
+                                <a class="dropdown-item" href="#">Backup automático concluído</a>
+                                <a class="dropdown-item" href="#">Atualização do sistema disponível</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Navegação por abas -->
+                <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">Dashboard</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="recruitment-tab" data-bs-toggle="tab" data-bs-target="#recruitment" type="button" role="tab" aria-controls="recruitment" aria-selected="false">Recrutamento</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button" role="tab" aria-controls="performance" aria-selected="false">Desempenho</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="financial-tab" data-bs-toggle="tab" data-bs-target="#financial" type="button" role="tab" aria-controls="financial" aria-selected="false">Financeiro</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="custom-tab" data-bs-toggle="tab" data-bs-target="#custom" type="button" role="tab" aria-controls="custom" aria-selected="false">Personalizado</button>
+                    </li>
+                </ul>
+
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="dateRangeFilter" class="form-label">Período</label>
+                                    <select class="form-select" id="dateRangeFilter">
+                                        <option value="week">Última Semana</option>
+                                        <option value="month" selected>Último Mês</option>
+                                        <option value="quarter">Último Trimestre</option>
+                                        <option value="year">Último Ano</option>
+                                        <option value="custom">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="unitFilter" class="form-label">Unidade</label>
+                                    <select class="form-select" id="unitFilter">
+                                        <option value="">Todas</option>
+                                        <option value="1">Hospital São Paulo</option>
+                                        <option value="2">Hospital Rio de Janeiro</option>
+                                        <option value="3">Hospital Belo Horizonte</option>
+                                        <option value="4">Clínica São Paulo Sul</option>
+                                        <option value="5">Clínica Rio Norte</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="departmentFilter" class="form-label">Setor</label>
+                                    <select class="form-select" id="departmentFilter">
+                                        <option value="">Todos</option>
+                                        <option value="1">UTI</option>
+                                        <option value="2">Centro Cirúrgico</option>
+                                        <option value="3">Emergência</option>
+                                        <option value="4">Pediatria</option>
+                                        <option value="5">Oncologia</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="formatFilter" class="form-label">Formato</label>
+                                    <select class="form-select" id="formatFilter">
+                                        <option value="chart">Gráfico</option>
+                                        <option value="table">Tabela</option>
+                                        <option value="both" selected>Ambos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-end">
+                                    <button type="button" class="btn btn-secondary me-2">Limpar</button>
+                                    <button type="button" class="btn btn-primary">Aplicar Filtros</button>
+                                    <div class="btn-group ms-2">
+                                        <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                            Exportar
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#">PDF</a></li>
+                                            <li><a class="dropdown-item" href="#">Excel</a></li>
+                                            <li><a class="dropdown-item" href="#">CSV</a></li>
+                                            <li><a class="dropdown-item" href="#">Imagem</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Conteúdo das abas -->
+                <div class="tab-content" id="reportTabsContent">
+                    <!-- Dashboard -->
+                    <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                        <!-- KPIs -->
+                        <div class="row mb-4">
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-primary shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                    Vagas Abertas</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">42</div>
+                                                <div class="text-xs text-success mt-1">
+                                                    <i class="bi bi-arrow-up"></i> 15% vs mês anterior
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-briefcase fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                    Candidaturas</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">298</div>
+                                                <div class="text-xs text-success mt-1">
+                                                    <i class="bi bi-arrow-up"></i> 22% vs mês anterior
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-file-earmark-text fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-info shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                    Taxa de Conversão</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">9.4%</div>
+                                                <div class="text-xs text-danger mt-1">
+                                                    <i class="bi bi-arrow-down"></i> 2.1% vs mês anterior
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-percent fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-warning shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                    Tempo Médio de Contratação</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800">25 dias</div>
+                                                <div class="text-xs text-success mt-1">
+                                                    <i class="bi bi-arrow-down"></i> 3 dias vs mês anterior
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="bi bi-clock-history fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gráficos -->
+                        <div class="row">
+                            <!-- Gráfico de Vagas por Unidade -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Vagas por Unidade</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container" style="position: relative; height:300px; width:100%">
+                                            <!-- Simulação de gráfico com CSS -->
+                                            <div style="width: 100%; height: 100%; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                                                <div style="position: absolute; bottom: 0; left: 10%; width: 15%; height: 70%; background-color: #1cc88a; border-radius: 4px 4px 0 0;"></div>
+                                                <div style="position: absolute; bottom: 0; left: 30%; width: 15%; height: 55%; background-color: #1cc88a; border-radius: 4px 4px 0 0;"></div>
+                                                <div style="position: absolute; bottom: 0; left: 50%; width: 15%; height: 35%; background-color: #1cc88a; border-radius: 4px 4px 0 0;"></div>
+                                                <div style="position: absolute; bottom: 0; left: 70%; width: 15%; height: 20%; background-color: #1cc88a; border-radius: 4px 4px 0 0;"></div>
+                                                <div style="position: absolute; bottom: -20px; left: 0; width: 100%; text-align: center; display: flex; justify-content: space-around;">
+                                                    <span>São Paulo</span>
+                                                    <span>Rio de Janeiro</span>
+                                                    <span>Belo Horizonte</span>
+                                                    <span>Clínicas</span>
+                                                </div>
+                                                <div style="position: absolute; top: 10px; left: 10px; font-weight: bold;">Vagas Abertas por Unidade</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gráfico de Candidaturas por Setor -->
+                            <div class="col-lg-6 mb-4">
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Candidaturas por Setor</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container" style="position: relative; height:300px; width:100%">
+                                            <!-- Simulação de gráfico com CSS -->
+                                            <div style="width: 100%; height: 100%; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                                                <!-- Gráfico de pizza simulado -->
+                                                <div style="width: 200px; height: 200px; border-radius: 50%; position: relative; overflow: hidden;">
+                                                    <div style="position: absolute; width: 100%; height: 100%; clip-path: polygon(50% 50%, 100% 50%, 100% 0, 50% 0); background-color: #4e73df;"></div>
+                                                    <div style="position: absolute; width: 100%; height: 100%; clip-path: polygon(50% 50%, 50% 0, 0 0, 0 50%); background-color: #1cc88a;"></div>
+                                                    <div style="position: absolute; width: 100%; height: 100%; clip-path: polygon(50% 50%, 0 50%, 0 100%, 50% 100%); background-color: #36b9cc;"></div>
+                                                    <div style="position: absolute; width: 100%; height: 100%; clip-path: polygon(50% 50%, 50% 100%, 100% 100%, 100% 50%); background-color: #f6c23e;"></div>
+                                                </div>
+                                                <div style="position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; display: flex; justify-content: space-around;">
+                                                    <span><span style="display: inline-block; width: 10px; height: 10px; background-color: #4e73df; margin-right: 5px;"></span>UTI (35%)</span>
+                                                    <span><span style="display: inline-block; width: 10px; height: 10px; background-color: #1cc88a; margin-right: 5px;"></span>Centro Cirúrgico (25%)</span>
+                                                    <span><span style="display: inline-block; width: 10px; height: 10px; background-color: #36b9cc; margin-right: 5px;"></span>Emergência (20%)</span>
+                                                    <span><span style="display: inline-block; width: 10px; height: 10px; background-color: #f6c23e; margin-right: 5px;"></span>Outros (20%)</span>
+                                                </div>
+                                                <div style="position: absolute; top: 10px; left: 10px; font-weight: bold;">Candidaturas por Setor</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Gráfico de Tendência de Contratações -->
+                            <div class="col-lg-8 mb-4">
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Tendência de Contratações (Últimos 12 Meses)</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-container" style="position: relative; height:300px; width:100%">
+                                            <!-- Simulação de gráfico com CSS -->
+                                            <div style="width: 100%; height: 100%; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                                                <!-- Linha de tendência -->
+                                                <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0;">
+                                                    <polyline points="30,200 80,180 130,190 180,150 230,160 280,140 330,120 380,130 430,100 480,90 530,70 580,60" 
+                                                        style="fill:none;stroke:#4e73df;stroke-width:3" />
+                                                    <polyline points="30,220 80,210 130,215 180,200 230,205 280,190 330,180 380,185 430,170 480,165 530,150 580,140" 
+                                                        style="fill:none;stroke:#1cc88a;stroke-width:3" />
+                                                </svg>
+                                                <div style="position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; display: flex; justify-content: space-between; padding: 0 30px; font-size: 10px;">
+                                                    <span>Jun</span>
+                                                    <span>Jul</span>
+                                                    <span>Ago</span>
+                                                    <span>Set</span>
+                                                    <span>Out</span>
+                                                    <span>Nov</span>
+                                                    <span>Dez</span>
+                                                    <span>Jan</span>
+                                                    <span>Fev</span>
+                                                    <span>Mar</span>
+                                                    <span>Abr</span>
+                                                    <span>Mai</span>
+                                                </div>
+                                                <div style="position: absolute; bottom: 30px; right: 30px; display: flex; flex-direction: column;">
+                                                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                                                        <div style="width: 15px; height: 3px; background-color: #4e73df; margin-right: 5px;"></div>
+                                                        <span style="font-size: 12px;">Vagas</span>
+                                                    </div>
+                                                    <div style="display: flex; align-items: center;">
+                                                        <div style="width: 15px; height: 3px; background-color: #1cc88a; margin-right: 5px;"></div>
+                                                        <span style="font-size: 12px;">Contratações</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Métricas de Eficiência -->
+                            <div class="col-lg-4 mb-4">
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3">
+                                        <h6 class="m-0 font-weight-bold text-primary">Métricas de Eficiência</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="mb-1">Custo por Contratação</p>
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <small>R$ 3.250 (atual)</small>
+                                                <small>Meta: R$ 3.000</small>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <p class="mb-1">Tempo de Preenchimento</p>
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <small>25 dias (atual)</small>
+                                                <small>Meta: 20 dias</small>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <p class="mb-1">Taxa de Retenção (90 dias)</p>
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <small>90% (atual)</small>
+                                                <small>Meta: 85%</small>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <p class="mb-1">Qualidade das Contratações</p>
+                                            <div class="progress mb-2">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <small>8.5/10 (atual)</small>
+                                                <small>Meta: 8.0/10</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Dados -->
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Resumo por Unidade</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Unidade</th>
+                                                <th>Vagas Abertas</th>
+                                                <th>Candidaturas</th>
+                                                <th>Entrevistas</th>
+                                                <th>Contratações</th>
+                                                <th>Taxa de Conversão</th>
+                                                <th>Tempo Médio (dias)</th>
+                                                <th>Custo Médio (R$)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Hospital São Paulo</td>
+                                                <td>18</td>
+                                                <td>124</td>
+                                                <td>42</td>
+                                                <td>12</td>
+                                                <td>9.7%</td>
+                                                <td>22</td>
+                                                <td>3.150</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Hospital Rio de Janeiro</td>
+                                                <td>15</td>
+                                                <td>98</td>
+                                                <td>35</td>
+                                                <td>10</td>
+                                                <td>10.2%</td>
+                                                <td>25</td>
+                                                <td>3.280</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Hospital Belo Horizonte</td>
+                                                <td>9</td>
+                                                <td>76</td>
+                                                <td>28</td>
+                                                <td>6</td>
+                                                <td>7.9%</td>
+                                                <td>28</td>
+                                                <td>3.420</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Clínica São Paulo Sul</td>
+                                                <td>5</td>
+                                                <td>42</td>
+                                                <td>15</td>
+                                                <td>4</td>
+                                                <td>9.5%</td>
+                                                <td>20</td>
+                                                <td>2.950</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Clínica Rio Norte</td>
+                                                <td>3</td>
+                                                <td>28</td>
+                                                <td>10</td>
+                                                <td>2</td>
+                                                <td>7.1%</td>
+                                                <td>22</td>
+                                                <td>3.100</td>
+                                            </tr>
+                                            <tr class="table-secondary">
+                                                <td><strong>Total / Média</strong></td>
+                                                <td><strong>50</strong></td>
+                                                <td><strong>368</strong></td>
+                                                <td><strong>130</strong></td>
+                                                <td><strong>34</strong></td>
+                                                <td><strong>9.2%</strong></td>
+                                                <td><strong>23.4</strong></td>
+                                                <td><strong>3.180</strong></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recrutamento -->
+                    <div class="tab-pane fade" id="recruitment" role="tabpanel" aria-labelledby="recruitment-tab">
+                        <div class="alert alert-info">
+                            Selecione os filtros desejados e clique em "Aplicar Filtros" para gerar o relatório de recrutamento.
+                        </div>
+                    </div>
+
+                    <!-- Desempenho -->
+                    <div class="tab-pane fade" id="performance" role="tabpanel" aria-labelledby="performance-tab">
+                        <div class="alert alert-info">
+                            Selecione os filtros desejados e clique em "Aplicar Filtros" para gerar o relatório de desempenho.
+                        </div>
+                    </div>
+
+                    <!-- Financeiro -->
+                    <div class="tab-pane fade" id="financial" role="tabpanel" aria-labelledby="financial-tab">
+                        <div class="alert alert-info">
+                            Selecione os filtros desejados e clique em "Aplicar Filtros" para gerar o relatório financeiro.
+                        </div>
+                    </div>
+
+                    <!-- Personalizado -->
+                    <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Construtor de Relatórios</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Selecione os Campos</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label">Dimensões</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="dimUnit" checked>
+                                                <label class="form-check-label" for="dimUnit">Unidade</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="dimDepartment" checked>
+                                                <label class="form-check-label" for="dimDepartment">Setor</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="dimPosition">
+                                                <label class="form-check-label" for="dimPosition">Cargo</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="dimRecruiter">
+                                                <label class="form-check-label" for="dimRecruiter">Recrutador</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="dimDate" checked>
+                                                <label class="form-check-label" for="dimDate">Data</label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Métricas</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="metVacancies" checked>
+                                                <label class="form-check-label" for="metVacancies">Vagas</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="metApplications" checked>
+                                                <label class="form-check-label" for="metApplications">Candidaturas</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="metInterviews" checked>
+                                                <label class="form-check-label" for="metInterviews">Entrevistas</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="metHires" checked>
+                                                <label class="form-check-label" for="metHires">Contratações</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="metConversion" checked>
+                                                <label class="form-check-label" for="metConversion">Taxa de Conversão</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="metTime" checked>
+                                                <label class="form-check-label" for="metTime">Tempo Médio</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="metCost">
+                                                <label class="form-check-label" for="metCost">Custo</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Visualização</h6>
+                                        <div class="mb-3">
+                                            <label for="chartType" class="form-label">Tipo de Gráfico</label>
+                                            <select class="form-select" id="chartType">
+                                                <option value="bar">Barras</option>
+                                                <option value="line">Linha</option>
+                                                <option value="pie">Pizza</option>
+                                                <option value="area">Área</option>
+                                                <option value="scatter">Dispersão</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="chartOrientation" class="form-label">Orientação</label>
+                                            <select class="form-select" id="chartOrientation">
+                                                <option value="vertical">Vertical</option>
+                                                <option value="horizontal">Horizontal</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="chartColors" class="form-label">Esquema de Cores</label>
+                                            <select class="form-select" id="chartColors">
+                                                <option value="default">Padrão</option>
+                                                <option value="monochrome">Monocromático</option>
+                                                <option value="pastel">Pastel</option>
+                                                <option value="bright">Vibrante</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="showLegend" checked>
+                                            <label class="form-check-label" for="showLegend">Mostrar Legenda</label>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="showValues" checked>
+                                            <label class="form-check-label" for="showValues">Mostrar Valores</label>
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="showTable" checked>
+                                            <label class="form-check-label" for="showTable">Incluir Tabela de Dados</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 text-end">
+                                        <button type="button" class="btn btn-secondary me-2">Limpar</button>
+                                        <button type="button" class="btn btn-primary">Gerar Relatório</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            Configure os campos e visualizações desejadas e clique em "Gerar Relatório" para criar um relatório personalizado.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

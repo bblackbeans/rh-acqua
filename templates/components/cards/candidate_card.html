@@ -1,0 +1,42 @@
+<!-- Card de Candidato -->
+<div class="card candidate-card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">{{ candidate.user.get_full_name }}</h5>
+        {% if candidate.is_available %}
+            <span class="badge bg-success">Disponível</span>
+        {% else %}
+            <span class="badge bg-secondary">Indisponível</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="candidate-info mb-3">
+            <p><i class="fas fa-envelope me-2"></i> {{ candidate.user.email }}</p>
+            <p><i class="fas fa-phone me-2"></i> {{ candidate.phone }}</p>
+            <p><i class="fas fa-map-marker-alt me-2"></i> {{ candidate.city }} - {{ candidate.state }}</p>
+            <p><i class="fas fa-graduation-cap me-2"></i> {{ candidate.highest_education }}</p>
+        </div>
+        <div class="candidate-skills mb-3">
+            <h6>Habilidades:</h6>
+            <div class="skills-container">
+                {% for skill in candidate.skills.all|slice:":5" %}
+                    <span class="badge bg-info text-dark me-1">{{ skill.name }}</span>
+                {% endfor %}
+                {% if candidate.skills.count > 5 %}
+                    <span class="badge bg-secondary">+{{ candidate.skills.count|add:"-5" }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <p class="card-text">{{ candidate.summary|truncatewords:20 }}</p>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted">Atualizado em {{ candidate.updated_at|date:"d/m/Y" }}</small>
+        <a href="{% url 'talent_pool:talent_detail' candidate.id %}" class="btn btn-primary btn-sm">Ver perfil</a>
+    </div>
+</div>
+
+<!-- 
+Uso:
+{% include 'components/cards/candidate_card.html' with candidate=candidate %}
+
+Onde candidate é um objeto do modelo Talent
+-->

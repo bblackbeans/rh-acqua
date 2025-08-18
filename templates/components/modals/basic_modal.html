@@ -1,0 +1,38 @@
+<!-- Modal Básico -->
+<div class="modal fade" id="{{ modal_id }}" tabindex="-1" aria-labelledby="{{ modal_id }}-label" aria-hidden="true">
+    <div class="modal-dialog {{ modal_size|default:'modal-lg' }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ modal_id }}-label">{{ modal_title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                {{ modal_content|safe }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                {% if show_confirm_button %}
+                    <button type="button" class="btn btn-primary" id="{{ modal_id }}-confirm">{{ confirm_button_text|default:'Confirmar' }}</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 
+Uso:
+{% include 'components/modals/basic_modal.html' with 
+    modal_id='example-modal' 
+    modal_title='Título do Modal' 
+    modal_content='Conteúdo do modal...' 
+    modal_size='modal-lg'
+    show_confirm_button=True 
+    confirm_button_text='Salvar' 
+%}
+
+Para abrir o modal via JavaScript:
+<script>
+    var myModal = new bootstrap.Modal(document.getElementById('example-modal'));
+    myModal.show();
+</script>
+-->

@@ -1,0 +1,693 @@
+{% comment %}
+Componente Data Table Reutilizável
+
+Uso:
+{% include 'admin/components/data_table.html' with 
+    table_id="usersTable"
+    table_title="Lista de Usuários"
+    columns=columns
+    data=users
+    pagination=pagination
+    search_enabled=True
+    export_enabled=True
+%}
+
+Variáveis esperadas:
+- table_id: ID único da tabela
+- table_title: Título da tabela
+- columns: Lista de colunas com {name, label, sortable, searchable}
+- data: Dados da tabela
+- pagination: Objeto de paginação
+- search_enabled: Habilitar busca
+- export_enabled: Habilitar exportação
+- bulk_actions: Ações em lote
+{% endcomment %}
+
+<div class="data-table-container">
+    <!-- Header da Tabela -->
+    <div class="table-header">
+        <div class="table-title-section">
+            <h3 class="table-title">{{ table_title|default:"Tabela de Dados" }}</h3>
+            {% if table_subtitle %}
+                <p class="table-subtitle">{{ table_subtitle }}</p>
+            {% endif %}
+        </div>
+        
+        <div class="table-actions">
+            {% if search_enabled %}
+                <div class="table-search-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" 
+                           class="table-search" 
+                           placeholder="Buscar..." 
+                           data-table="{{ table_id }}">
+                </div>
+            {% endif %}
+            
+            {% if export_enabled %}
+                <div class="dropdown">
+                    <button class="btn btn-outline dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-download"></i>
+                        Exportar
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#" data-export="csv">
+                            <i class="bi bi-file-earmark-text"></i>
+                            CSV
+                        </a>
+                        <a class="dropdown-item" href="#" data-export="excel">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            Excel
+                        </a>
+                        <a class="dropdown-item" href="#" data-export="pdf">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            PDF
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+            
+            {% if add_button_url %}
+                <a href="{{ add_button_url }}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i>
+                    {{ add_button_text|default:"Adicionar" }}
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    {% if filters %}
+        <div class="table-filters">
+            {% for filter in filters %}
+                <div class="filter-group">
+                    <label class="filter-label">{{ filter.label }}</label>
+                    {% if filter.type == 'select' %}
+                        <select class="filter-select" data-filter="{{ filter.name }}">
+                            <option value="">Todos</option>
+                            {% for option in filter.options %}
+                                <option value="{{ option.value }}">{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                    {% elif filter.type == 'date' %}
+                        <input type="date" class="filter-input" data-filter="{{ filter.name }}">
+                    {% else %}
+                        <input type="text" class="filter-input" placeholder="{{ filter.placeholder }}" data-filter="{{ filter.name }}">
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="filter-actions">
+                <button type="button" class="btn btn-sm btn-outline" id="clearFilters">
+                    Limpar Filtros
+                </button>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Tabela -->
+    <div class="table-responsive">
+        <table class="data-table" id="{{ table_id }}">
+            <thead>
+                <tr>
+                    {% if bulk_actions %}
+                        <th class="bulk-select-header">
+                            <input type="checkbox" class="bulk-select-all" id="selectAll">
+                        </th>
+                    {% endif %}
+                    
+                    {% for column in columns %}
+                        <th class="{% if column.sortable %}sortable{% endif %}" 
+                            {% if column.sortable %}data-sort="{{ column.name }}"{% endif %}>
+                            {{ column.label }}
+                            {% if column.sortable %}
+                                <i class="bi bi-arrow-down-up sort-icon"></i>
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                    
+                    {% if actions %}
+                        <th class="actions-header">Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            
+            <tbody>
+                {% for row in data %}
+                    <tr data-id="{{ row.id }}">
+                        {% if bulk_actions %}
+                            <td class="bulk-select-cell">
+                                <input type="checkbox" class="bulk-select-item" value="{{ row.id }}">
+                            </td>
+                        {% endif %}
+                        
+                        {% for column in columns %}
+                            <td class="{% if column.class %}{{ column.class }}{% endif %}">
+                                {% if column.template %}
+                                    {% include column.template with item=row %}
+                                {% elif column.field %}
+                                    {{ row|get_field:column.field }}
+                                {% else %}
+                                    {{ row|get_attribute:column.name }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                        
+                        {% if actions %}
+                            <td class="actions-cell">
+                                <div class="actions-dropdown">
+                                    <button class="btn btn-sm btn-ghost actions-toggle" type="button">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <div class="actions-menu">
+                                        {% for action in actions %}
+                                            {% if action.condition|default:True %}
+                                                <a href="{{ action.url|format:row.id }}" 
+                                                   class="action-item {{ action.class|default:'' }}"
+                                                   {% if action.confirm %}data-confirm="{{ action.confirm }}"{% endif %}
+                                                   {% if action.target %}target="{{ action.target }}"{% endif %}>
+                                                    <i class="bi bi-{{ action.icon }}"></i>
+                                                    {{ action.label }}
+                                                </a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="{% if bulk_actions %}{{ columns|length|add:2 }}{% else %}{{ columns|length|add:1 }}{% endif %}" class="empty-state">
+                            <div class="empty-state-content">
+                                <i class="bi bi-inbox empty-state-icon"></i>
+                                <h4 class="empty-state-title">Nenhum dado encontrado</h4>
+                                <p class="empty-state-message">{{ empty_message|default:"Não há dados para exibir no momento." }}</p>
+                                {% if empty_action %}
+                                    <a href="{{ empty_action.url }}" class="btn btn-primary">
+                                        {{ empty_action.label }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    {% if pagination %}
+        <div class="table-pagination">
+            <div class="pagination-info">
+                Mostrando {{ pagination.start_index }} a {{ pagination.end_index }} de {{ pagination.total_count }} registros
+            </div>
+            
+            <div class="pagination-controls">
+                {% if pagination.has_previous %}
+                    <a href="?page=1" class="btn btn-sm btn-outline">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                    <a href="?page={{ pagination.previous_page_number }}" class="btn btn-sm btn-outline">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                {% endif %}
+                
+                <span class="pagination-current">
+                    Página {{ pagination.number }} de {{ pagination.num_pages }}
+                </span>
+                
+                {% if pagination.has_next %}
+                    <a href="?page={{ pagination.next_page_number }}" class="btn btn-sm btn-outline">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <a href="?page={{ pagination.num_pages }}" class="btn btn-sm btn-outline">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Ações em Lote -->
+    {% if bulk_actions %}
+        <div class="bulk-actions" style="display: none;">
+            <div class="bulk-actions-content">
+                <span class="bulk-selected-count">0 itens selecionados</span>
+                <div class="bulk-actions-buttons">
+                    {% for action in bulk_actions %}
+                        <button type="button" class="btn btn-sm {{ action.class|default:'btn-outline' }}" data-bulk-action="{{ action.name }}">
+                            <i class="bi bi-{{ action.icon }}"></i>
+                            {{ action.label }}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Estilos específicos para data tables -->
+<style>
+.data-table-container {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+}
+
+.table-header {
+    padding: var(--spacing-6);
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+}
+
+.table-title-section {
+    flex: 1;
+}
+
+.table-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
+}
+
+.table-subtitle {
+    font-size: var(--text-sm);
+    color: var(--gray-600);
+    margin: var(--spacing-1) 0 0 0;
+}
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.table-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.table-search {
+    padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) var(--spacing-8);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    font-size: var(--text-sm);
+    min-width: 250px;
+}
+
+.search-icon {
+    position: absolute;
+    left: var(--spacing-3);
+    color: var(--gray-500);
+    font-size: var(--text-sm);
+}
+
+.table-filters {
+    padding: var(--spacing-4) var(--spacing-6);
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+}
+
+.filter-label {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.filter-select,
+.filter-input {
+    padding: var(--spacing-2) var(--spacing-3);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    font-size: var(--text-sm);
+    min-width: 150px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: var(--gray-50);
+    padding: var(--spacing-3) var(--spacing-4);
+    text-align: left;
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.data-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.data-table th.sortable:hover {
+    background: var(--gray-100);
+}
+
+.sort-icon {
+    margin-left: var(--spacing-1);
+    font-size: var(--text-xs);
+    opacity: 0.5;
+}
+
+.data-table th.sort-asc .sort-icon {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+
+.data-table th.sort-desc .sort-icon {
+    opacity: 1;
+}
+
+.data-table td {
+    padding: var(--spacing-3) var(--spacing-4);
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+    background: var(--gray-50);
+}
+
+.actions-dropdown {
+    position: relative;
+}
+
+.actions-toggle {
+    padding: var(--spacing-1);
+}
+
+.actions-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    min-width: 150px;
+    z-index: var(--z-dropdown);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-fast);
+}
+
+.actions-dropdown:hover .actions-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--gray-700);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    transition: background-color var(--transition-fast);
+}
+
+.action-item:hover {
+    background: var(--gray-50);
+    color: var(--gray-900);
+}
+
+.action-item.danger:hover {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-12);
+}
+
+.empty-state-content {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.empty-state-icon {
+    font-size: var(--text-4xl);
+    color: var(--gray-400);
+    margin-bottom: var(--spacing-4);
+}
+
+.empty-state-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-2);
+}
+
+.empty-state-message {
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-4);
+}
+
+.table-pagination {
+    padding: var(--spacing-4) var(--spacing-6);
+    border-top: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pagination-info {
+    font-size: var(--text-sm);
+    color: var(--gray-600);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.pagination-current {
+    font-size: var(--text-sm);
+    color: var(--gray-700);
+    font-weight: 500;
+}
+
+.bulk-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-sticky);
+    padding: var(--spacing-4);
+}
+
+.bulk-actions-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.bulk-selected-count {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.bulk-actions-buttons {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-3);
+    }
+    
+    .table-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .table-search {
+        min-width: 200px;
+    }
+    
+    .table-filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-select,
+    .filter-input {
+        width: 100%;
+    }
+    
+    .table-pagination {
+        flex-direction: column;
+        gap: var(--spacing-3);
+        text-align: center;
+    }
+    
+    .bulk-actions-content {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+}
+</style>
+
+<!-- Script para funcionalidades da tabela -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tableId = '{{ table_id }}';
+    const table = document.getElementById(tableId);
+    
+    if (!table) return;
+    
+    // Busca na tabela
+    const searchInput = document.querySelector(`[data-table="${tableId}"]`);
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    }
+    
+    // Ordenação
+    const sortableHeaders = table.querySelectorAll('th.sortable');
+    sortableHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            const columnIndex = Array.from(this.parentElement.children).indexOf(this);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Remove classes de ordenação
+            sortableHeaders.forEach(h => {
+                h.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // Determina direção da ordenação
+            const isAscending = !this.classList.contains('sort-asc');
+            
+            // Ordena as linhas
+            rows.sort((a, b) => {
+                const aValue = a.children[columnIndex].textContent.trim();
+                const bValue = b.children[columnIndex].textContent.trim();
+                
+                if (isAscending) {
+                    return aValue.localeCompare(bValue);
+                } else {
+                    return bValue.localeCompare(aValue);
+                }
+            });
+            
+            // Reordena as linhas
+            rows.forEach(row => tbody.appendChild(row));
+            
+            // Adiciona classe de ordenação
+            this.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+        });
+    });
+    
+    // Seleção em lote
+    const selectAllCheckbox = table.querySelector('.bulk-select-all');
+    const bulkActions = document.querySelector('.bulk-actions');
+    
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = table.querySelectorAll('.bulk-select-item');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActions();
+        });
+    }
+    
+    const bulkCheckboxes = table.querySelectorAll('.bulk-select-item');
+    bulkCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+    
+    function updateBulkActions() {
+        const checkedBoxes = table.querySelectorAll('.bulk-select-item:checked');
+        const count = checkedBoxes.length;
+        
+        if (bulkActions) {
+            bulkActions.style.display = count > 0 ? 'block' : 'none';
+        }
+        
+        const countElement = document.querySelector('.bulk-selected-count');
+        if (countElement) {
+            countElement.textContent = `${count} item${count !== 1 ? 's' : ''} selecionado${count !== 1 ? 's' : ''}`;
+        }
+    }
+    
+    // Filtros
+    const filterInputs = document.querySelectorAll('[data-filter]');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+    
+    if (clearFiltersBtn) {
+        clearFiltersBtn.addEventListener('click', function() {
+            filterInputs.forEach(input => {
+                input.value = '';
+            });
+            // Implementar lógica de limpeza de filtros
+        });
+    }
+    
+    // Exportação
+    const exportButtons = document.querySelectorAll('[data-export]');
+    exportButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const format = this.getAttribute('data-export');
+            // Implementar lógica de exportação
+            console.log(`Exportando para ${format}`);
+        });
+    });
+});
+</script> 

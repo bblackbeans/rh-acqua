@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Unidades Hospitalares</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="admin-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="admin_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="gestao_usuarios.html">
+                        <i class="bi bi-people"></i> Gestão de Usuários
+                    </a>
+                </li>
+                <li>
+                    <a href="unidades_hospitalares.html" class="active">
+                        <i class="bi bi-building"></i> Unidades Hospitalares
+                    </a>
+                </li>
+                <li>
+                    <a href="setores.html">
+                        <i class="bi bi-diagram-3"></i> Setores
+                    </a>
+                </li>
+                <li>
+                    <a href="configuracoes.html">
+                        <i class="bi bi-gear"></i> Configurações
+                    </a>
+                </li>
+                <li>
+                    <a href="logs_sistema.html">
+                        <i class="bi bi-journal-text"></i> Logs do Sistema
+                    </a>
+                </li>
+                <li>
+                    <a href="relatorios_avancados.html">
+                        <i class="bi bi-bar-chart"></i> Relatórios Avançados
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-admin.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Carlos Mendes</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Unidades Hospitalares</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Novo usuário cadastrado</a>
+                                <a class="dropdown-item" href="#">Backup automático concluído</a>
+                                <a class="dropdown-item" href="#">Atualização do sistema disponível</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="regionFilter" class="form-label">Região</label>
+                                    <select class="form-select" id="regionFilter">
+                                        <option value="">Todas</option>
+                                        <option value="sudeste">Sudeste</option>
+                                        <option value="sul">Sul</option>
+                                        <option value="nordeste">Nordeste</option>
+                                        <option value="norte">Norte</option>
+                                        <option value="centro-oeste">Centro-Oeste</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="statusFilter" class="form-label">Status</label>
+                                    <select class="form-select" id="statusFilter">
+                                        <option value="">Todos</option>
+                                        <option value="active">Ativa</option>
+                                        <option value="inactive">Inativa</option>
+                                        <option value="maintenance">Em manutenção</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="typeFilter" class="form-label">Tipo</label>
+                                    <select class="form-select" id="typeFilter">
+                                        <option value="">Todos</option>
+                                        <option value="hospital">Hospital</option>
+                                        <option value="clinic">Clínica</option>
+                                        <option value="laboratory">Laboratório</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="searchFilter" class="form-label">Busca</label>
+                                    <input type="text" class="form-control" id="searchFilter" placeholder="Nome, cidade...">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 text-end">
+                                    <button type="button" class="btn btn-secondary me-2">Limpar</button>
+                                    <button type="button" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5>Unidades Cadastradas</h5>
+                    <button class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nova Unidade
+                    </button>
+                </div>
+
+                <!-- Mapa de Unidades -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Mapa de Unidades</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="map-container" style="height: 400px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <!-- Simulação de mapa com CSS -->
+                            <div style="width: 80%; height: 80%; background-color: #e9ecef; border-radius: 8px; position: relative;">
+                                <!-- Marcadores no mapa -->
+                                <div style="position: absolute; top: 40%; left: 30%; width: 20px; height: 20px; background-color: #1cc88a; border-radius: 50%; border: 2px solid white;"></div>
+                                <div style="position: absolute; top: 60%; left: 25%; width: 20px; height: 20px; background-color: #1cc88a; border-radius: 50%; border: 2px solid white;"></div>
+                                <div style="position: absolute; top: 30%; left: 70%; width: 20px; height: 20px; background-color: #1cc88a; border-radius: 50%; border: 2px solid white;"></div>
+                                <div style="position: absolute; top: 20%; left: 40%; width: 20px; height: 20px; background-color: #36b9cc; border-radius: 50%; border: 2px solid white;"></div>
+                                <div style="position: absolute; top: 70%; left: 60%; width: 20px; height: 20px; background-color: #36b9cc; border-radius: 50%; border: 2px solid white;"></div>
+                                <div style="position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; background-color: #e74a3b; border-radius: 50%; border: 2px solid white;"></div>
+                                <div style="position: absolute; top: 80%; left: 20%; width: 20px; height: 20px; background-color: #e74a3b; border-radius: 50%; border: 2px solid white;"></div>
+                                <div style="position: absolute; top: 10%; left: 10%; width: 20px; height: 20px; background-color: #f6c23e; border-radius: 50%; border: 2px solid white;"></div>
+                            </div>
+                            <div style="position: absolute; bottom: 20px; right: 20px; background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #1cc88a; border-radius: 50%; margin-right: 5px;"></div>
+                                    <span>Hospital (4)</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #36b9cc; border-radius: 50%; margin-right: 5px;"></div>
+                                    <span>Clínica (2)</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div style="width: 15px; height: 15px; background-color: #e74a3b; border-radius: 50%; margin-right: 5px;"></div>
+                                    <span>Inativa (2)</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <div style="width: 15px; height: 15px; background-color: #f6c23e; border-radius: 50%; margin-right: 5px;"></div>
+                                    <span>Em manutenção (1)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Unidades -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Tipo</th>
+                                        <th>Cidade/UF</th>
+                                        <th>Endereço</th>
+                                        <th>Responsável</th>
+                                        <th>Vagas Ativas</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Hospital São Paulo</td>
+                                        <td>Hospital</td>
+                                        <td>São Paulo, SP</td>
+                                        <td>Av. Paulista, 1500</td>
+                                        <td>Ana Oliveira</td>
+                                        <td>18</td>
+                                        <td><span class="status-badge approved">Ativa</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Desativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hospital Rio de Janeiro</td>
+                                        <td>Hospital</td>
+                                        <td>Rio de Janeiro, RJ</td>
+                                        <td>Av. Atlântica, 500</td>
+                                        <td>Roberto Alves</td>
+                                        <td>15</td>
+                                        <td><span class="status-badge approved">Ativa</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Desativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hospital Belo Horizonte</td>
+                                        <td>Hospital</td>
+                                        <td>Belo Horizonte, MG</td>
+                                        <td>Av. do Contorno, 1200</td>
+                                        <td>Paulo Ferreira</td>
+                                        <td>9</td>
+                                        <td><span class="status-badge approved">Ativa</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Desativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Clínica São Paulo Sul</td>
+                                        <td>Clínica</td>
+                                        <td>São Paulo, SP</td>
+                                        <td>Rua Oscar Freire, 500</td>
+                                        <td>Mariana Costa</td>
+                                        <td>5</td>
+                                        <td><span class="status-badge approved">Ativa</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Desativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Clínica Rio Norte</td>
+                                        <td>Clínica</td>
+                                        <td>Rio de Janeiro, RJ</td>
+                                        <td>Av. das Américas, 2000</td>
+                                        <td>Carlos Santos</td>
+                                        <td>3</td>
+                                        <td><span class="status-badge approved">Ativa</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-danger">Desativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hospital Porto Alegre</td>
+                                        <td>Hospital</td>
+                                        <td>Porto Alegre, RS</td>
+                                        <td>Av. Ipiranga, 800</td>
+                                        <td>Juliana Martins</td>
+                                        <td>0</td>
+                                        <td><span class="status-badge closed">Inativa</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-success">Ativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hospital Salvador</td>
+                                        <td>Hospital</td>
+                                        <td>Salvador, BA</td>
+                                        <td>Av. Oceânica, 1500</td>
+                                        <td>Ricardo Gomes</td>
+                                        <td>0</td>
+                                        <td><span class="status-badge closed">Inativa</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-success">Ativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hospital Recife</td>
+                                        <td>Hospital</td>
+                                        <td>Recife, PE</td>
+                                        <td>Av. Boa Viagem, 1000</td>
+                                        <td>Fernanda Lima</td>
+                                        <td>0</td>
+                                        <td><span class="status-badge pending">Em manutenção</span></td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary">Editar</button>
+                                                <button class="btn btn-sm btn-info">Ver</button>
+                                                <button class="btn btn-sm btn-success">Ativar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Paginação -->
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Próximo</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

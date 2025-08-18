@@ -1,0 +1,145 @@
+<!-- Componente de Filtros -->
+<div class="filters-component mb-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i> {{ filter_title|default:'Filtros' }}
+            </h5>
+            <button class="btn btn-sm btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="{{ show_filters|default:'true' }}" aria-controls="filtersCollapse">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="collapse {{ show_filters|yesno:'show,' }}" id="filtersCollapse">
+            <div class="card-body">
+                <form method="get" action="{{ filter_url|default:request.path }}" id="filters-form">
+                    {% if request.GET.q %}
+                        <input type="hidden" name="q" value="{{ request.GET.q }}">
+                    {% endif %}
+                    
+                    <div class="row">
+                        {% for filter in filters %}
+                            <div class="col-md-{{ filter.col_size|default:'4' }} mb-3">
+                                <label for="{{ filter.field }}" class="form-label">{{ filter.label }}</label>
+                                
+                                {% if filter.type == 'select' %}
+                                    <select name="{{ filter.field }}" id="{{ filter.field }}" class="form-select {{ filter.class|default:'' }}">
+                                        <option value="">{{ filter.empty_label|default:'Todos' }}</option>
+                                        {% for option in filter.options %}
+                                            <option value="{{ option.value }}" {% if request.GET|get_item:filter.field == option.value|stringformat:'s' %}selected{% endif %}>
+                                                {{ option.label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                
+                                {% elif filter.type == 'date' %}
+                                    <div class="input-group">
+                                        <input type="date" name="{{ filter.field }}" id="{{ filter.field }}" class="form-control {{ filter.class|default:'' }}" value="{{ request.GET|get_item:filter.field|default:'' }}">
+                                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    </div>
+                                
+                                {% elif filter.type == 'range' %}
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text">De</span>
+                                                <input type="{{ filter.input_type|default:'text' }}" name="{{ filter.field }}_min" id="{{ filter.field }}_min" class="form-control {{ filter.class|default:'' }}" value="{{ request.GET|get_item:filter.field|add:'_min'|default:'' }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="input-group">
+                                                <span class="input-group-text">Até</span>
+                                                <input type="{{ filter.input_type|default:'text' }}" name="{{ filter.field }}_max" id="{{ filter.field }}_max" class="form-control {{ filter.class|default:'' }}" value="{{ request.GET|get_item:filter.field|add:'_max'|default:'' }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                {% elif filter.type == 'checkbox' %}
+                                    <div class="form-check">
+                                        <input type="checkbox" name="{{ filter.field }}" id="{{ filter.field }}" class="form-check-input {{ filter.class|default:'' }}" value="1" {% if request.GET|get_item:filter.field == '1' %}checked{% endif %}>
+                                        <label for="{{ filter.field }}" class="form-check-label">{{ filter.checkbox_label|default:filter.label }}</label>
+                                    </div>
+                                
+                                {% else %}
+                                    <input type="{{ filter.type|default:'text' }}" name="{{ filter.field }}" id="{{ filter.field }}" class="form-control {{ filter.class|default:'' }}" value="{{ request.GET|get_item:filter.field|default:'' }}" placeholder="{{ filter.placeholder|default:'' }}">
+                                {% endif %}
+                                
+                                {% if filter.help_text %}
+                                    <div class="form-text">{{ filter.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="{{ clear_filters_url|default:request.path }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i> Limpar Filtros
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Aplicar Filtros
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 
+Uso:
+{% include 'components/filters/filters_panel.html' with 
+    filter_title='Filtrar Vagas'
+    filter_url=request.path
+    show_filters=True
+    filters=filters
+    clear_filters_url=url('vacancies:vacancy_list')
+%}
+
+Onde filters é uma lista de dicionários com a seguinte estrutura:
+filters = [
+    {
+        'field': 'department',
+        'label': 'Departamento',
+        'type': 'select',
+        'options': [
+            {'value': '1', 'label': 'Enfermagem'},
+            {'value': '2', 'label': 'Administração'},
+            {'value': '3', 'label': 'Médico'}
+        ],
+        'empty_label': 'Todos os departamentos',
+        'col_size': '6'
+    },
+    {
+        'field': 'status',
+        'label': 'Status',
+        'type': 'select',
+        'options': [
+            {'value': 'open', 'label': 'Aberta'},
+            {'value': 'closed', 'label': 'Fechada'},
+            {'value': 'draft', 'label': 'Rascunho'}
+        ],
+        'col_size': '6'
+    },
+    {
+        'field': 'published_date',
+        'label': 'Data de Publicação',
+        'type': 'date',
+        'col_size': '6'
+    },
+    {
+        'field': 'salary',
+        'label': 'Faixa Salarial',
+        'type': 'range',
+        'input_type': 'number',
+        'col_size': '6'
+    },
+    {
+        'field': 'remote',
+        'label': 'Trabalho Remoto',
+        'type': 'checkbox',
+        'checkbox_label': 'Apenas vagas remotas',
+        'col_size': '12'
+    }
+]
+
+Nota: É necessário criar um template filter 'get_item' para acessar itens de dicionários por chave.
+-->

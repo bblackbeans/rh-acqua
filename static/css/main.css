@@ -1,0 +1,523 @@
+/* main.css - Estilos principais do sistema RH Acqua V2 */
+
+:root {
+  /* Cores principais */
+  --primary-color: #0056b3;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+
+  /* Cores específicas por perfil */
+  --candidate-primary: #0056b3;
+  --candidate-secondary: #4e73df;
+  --recruiter-primary: #6f42c1;
+  --recruiter-secondary: #8540c9;
+  --admin-primary: #1cc88a;
+  --admin-secondary: #36b9cc;
+
+  /* Cores de fundo */
+  --bg-light: #f8f9fa;
+  --bg-dark: #343a40;
+  --bg-sidebar: #2c3e50;
+
+  /* Espaçamentos */
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 80px;
+  --header-height: 60px;
+  --footer-height: 60px;
+}
+
+/* Layout principal */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: "Nunito", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.wrapper {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  align-items: stretch;
+}
+
+/* Sidebar */
+.sidebar {
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
+  background: var(--bg-sidebar);
+  color: #fff;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.sidebar.collapsed {
+  min-width: var(--sidebar-collapsed-width);
+  max-width: var(--sidebar-collapsed-width);
+}
+
+/* Admin Sidebar específico */
+#sidebar.admin-sidebar {
+  background: linear-gradient(
+    135deg,
+    var(--admin-primary) 0%,
+    var(--admin-secondary) 100%
+  );
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+#sidebar.admin-sidebar .admin-sidebar-header {
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar.admin-sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  border-left: 3px solid transparent;
+  transition: all 0.3s;
+}
+
+#sidebar.admin-sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+#sidebar.admin-sidebar .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-left-color: #fff;
+}
+
+#sidebar.admin-sidebar .sidebar-footer {
+  background: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header .logo {
+  max-height: 40px;
+}
+
+.sidebar .list-unstyled {
+  padding: 20px 0;
+  flex-grow: 1;
+}
+
+.sidebar .list-unstyled li a {
+  padding: 10px 20px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.sidebar .list-unstyled li a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .list-unstyled li a i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar .list-unstyled li a.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  border-left: 4px solid #fff;
+}
+
+.sidebar-footer {
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.user-role {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* Conteúdo principal */
+.content {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-light);
+  transition: all 0.3s;
+}
+
+/* Navbar */
+.navbar {
+  padding: 15px 20px;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  z-index: 1;
+}
+
+.page-title h4 {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Notificações */
+.notifications .dropdown-menu {
+  min-width: 280px;
+  padding: 0;
+}
+
+.notifications .dropdown-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 15px;
+}
+
+.notifications .dropdown-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Cards */
+.card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  background-color: #fff;
+  border-bottom: 1px solid #e3e6f0;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-header h6 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+/* Footer */
+.footer {
+  background-color: #fff;
+  border-top: 1px solid #e3e6f0;
+  padding: 1rem;
+  font-size: 0.85rem;
+}
+
+/* Estilos específicos para perfil de Candidato */
+.candidate-theme .sidebar {
+  background: linear-gradient(
+    180deg,
+    var(--candidate-primary) 0%,
+    var(--candidate-secondary) 100%
+  );
+}
+
+.candidate-theme .btn-primary {
+  background-color: var(--candidate-primary);
+  border-color: var(--candidate-primary);
+}
+
+/* Estilos específicos para perfil de Recrutador */
+.recruiter-theme .sidebar {
+  background: linear-gradient(
+    180deg,
+    var(--recruiter-primary) 0%,
+    var(--recruiter-secondary) 100%
+  );
+}
+
+.recruiter-theme .btn-primary {
+  background-color: var(--recruiter-primary);
+  border-color: var(--recruiter-primary);
+}
+
+/* Estilos específicos para perfil de Administrador */
+.admin-theme .sidebar {
+  background: linear-gradient(
+    180deg,
+    var(--admin-primary) 0%,
+    var(--admin-secondary) 100%
+  );
+}
+
+.admin-theme .btn-primary {
+  background-color: var(--admin-primary);
+  border-color: var(--admin-primary);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .sidebar {
+    margin-left: calc(-1 * var(--sidebar-width));
+    position: fixed;
+    z-index: 1050;
+    height: 100%;
+  }
+
+  .sidebar.active {
+    margin-left: 0;
+  }
+
+  .content {
+    width: 100%;
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 998;
+    opacity: 0;
+    transition: all 0.5s ease-in-out;
+  }
+
+  .overlay.active {
+    display: block;
+    opacity: 1;
+  }
+
+  /* Admin Sidebar mobile */
+  #sidebar.admin-sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    z-index: 1050;
+  }
+
+  #sidebar.admin-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .admin-main {
+    margin-left: 0 !important;
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Componentes específicos */
+
+/* Status badges */
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.open {
+  background-color: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.status-badge.closed {
+  background-color: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+}
+
+.status-badge.pending {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.status-badge.approved {
+  background-color: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.status-badge.rejected {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.status-badge.interview {
+  background-color: rgba(23, 162, 184, 0.2);
+  color: #17a2b8;
+}
+
+/* Kanban board */
+.kanban-board {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.kanban-column {
+  min-width: 300px;
+  max-width: 300px;
+  margin-right: 1rem;
+  background-color: #f1f3f9;
+  border-radius: 0.5rem;
+}
+
+.kanban-column-header {
+  padding: 1rem;
+  background-color: #e9ecef;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  font-weight: 600;
+}
+
+.kanban-column-body {
+  padding: 1rem;
+  min-height: 200px;
+}
+
+.kanban-card {
+  background-color: #fff;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  cursor: pointer;
+}
+
+/* Score indicator */
+.score-indicator {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.score-high {
+  background-color: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.score-medium {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.score-low {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+/* Filtros */
+.filter-section {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+}
+
+.filter-section .form-group {
+  margin-bottom: 1rem;
+}
+
+/* Animações */
+.fade-in {
+  animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Validação de campos de formulário */
+.form-control.is-valid {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-control.is-invalid {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Estilos específicos para campo de telefone */
+.phone-mask {
+  /* Mantém fonte padrão do sistema */
+  letter-spacing: 0.5px;
+}
+
+.phone-mask:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+}
+
+/* Feedback visual para validação */
+.form-control.is-valid:focus {
+  border-color: var(--success-color);
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.form-control.is-invalid:focus {
+  border-color: var(--danger-color);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}

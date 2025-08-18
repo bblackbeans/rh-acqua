@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH Acqua - Configurações</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="admin-theme">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/logo-acqua.png" alt="RH Acqua" class="img-fluid logo">
+                <button type="button" id="sidebarCollapseBtn" class="btn">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="admin_dashboard.html">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="gestao_usuarios.html">
+                        <i class="bi bi-people"></i> Gestão de Usuários
+                    </a>
+                </li>
+                <li>
+                    <a href="unidades_hospitalares.html">
+                        <i class="bi bi-building"></i> Unidades Hospitalares
+                    </a>
+                </li>
+                <li>
+                    <a href="setores.html">
+                        <i class="bi bi-diagram-3"></i> Setores
+                    </a>
+                </li>
+                <li>
+                    <a href="configuracoes.html" class="active">
+                        <i class="bi bi-gear"></i> Configurações
+                    </a>
+                </li>
+                <li>
+                    <a href="logs_sistema.html">
+                        <i class="bi bi-journal-text"></i> Logs do Sistema
+                    </a>
+                </li>
+                <li>
+                    <a href="relatorios_avancados.html">
+                        <i class="bi bi-bar-chart"></i> Relatórios Avançados
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img src="img/avatar-admin.png" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">Carlos Mendes</span>
+                        <span class="user-role">Administrador</span>
+                    </div>
+                </div>
+                <div class="logout-section">
+                    <a href="#" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content" class="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn d-md-none">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div class="page-title">
+                        <h4>Configurações</h4>
+                    </div>
+
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown notifications">
+                            <button class="btn position-relative" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    3
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <h6 class="dropdown-header">Notificações</h6>
+                                <a class="dropdown-item" href="#">Novo usuário cadastrado</a>
+                                <a class="dropdown-item" href="#">Backup automático concluído</a>
+                                <a class="dropdown-item" href="#">Atualização do sistema disponível</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-center" href="#">Ver todas</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid py-4">
+                <!-- Navegação por abas -->
+                <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">Geral</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" aria-controls="security" aria-selected="false">Segurança</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="email-tab" data-bs-toggle="tab" data-bs-target="#email" type="button" role="tab" aria-controls="email" aria-selected="false">Email</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="backup-tab" data-bs-toggle="tab" data-bs-target="#backup" type="button" role="tab" aria-controls="backup" aria-selected="false">Backup</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="integration-tab" data-bs-toggle="tab" data-bs-target="#integration" type="button" role="tab" aria-controls="integration" aria-selected="false">Integrações</button>
+                    </li>
+                </ul>
+
+                <!-- Conteúdo das abas -->
+                <div class="tab-content" id="configTabsContent">
+                    <!-- Configurações Gerais -->
+                    <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Configurações Gerais</h6>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="systemName" class="form-label">Nome do Sistema</label>
+                                                <input type="text" class="form-control" id="systemName" value="RH Acqua">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="companyName" class="form-label">Nome da Empresa</label>
+                                                <input type="text" class="form-control" id="companyName" value="Grupo Hospitalar Acqua">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="adminEmail" class="form-label">Email do Administrador</label>
+                                                <input type="email" class="form-control" id="adminEmail" value="admin@rhacqua.com">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="timezone" class="form-label">Fuso Horário</label>
+                                                <select class="form-select" id="timezone">
+                                                    <option value="America/Sao_Paulo" selected>América/São Paulo (GMT-3)</option>
+                                                    <option value="America/Rio_Branco">América/Rio Branco (GMT-5)</option>
+                                                    <option value="America/Manaus">América/Manaus (GMT-4)</option>
+                                                    <option value="America/Recife">América/Recife (GMT-3)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="dateFormat" class="form-label">Formato de Data</label>
+                                                <select class="form-select" id="dateFormat">
+                                                    <option value="dd/mm/yyyy" selected>DD/MM/AAAA</option>
+                                                    <option value="mm/dd/yyyy">MM/DD/AAAA</option>
+                                                    <option value="yyyy-mm-dd">AAAA-MM-DD</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="language" class="form-label">Idioma</label>
+                                                <select class="form-select" id="language">
+                                                    <option value="pt_BR" selected>Português (Brasil)</option>
+                                                    <option value="en_US">English (US)</option>
+                                                    <option value="es_ES">Español</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <h6 class="mb-3">Personalização</h6>
+                                            <div class="mb-3">
+                                                <label for="logoUpload" class="form-label">Logo da Empresa</label>
+                                                <input class="form-control" type="file" id="logoUpload">
+                                                <div class="form-text">Tamanho recomendado: 200x60px, formato PNG com transparência</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="primaryColor" class="form-label">Cor Primária</label>
+                                                <input type="color" class="form-control form-control-color" id="primaryColor" value="#1cc88a">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="secondaryColor" class="form-label">Cor Secundária</label>
+                                                <input type="color" class="form-control form-control-color" id="secondaryColor" value="#36b9cc">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 text-end">
+                                            <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+                                            <button type="button" class="btn btn-primary">Salvar Alterações</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Segurança -->
+                    <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Configurações de Segurança</h6>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Política de Senhas</h6>
+                                            <div class="mb-3">
+                                                <label for="minPasswordLength" class="form-label">Tamanho Mínimo da Senha</label>
+                                                <input type="number" class="form-control" id="minPasswordLength" value="8">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="passwordExpiration" class="form-label">Expiração de Senha (dias)</label>
+                                                <input type="number" class="form-control" id="passwordExpiration" value="90">
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="requireUppercase" checked>
+                                                <label class="form-check-label" for="requireUppercase">Exigir letra maiúscula</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="requireNumber" checked>
+                                                <label class="form-check-label" for="requireNumber">Exigir número</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="requireSpecialChar" checked>
+                                                <label class="form-check-label" for="requireSpecialChar">Exigir caractere especial</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Autenticação</h6>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="enable2FA">
+                                                <label class="form-check-label" for="enable2FA">Habilitar autenticação de dois fatores (2FA)</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="sessionTimeout" class="form-label">Tempo limite de sessão (minutos)</label>
+                                                <input type="number" class="form-control" id="sessionTimeout" value="30">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="maxLoginAttempts" class="form-label">Máximo de tentativas de login</label>
+                                                <input type="number" class="form-control" id="maxLoginAttempts" value="5">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="lockoutDuration" class="form-label">Duração do bloqueio (minutos)</label>
+                                                <input type="number" class="form-control" id="lockoutDuration" value="15">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <h6 class="mb-3">Registro de Atividades</h6>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="logLogins" checked>
+                                                <label class="form-check-label" for="logLogins">Registrar logins</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="logFailedLogins" checked>
+                                                <label class="form-check-label" for="logFailedLogins">Registrar tentativas de login malsucedidas</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="logDataChanges" checked>
+                                                <label class="form-check-label" for="logDataChanges">Registrar alterações de dados</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="logRetention" class="form-label">Retenção de logs (dias)</label>
+                                                <input type="number" class="form-control" id="logRetention" value="180">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 text-end">
+                                            <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+                                            <button type="button" class="btn btn-primary">Salvar Alterações</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Email -->
+                    <div class="tab-pane fade" id="email" role="tabpanel" aria-labelledby="email-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Configurações de Email</h6>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Servidor SMTP</h6>
+                                            <div class="mb-3">
+                                                <label for="smtpServer" class="form-label">Servidor SMTP</label>
+                                                <input type="text" class="form-control" id="smtpServer" value="smtp.rhacqua.com">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="smtpPort" class="form-label">Porta SMTP</label>
+                                                <input type="number" class="form-control" id="smtpPort" value="587">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="smtpUsername" class="form-label">Usuário SMTP</label>
+                                                <input type="text" class="form-control" id="smtpUsername" value="no-reply@rhacqua.com">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="smtpPassword" class="form-label">Senha SMTP</label>
+                                                <input type="password" class="form-control" id="smtpPassword" value="********">
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="smtpSsl" checked>
+                                                <label class="form-check-label" for="smtpSsl">Usar SSL/TLS</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Configurações de Envio</h6>
+                                            <div class="mb-3">
+                                                <label for="fromEmail" class="form-label">Email de Origem</label>
+                                                <input type="email" class="form-control" id="fromEmail" value="no-reply@rhacqua.com">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="fromName" class="form-label">Nome de Origem</label>
+                                                <input type="text" class="form-control" id="fromName" value="RH Acqua">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="replyToEmail" class="form-label">Email de Resposta</label>
+                                                <input type="email" class="form-control" id="replyToEmail" value="contato@rhacqua.com">
+                                            </div>
+                                            <div class="mb-3">
+                                                <button type="button" class="btn btn-outline-primary">Enviar Email de Teste</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <h6 class="mb-3">Notificações</h6>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="notifyNewCandidate" checked>
+                                                <label class="form-check-label" for="notifyNewCandidate">Notificar sobre novos candidatos</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="notifyNewApplication" checked>
+                                                <label class="form-check-label" for="notifyNewApplication">Notificar sobre novas candidaturas</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="notifyInterviewScheduled" checked>
+                                                <label class="form-check-label" for="notifyInterviewScheduled">Notificar sobre entrevistas agendadas</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="notifyVacancyExpiring" checked>
+                                                <label class="form-check-label" for="notifyVacancyExpiring">Notificar sobre vagas próximas do vencimento</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 text-end">
+                                            <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+                                            <button type="button" class="btn btn-primary">Salvar Alterações</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Backup -->
+                    <div class="tab-pane fade" id="backup" role="tabpanel" aria-labelledby="backup-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Configurações de Backup</h6>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Backup Automático</h6>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="enableAutoBackup" checked>
+                                                <label class="form-check-label" for="enableAutoBackup">Habilitar backup automático</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="backupFrequency" class="form-label">Frequência</label>
+                                                <select class="form-select" id="backupFrequency">
+                                                    <option value="daily" selected>Diário</option>
+                                                    <option value="weekly">Semanal</option>
+                                                    <option value="monthly">Mensal</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="backupTime" class="form-label">Horário</label>
+                                                <input type="time" class="form-control" id="backupTime" value="03:00">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="backupRetention" class="form-label">Retenção (dias)</label>
+                                                <input type="number" class="form-control" id="backupRetention" value="30">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Armazenamento</h6>
+                                            <div class="mb-3">
+                                                <label for="backupStorage" class="form-label">Local de Armazenamento</label>
+                                                <select class="form-select" id="backupStorage">
+                                                    <option value="local" selected>Servidor Local</option>
+                                                    <option value="s3">Amazon S3</option>
+                                                    <option value="gcs">Google Cloud Storage</option>
+                                                    <option value="azure">Azure Blob Storage</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="backupPath" class="form-label">Caminho/Bucket</label>
+                                                <input type="text" class="form-control" id="backupPath" value="/var/backups/rhacqua">
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="compressBackup" checked>
+                                                <label class="form-check-label" for="compressBackup">Comprimir backup</label>
+                                            </div>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="encryptBackup" checked>
+                                                <label class="form-check-label" for="encryptBackup">Criptografar backup</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <h6 class="mb-3">Backup Manual</h6>
+                                            <div class="mb-3">
+                                                <button type="button" class="btn btn-primary">Iniciar Backup Agora</button>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Data</th>
+                                                            <th>Tamanho</th>
+                                                            <th>Status</th>
+                                                            <th>Ações</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>06/06/2025 03:00</td>
+                                                            <td>1.2 GB</td>
+                                                            <td><span class="status-badge approved">Concluído</span></td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-info">Download</button>
+                                                                <button class="btn btn-sm btn-danger">Excluir</button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>05/06/2025 03:00</td>
+                                                            <td>1.1 GB</td>
+                                                            <td><span class="status-badge approved">Concluído</span></td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-info">Download</button>
+                                                                <button class="btn btn-sm btn-danger">Excluir</button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>04/06/2025 03:00</td>
+                                                            <td>1.1 GB</td>
+                                                            <td><span class="status-badge approved">Concluído</span></td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-info">Download</button>
+                                                                <button class="btn btn-sm btn-danger">Excluir</button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 text-end">
+                                            <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+                                            <button type="button" class="btn btn-primary">Salvar Alterações</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Integração -->
+                    <div class="tab-pane fade" id="integration" role="tabpanel" aria-labelledby="integration-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Configurações de Integração</h6>
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <h6 class="mb-3">API</h6>
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="enableApi" checked>
+                                                <label class="form-check-label" for="enableApi">Habilitar API</label>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="apiKey" class="form-label">Chave da API</label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="apiKey" value="a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6" readonly>
+                                                    <button class="btn btn-outline-secondary" type="button">Regenerar</button>
+                                                    <button class="btn btn-outline-secondary" type="button">Copiar</button>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="apiRateLimit" class="form-label">Limite de Requisições (por minuto)</label>
+                                                <input type="number" class="form-control" id="apiRateLimit" value="100">
+                                            </div>
+                                            <div class="mb-3">
+                                                <a href="#" class="btn btn-outline-primary">Ver Documentação da API</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Integrações de Terceiros</h6>
+                                            <div class="card mb-3">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="mb-0">LinkedIn</h6>
+                                                            <small class="text-muted">Importar candidatos e vagas</small>
+                                                        </div>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="linkedinIntegration" checked>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <button class="btn btn-sm btn-outline-primary">Configurar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card mb-3">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="mb-0">Google Calendar</h6>
+                                                            <small class="text-muted">Sincronizar entrevistas</small>
+                                                        </div>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="googleCalendarIntegration" checked>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <button class="btn btn-sm btn-outline-primary">Configurar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card mb-3">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="mb-0">Microsoft Teams</h6>
+                                                            <small class="text-muted">Notificações e entrevistas</small>
+                                                        </div>
+                                                        <div class="form-check form-switch">
+                                                            <input class="form-check-input" type="checkbox" id="teamsIntegration">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <button class="btn btn-sm btn-outline-primary">Configurar</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="mb-3">Webhooks</h6>
+                                            <div class="mb-3">
+                                                <label for="webhookUrl" class="form-label">URL do Webhook</label>
+                                                <input type="url" class="form-control" id="webhookUrl" placeholder="https://exemplo.com/webhook">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Eventos</label>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="webhookNewCandidate">
+                                                    <label class="form-check-label" for="webhookNewCandidate">Novo candidato</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="webhookNewApplication">
+                                                    <label class="form-check-label" for="webhookNewApplication">Nova candidatura</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="webhookInterviewScheduled">
+                                                    <label class="form-check-label" for="webhookInterviewScheduled">Entrevista agendada</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="webhookStatusChange">
+                                                    <label class="form-check-label" for="webhookStatusChange">Mudança de status</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <button type="button" class="btn btn-outline-primary">Testar Webhook</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-12 text-end">
+                                            <button type="button" class="btn btn-secondary me-2">Cancelar</button>
+                                            <button type="button" class="btn btn-primary">Salvar Alterações</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!-- Widget de Gráfico -->
+<div class="card chart-widget">
+    <div class="card-header">
+        <h5 class="card-title">{{ widget_title }}</h5>
+        {% if widget_subtitle %}
+            <h6 class="card-subtitle text-muted">{{ widget_subtitle }}</h6>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="chart-container" style="position: relative; height: {{ widget_height|default:'300px' }}">
+            <canvas id="{{ widget_id }}"></canvas>
+        </div>
+    </div>
+    {% if widget_footer %}
+        <div class="card-footer">
+            {{ widget_footer|safe }}
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('{{ widget_id }}').getContext('2d');
+    var chartData = {{ chart_data|safe }};
+    var chartOptions = {{ chart_options|default:'{}'|safe }};
+    
+    new Chart(ctx, {
+        type: '{{ chart_type|default:"line" }}',
+        data: chartData,
+        options: chartOptions
+    });
+});
+</script>
+
+<!-- 
+Uso:
+{% include 'components/widgets/chart_widget.html' with 
+    widget_id='vacancies-chart'
+    widget_title='Vagas por Mês'
+    widget_subtitle='Últimos 6 meses'
+    chart_type='bar'
+    chart_data=chart_data_json
+    chart_options=chart_options_json
+    widget_height='250px'
+    widget_footer='<div class="text-center"><small class="text-muted">Atualizado em: 07/06/2025</small></div>'
+%}
+
+Onde chart_data_json e chart_options_json são strings JSON válidas para o Chart.js:
+chart_data_json = json.dumps({
+    'labels': ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+    'datasets': [{
+        'label': 'Vagas Abertas',
+        'data': [12, 19, 3, 5, 2, 3],
+        'backgroundColor': 'rgba(54, 162, 235, 0.2)',
+        'borderColor': 'rgba(54, 162, 235, 1)',
+        'borderWidth': 1
+    }]
+})
+-->
