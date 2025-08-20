@@ -21,6 +21,7 @@ urlpatterns = [
     path('detail/<int:pk>/', views.application_detail, name='application_detail'),
     path('apply/<int:vacancy_id>/', views.apply_for_vacancy, name='apply_for_vacancy'),
     path('recruiter/candidaturas/', views.candidaturas, name='candidaturas'),
+    path('toggle-favorite/<int:application_id>/', views.toggle_favorite, name='toggle_favorite'),
     
     # Currículo
     path('resume/edit/', views.resume_edit, name='resume_edit'),

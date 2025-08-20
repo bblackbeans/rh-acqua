@@ -473,3 +473,34 @@ class ApplicationComplementaryInfo(models.Model):
     
     def __str__(self):
         return f"Informações complementares - {self.application}"
+
+
+class ApplicationFavorite(models.Model):
+    """
+    Modelo para candidaturas favoritas dos recrutadores.
+    """
+    application = models.ForeignKey(
+        Application, 
+        on_delete=models.CASCADE, 
+        related_name='favorites',
+        verbose_name=_('Candidatura')
+    )
+    recruiter = models.ForeignKey(
+        UserProfile, 
+        on_delete=models.CASCADE, 
+        related_name='favorite_applications',
+        verbose_name=_('Recrutador')
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_('Data de Criação')
+    )
+    
+    class Meta:
+        verbose_name = _('Candidatura Favorita')
+        verbose_name_plural = _('Candidaturas Favoritas')
+        unique_together = ('application', 'recruiter')
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Favorito: {self.application} por {self.recruiter.user.get_full_name()}"

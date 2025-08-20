@@ -30,7 +30,7 @@
   <ul class="list-unstyled flex-grow-1 p-0 m-0">
     <li class="mb-1">
       <a
-        href="{% url 'home' %}"
+        href="{% url 'core:home' %}"
         class="d-flex align-items-center px-3 py-2 text-white text-decoration-none {% if request.resolver_match.url_name == 'home' %}bg-white bg-opacity-25 border-start border-white border-3{% endif %}"
       >
         <i class="bi bi-speedometer2 me-3"></i> Dashboard

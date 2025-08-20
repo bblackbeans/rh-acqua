@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
@@ -15,7 +17,7 @@ from rest_framework.views import APIView
 
 from users.models import UserProfile
 from vacancies.models import Vacancy
-from .models import Application, ApplicationEvaluation, Resume, Education, WorkExperience
+from .models import Application, ApplicationEvaluation, Resume, Education, WorkExperience, ApplicationFavorite, ApplicationComplementaryInfo
 from .forms import (
     ApplicationForm, ApplicationEvaluationForm, ResumeForm, 
     EducationForm, WorkExperienceForm, ApplicationStatusForm
@@ -49,6 +51,11 @@ def application_list(request):
         # Filtros para recrutadores
         status_filter = request.GET.get('status')
         vacancy_filter = request.GET.get('vacancy')
+        hospital_filter = request.GET.get('hospital')
+        date_filter = request.GET.get('date')
+        search_query = request.GET.get('search')
+        score_sort = request.GET.get('score_sort')
+        favorites_filter = request.GET.get('favorites')
         
         if status_filter:
             applications = applications.filter(status=status_filter)
@@ -56,10 +63,84 @@ def application_list(request):
         if vacancy_filter:
             applications = applications.filter(vacancy_id=vacancy_filter)
             
+        if hospital_filter:
+            applications = applications.filter(vacancy__hospital_id=hospital_filter)
+            
+        if date_filter:
+            if date_filter == '7':
+                applications = applications.filter(created_at__gte=timezone.now() - timezone.timedelta(days=7))
+            elif date_filter == '30':
+                applications = applications.filter(created_at__gte=timezone.now() - timezone.timedelta(days=30))
+            elif date_filter == '90':
+                applications = applications.filter(created_at__gte=timezone.now() - timezone.timedelta(days=90))
+                
+        if search_query:
+            applications = applications.filter(
+                Q(candidate__user__first_name__icontains=search_query) |
+                Q(candidate__user__last_name__icontains=search_query) |
+                Q(candidate__user__email__icontains=search_query) |
+                Q(vacancy__title__icontains=search_query)
+            )
+            
+        if favorites_filter:
+            # Filtro para favoritos
+            if favorites_filter == 'true':
+                applications = applications.filter(favorites__recruiter=user_profile)
+            
+        # Ordenação por score
+        if score_sort == 'high_to_low':
+            applications = applications.annotate(
+                avg_score=(Avg('evaluations__technical_score') + 
+                         Avg('evaluations__experience_score') + 
+                         Avg('evaluations__cultural_fit_score')) / 3
+            ).order_by('-avg_score')
+        elif score_sort == 'low_to_high':
+            applications = applications.annotate(
+                avg_score=(Avg('evaluations__technical_score') + 
+                         Avg('evaluations__experience_score') + 
+                         Avg('evaluations__cultural_fit_score')) / 3
+            ).order_by('avg_score')
+        else:
+            # Ordenação padrão por data de criação
+            applications = applications.order_by('-created_at')
+            
         template = 'applications/recruiter_application_list.html'
+    
+    # Contagem de candidaturas por status
+    status_counts = {}
+    if request.user.role in ['recruiter', 'recrutador', 'admin']:
+        # Adiciona informações sobre favoritos e score médio
+        for application in applications:
+            application.is_favorite = application.favorites.filter(recruiter=user_profile).exists()
+            
+            # Calcula o score médio se houver avaliações
+            if application.evaluations.exists():
+                evaluation = application.evaluations.first()
+                total_score = evaluation.technical_score + evaluation.experience_score + evaluation.cultural_fit_score
+                application.avg_score = round(total_score / 3, 1)
+            else:
+                application.avg_score = None
+        
+        status_counts = {
+            'total': applications.count(),
+            'pending': applications.filter(status='pending').count(),
+            'under_review': applications.filter(status='under_review').count(),
+            'interview': applications.filter(status='interview').count(),
+            'approved': applications.filter(status='approved').count(),
+            'rejected': applications.filter(status='rejected').count(),
+            'withdrawn': applications.filter(status='withdrawn').count(),
+        }
     
     context = {
         'applications': applications,
+        'status_counts': status_counts,
+        'status_filter': status_filter,
+        'vacancy_filter': vacancy_filter,
+        'hospital_filter': hospital_filter,
+        'date_filter': date_filter,
+        'search_query': search_query,
+        'score_sort': score_sort,
+        'favorites_filter': favorites_filter,
         'page_title': _('Candidaturas'),
     }
     
@@ -77,41 +158,108 @@ def application_detail(request, pk):
     # Verifica permissões
     if request.user.role == 'candidate' and application.candidate != user_profile:
         messages.error(request, _('Você não tem permissão para acessar esta candidatura.'))
-        return redirect('application_list')
+        return redirect('applications:application_list')
+    
+    # Verifica se é favorito
+    application.is_favorite = False
+    if request.user.role in ['recruiter', 'recrutador', 'admin']:
+        application.is_favorite = application.favorites.filter(recruiter=user_profile).exists()
+    
+    # Busca todas as informações do candidato
+    candidate = application.candidate
+    
+    # Busca currículo detalhado se existir
+    try:
+        detailed_resume = Resume.objects.get(candidate=candidate)
+    except Resume.DoesNotExist:
+        detailed_resume = None
+    
+    # Busca informações complementares se existir
+    try:
+        complementary_info = ApplicationComplementaryInfo.objects.get(application=application)
+    except ApplicationComplementaryInfo.DoesNotExist:
+        complementary_info = None
     
     # Formulário de avaliação para recrutadores
     evaluation_form = None
-    if request.user.role in ['recruiter', 'admin']:
-        evaluation_form = ApplicationEvaluationForm()
+    existing_evaluation = None
+    
+    if request.user.role in ['recruiter', 'recrutador', 'admin']:
+        # Verifica se já existe uma avaliação deste recrutador
+        try:
+            existing_evaluation = ApplicationEvaluation.objects.get(
+                application=application, 
+                evaluator=user_profile
+            )
+        except ApplicationEvaluation.DoesNotExist:
+            existing_evaluation = None
         
-        # Processa o formulário de avaliação
-        if request.method == 'POST' and 'evaluation_submit' in request.POST:
-            evaluation_form = ApplicationEvaluationForm(request.POST)
-            if evaluation_form.is_valid():
-                evaluation = evaluation_form.save(commit=False)
-                evaluation.application = application
-                evaluation.evaluator = user_profile
-                evaluation.save()
-                messages.success(request, _('Avaliação registrada com sucesso!'))
-                return redirect('application_detail', pk=pk)
+        # Processa o formulário único de salvar todas as informações
+        if request.method == 'POST' and 'save_all' in request.POST:
+            # Atualiza status se fornecido
+            if 'status' in request.POST:
+                application.status = request.POST['status']
+                application.save()
+            
+            # Atualiza notas do recrutador
+            if 'recruiter_notes' in request.POST:
+                application.recruiter_notes = request.POST.get('recruiter_notes', '')
+                application.save()
+            
+            # Processa favoritar
+            is_favorite = request.POST.get('is_favorite') == 'on'
+            if is_favorite:
+                ApplicationFavorite.objects.get_or_create(
+                    application=application,
+                    recruiter=user_profile
+                )
+            else:
+                ApplicationFavorite.objects.filter(
+                    application=application,
+                    recruiter=user_profile
+                ).delete()
+            
+            # Processa avaliação
+            if existing_evaluation:
+                # Atualiza avaliação existente
+                existing_evaluation.technical_score = request.POST.get('technical_score', 0)
+                existing_evaluation.experience_score = request.POST.get('experience_score', 0)
+                existing_evaluation.cultural_fit_score = request.POST.get('cultural_fit_score', 0)
+                existing_evaluation.comments = request.POST.get('comments', '')
+                existing_evaluation.save()
+            else:
+                # Cria nova avaliação
+                evaluation = ApplicationEvaluation.objects.create(
+                    application=application,
+                    evaluator=user_profile,
+                    technical_score=request.POST.get('technical_score', 0),
+                    experience_score=request.POST.get('experience_score', 0),
+                    cultural_fit_score=request.POST.get('cultural_fit_score', 0),
+                    comments=request.POST.get('comments', '')
+                )
+            
+            messages.success(request, _('Todas as informações foram salvas com sucesso!'))
+            return redirect('applications:application_detail', pk=pk)
+        
+        # Inicializa formulários com dados existentes
+        if existing_evaluation:
+            evaluation_form = ApplicationEvaluationForm(instance=existing_evaluation)
+        else:
+            evaluation_form = ApplicationEvaluationForm()
     
     # Formulário de atualização de status para recrutadores
     status_form = None
-    if request.user.role in ['recruiter', 'admin']:
+    if request.user.role in ['recruiter', 'recrutador', 'admin']:
         status_form = ApplicationStatusForm(instance=application)
-        
-        # Processa o formulário de status
-        if request.method == 'POST' and 'status_submit' in request.POST:
-            status_form = ApplicationStatusForm(request.POST, instance=application)
-            if status_form.is_valid():
-                status_form.save()
-                messages.success(request, _('Status da candidatura atualizado com sucesso!'))
-                return redirect('application_detail', pk=pk)
     
     context = {
         'application': application,
+        'candidate': candidate,
+        'detailed_resume': detailed_resume,
+        'complementary_info': complementary_info,
         'evaluation_form': evaluation_form,
         'status_form': status_form,
+        'existing_evaluation': existing_evaluation,
         'evaluations': application.evaluations.all(),
         'page_title': _('Detalhes da Candidatura'),
     }
@@ -204,14 +352,35 @@ def resume_detail(request):
     """
     user_profile = request.user.profile
     
-    # Obtém o currículo do candidato
-    resume = get_object_or_404(Resume, candidate=user_profile)
+    # Verifica se é um recrutador vendo currículo de outro candidato
+    candidate_id = request.GET.get('candidate_id')
+    
+    if candidate_id and request.user.role in ['recruiter', 'recrutador', 'admin']:
+        # Recrutador vendo currículo de outro candidato
+        candidate_profile = get_object_or_404(UserProfile, id=candidate_id)
+        try:
+            resume = Resume.objects.get(candidate=candidate_profile)
+        except Resume.DoesNotExist:
+            # Se não existe currículo, cria um vazio
+            resume = Resume.objects.create(candidate=candidate_profile)
+        page_title = f'Currículo de {candidate_profile.user.get_full_name()}'
+    else:
+        # Candidato vendo seu próprio currículo
+        if request.user.role != 'candidate':
+            messages.error(request, _('Apenas candidatos podem ver seus próprios currículos.'))
+            return redirect('users:login')  # Corrigido: usar namespace correto
+        try:
+            resume = Resume.objects.get(candidate=user_profile)
+        except Resume.DoesNotExist:
+            # Se não existe currículo, cria um vazio
+            resume = Resume.objects.create(candidate=user_profile)
+        page_title = _('Meu Currículo')
     
     context = {
         'resume': resume,
         'education_list': resume.education.all(),
         'experience_list': resume.work_experiences.all(),
-        'page_title': _('Meu Currículo'),
+        'page_title': page_title,
     }
     
     return render(request, 'applications/resume_detail.html', context)
@@ -413,9 +582,11 @@ def candidaturas(request):
     Exibe a página de candidaturas para recrutadores.
     """
     # Verifica se o usuário é um recrutador
-    if request.user.role != 'recruiter':
+    if request.user.role not in ['recruiter', 'recrutador', 'admin']:
         messages.error(request, _('Apenas recrutadores podem acessar esta página.'))
         return redirect('home')
+    
+    user_profile = request.user.profile
     
     # Obtém todas as candidaturas
     applications = Application.objects.all()
@@ -428,6 +599,10 @@ def candidaturas(request):
     vacancy_filter = request.GET.get('vacancy', '')
     if vacancy_filter:
         applications = applications.filter(vacancy_id=vacancy_filter)
+    
+    hospital_filter = request.GET.get('hospital', '')
+    if hospital_filter:
+        applications = applications.filter(vacancy__hospital_id=hospital_filter)
     
     date_filter = request.GET.get('date', '')
     if date_filter:
@@ -452,26 +627,76 @@ def candidaturas(request):
             Q(candidate__user__email__icontains=search_filter)
         )
     
+    # Filtro de favoritos
+    favorites_filter = request.GET.get('favorites', '')
+    if favorites_filter == 'true':
+        applications = applications.filter(favorites__recruiter=user_profile)
+    
+    # Ordenação por score
+    score_sort = request.GET.get('score_sort', '')
+    if score_sort == 'high_to_low':
+        applications = applications.annotate(
+            avg_score=(Avg('evaluations__technical_score') + 
+                     Avg('evaluations__experience_score') + 
+                     Avg('evaluations__cultural_fit_score')) / 3
+        ).order_by('-avg_score')
+    elif score_sort == 'low_to_high':
+        applications = applications.annotate(
+            avg_score=(Avg('evaluations__technical_score') + 
+                     Avg('evaluations__experience_score') + 
+                     Avg('evaluations__cultural_fit_score')) / 3
+        ).order_by('avg_score')
+    else:
+        # Ordenação padrão por data de criação
+        applications = applications.order_by('-created_at')
+    
+    # Adiciona informações sobre favoritos
+    for application in applications:
+        application.is_favorite = application.favorites.filter(recruiter=user_profile).exists()
+        
+        # Calcula o score médio se houver avaliações
+        if application.evaluations.exists():
+            evaluation = application.evaluations.first()
+            total_score = evaluation.technical_score + evaluation.experience_score + evaluation.cultural_fit_score
+            application.avg_score = round(total_score / 3, 1)
+        else:
+            application.avg_score = None
+    
+    # Contagem de candidaturas por status
+    status_counts = {
+        'total': applications.count(),
+        'pending': applications.filter(status='pending').count(),
+        'under_review': applications.filter(status='under_review').count(),
+        'interview': applications.filter(status='interview').count(),
+        'approved': applications.filter(status='approved').count(),
+        'rejected': applications.filter(status='rejected').count(),
+        'withdrawn': applications.filter(status='withdrawn').count(),
+    }
+    
     # Obtém dados para os filtros
     vacancies = Vacancy.objects.filter(status='published')
     
     # Paginação
     from django.core.paginator import Paginator
-    paginator = Paginator(applications.order_by('-created_at'), 10)
+    paginator = Paginator(applications, 10)
     page_number = request.GET.get('page')
     applications = paginator.get_page(page_number)
     
     context = {
         'applications': applications,
         'vacancies': vacancies,
+        'status_counts': status_counts,
         'status_filter': status_filter,
         'vacancy_filter': vacancy_filter,
+        'hospital_filter': hospital_filter,
         'date_filter': date_filter,
         'search_filter': search_filter,
+        'score_sort': score_sort,
+        'favorites_filter': favorites_filter,
         'page_title': _('Candidaturas'),
     }
     
-    return render(request, 'applications/candidaturas.html', context)
+    return render(request, 'applications/recruiter_application_list.html', context)
 
 
 @login_required
@@ -582,6 +807,58 @@ def minhas_candidaturas(request):
     }
     
     return render(request, 'applications/minhas_candidaturas.html', context)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+@login_required
+def toggle_favorite(request, application_id):
+    """
+    Adiciona ou remove uma candidatura dos favoritos.
+    """
+    if request.user.role not in ['recruiter', 'recrutador', 'admin']:
+        return JsonResponse({'error': 'Permissão negada'}, status=403)
+    
+    try:
+        application = Application.objects.get(pk=application_id)
+        user_profile = request.user.profile
+        
+        # Verifica se já é favorito
+        try:
+            favorite = ApplicationFavorite.objects.get(
+                application=application,
+                recruiter=user_profile
+            )
+            is_favorite = True
+        except ApplicationFavorite.DoesNotExist:
+            favorite = None
+            is_favorite = False
+        
+        # Processa a ação baseada no estado atual
+        if is_favorite:
+            # Remove dos favoritos
+            favorite.delete()
+            is_favorite = False
+            message = 'Candidatura removida dos favoritos'
+        else:
+            # Adiciona aos favoritos
+            ApplicationFavorite.objects.create(
+                application=application,
+                recruiter=user_profile
+            )
+            is_favorite = True
+            message = 'Candidatura adicionada aos favoritos'
+        
+        return JsonResponse({
+            'success': True,
+            'is_favorite': is_favorite,
+            'message': message
+        })
+        
+    except Application.DoesNotExist:
+        return JsonResponse({'error': 'Candidatura não encontrada'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 # API Views

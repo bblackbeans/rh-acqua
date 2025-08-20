@@ -1,65 +1,99 @@
 {% load static %}
-<!-- Footer Component -->
-<footer id="footer" class="footer">
-    <div class="footer-top">
-        <div class="container">
-            <div class="row gy-4">
-                <div class="col-lg-5 col-md-12 footer-info">
-                    <a href="{% url 'home' %}" class="logo d-flex align-items-center">
-                        <img src="{% static 'img/logo.png' %}" alt="RH Acqua Logo">
-                        <span>RH Acqua</span>
-                    </a>
-                    <p>Sistema de Recrutamento e Seleção para unidades hospitalares. Conectando os melhores talentos às melhores oportunidades na área da saúde.</p>
-                    <div class="social-links mt-3">
-                        <a href="#" class="twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="linkedin"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-
-                <div class="col-lg-2 col-6 footer-links">
-                    <h4>Links Úteis</h4>
-                    <ul>
-                        <li><i class="fas fa-chevron-right"></i> <a href="{% url 'home' %}">Início</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#about">Sobre nós</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#services">Serviços</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#terms">Termos de serviço</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#privacy">Política de privacidade</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-2 col-6 footer-links">
-                    <h4>Nossos Serviços</h4>
-                    <ul>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#">Recrutamento</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#">Seleção</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#">Banco de Talentos</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#">Gestão de Vagas</a></li>
-                        <li><i class="fas fa-chevron-right"></i> <a href="#">Relatórios</a></li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-3 col-md-12 footer-contact text-center text-md-start">
-                    <h4>Contato</h4>
-                    <p>
-                        Av. Paulista, 1000 <br>
-                        São Paulo, SP 01310-100<br>
-                        Brasil <br><br>
-                        <strong>Telefone:</strong> +55 11 5555-5555<br>
-                        <strong>Email:</strong> contato@rhacqua.com.br<br>
-                    </p>
+<!-- Footer Moderno -->
+<footer class="footer-modern">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 footer-section">
+                <h5><i class="bi bi-building me-2"></i>RH Acqua</h5>
+                <p class="footer-description">Sistema de Recrutamento e Seleção para unidades hospitalares. Conectando os melhores talentos às melhores oportunidades na área da saúde.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
+            
+            <div class="col-lg-6 col-md-6 footer-section">
+                <h5>Contato</h5>
+                <ul class="contact-list">
+                    <li><i class="bi bi-geo-alt me-2"></i>Av. Paulista, 1000<br>São Paulo, SP 01310-100</li>
+                    <li><i class="bi bi-telephone me-2"></i>+55 11 5555-5555</li>
+                    <li><i class="bi bi-envelope me-2"></i>contato@rhacqua.com.br</li>
+                </ul>
+            </div>
         </div>
-    </div>
-
-    <div class="container">
-        <div class="copyright">
-            &copy; Copyright <strong><span>RH Acqua</span></strong>. Todos os direitos reservados
-        </div>
-        <div class="credits">
-            Desenvolvido por <a href="#">Equipe RH Acqua</a>
+        
+        <div class="footer-bottom">
+            <p class="mb-0">&copy; Copyright RH Acqua. Todos os direitos reservados | Desenvolvido por Equipe RH Acqua</p>
         </div>
     </div>
 </footer>
+
+<style>
+/* Footer Moderno */
+.footer-modern {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 3rem 0 2rem;
+    margin-top: 4rem;
+}
+
+.footer-modern .footer-section h5 {
+    color: #3498db;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.footer-description {
+    color: #bdc3c7 !important;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.footer-modern .contact-list {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-modern .contact-list li {
+    margin-bottom: 0.8rem;
+    color: #bdc3c7 !important;
+}
+
+.footer-modern .social-links a {
+    color: #bdc3c7;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    transition: color 0.3s ease;
+}
+
+.footer-modern .social-links a:hover {
+    color: #3498db;
+}
+
+.footer-modern .footer-bottom {
+    border-top: 1px solid #34495e;
+    padding-top: 2rem;
+    margin-top: 2rem;
+    text-align: center;
+    color: #95a5a6 !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .footer-modern {
+        padding: 2rem 0 1rem;
+    }
+    
+    .footer-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .social-links {
+        justify-content: center;
+        display: flex;
+    }
+}
+</style>

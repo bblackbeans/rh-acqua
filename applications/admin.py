@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Application, ApplicationEvaluation, Resume, Education, WorkExperience, ApplicationComplementaryInfo
+from .models import Application, ApplicationEvaluation, Resume, Education, WorkExperience, ApplicationComplementaryInfo, ApplicationFavorite
 
 
 class EducationInline(admin.TabularInline):
@@ -63,6 +63,14 @@ class ApplicationEvaluationAdmin(admin.ModelAdmin):
     def total_score(self, obj):
         return obj.total_score
     total_score.short_description = _('Pontuação Total')
+
+
+@admin.register(ApplicationFavorite)
+class ApplicationFavoriteAdmin(admin.ModelAdmin):
+    list_display = ['application', 'recruiter', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['application__candidate__user__first_name', 'recruiter__user__first_name']
+    readonly_fields = ['created_at']
 
 
 @admin.register(Resume)

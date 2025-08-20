@@ -40,7 +40,7 @@
 						</div>
 					</div>
 
-					<div class="row g-2">
+					<div class="row g-2 mb-3">
 						<div class="col-md-4">
 							<div class="small text-muted">{% trans 'Data da candidatura' %}</div>
 							<div>{{ application.created_at|date:'d/m/Y H:i' }}</div>
@@ -54,6 +54,14 @@
 							<div>{{ application.vacancy.hospital.name }}</div>
 						</div>
 					</div>
+					
+					<!-- Botão para ver informações da vaga -->
+					<div class="d-grid">
+						<a href="{% url 'vacancies:vacancy_detail' application.vacancy.slug %}" class="btn btn-outline-primary">
+							<i class="bi bi-briefcase me-2"></i>
+							{% trans 'Ver Detalhes da Vaga' %}
+						</a>
+					</div>
 				</div>
 			</div>
 
@@ -66,58 +74,384 @@
 			</div>
 			{% endif %}
 
+			<!-- Informações Completas do Candidato -->
+			<div class="card mt-3">
+				<div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+					<span>{% trans 'Informações Completas do Candidato' %}</span>
+					<a href="{% url 'applications:resume_detail' %}?candidate_id={{ application.candidate.id }}" class="btn btn-outline-primary btn-sm">
+						<i class="bi bi-file-earmark-text me-1"></i> {% trans 'Ver Currículo Completo' %}
+					</a>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<!-- Informações Pessoais -->
+						<div class="col-md-6">
+							<h6 class="text-primary">{% trans 'Informações Pessoais' %}</h6>
+							<div class="mb-2">
+								<strong>{% trans 'Nome Completo:' %}</strong> {{ candidate.user.get_full_name }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'E-mail:' %}</strong> {{ candidate.user.email }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Telefone:' %}</strong> {{ candidate.phone|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Data de Nascimento:' %}</strong> {{ candidate.date_of_birth|date:"d/m/Y"|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'RG:' %}</strong> {{ candidate.rg|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'CPF:' %}</strong> {{ candidate.cpf|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'PIS:' %}</strong> {{ candidate.pis|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Nome Social:' %}</strong> {{ candidate.nome_social|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Endereço:' %}</strong> 
+								{{ candidate.address|default:"Não informado" }}
+								{% if candidate.city %}, {{ candidate.city }}{% endif %}
+								{% if candidate.state %}, {{ candidate.state }}{% endif %}
+							</div>
+						</div>
+						
+						<!-- Informações Profissionais -->
+						<div class="col-md-6">
+							<h6 class="text-primary">{% trans 'Informações Profissionais' %}</h6>
+							<div class="mb-2">
+								<strong>{% trans 'Objetivo Profissional:' %}</strong> {{ candidate.bio|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Disponibilidade:' %}</strong> 
+								{% if candidate.candidate_profile %}
+									{{ candidate.candidate_profile.experience_years|default:"Não informado" }}
+								{% else %}
+									Não informado
+								{% endif %}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Pretensão Salarial:' %}</strong> 
+								{% if candidate.candidate_profile %}
+									{{ candidate.candidate_profile.current_position|default:"Não informado" }}
+								{% else %}
+									Não informado
+								{% endif %}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Biografia:' %}</strong> {{ candidate.bio|default:"Não informado" }}
+							</div>
+							<div class="mb-2">
+								<strong>{% trans 'Estado Civil:' %}</strong> {{ candidate.estado_civil|default:"Não informado" }}
+							</div>
+						</div>
+					</div>
+					
+					<!-- Formação Educacional -->
+					{% if candidate.educations.exists %}
+					<div class="mt-4">
+						<h6 class="text-primary"><i class="bi bi-mortarboard me-2"></i>{% trans 'Formação Educacional' %}</h6>
+						{% for education in candidate.educations.all %}
+						<div class="border-bottom pb-2 mb-2">
+							<div class="fw-semibold">{{ education.curso }}</div>
+							<div class="text-muted">{{ education.instituicao }}</div>
+							<small class="text-muted">Nível: {{ education.nivel|default:"Não informado" }} • Ano: {{ education.inicio|date:"Y" }}</small>
+							{% if education.atividades %}
+							<div class="mt-1">{{ education.atividades }}</div>
+							{% endif %}
+						</div>
+						{% endfor %}
+					</div>
+					{% endif %}
+					
+					<!-- Experiência Profissional -->
+					{% if candidate.experiences.exists %}
+					<div class="mt-4">
+						<h6 class="text-primary"><i class="bi bi-briefcase me-2"></i>{% trans 'Experiência Profissional' %}</h6>
+						{% for experience in candidate.experiences.all %}
+						<div class="border-bottom pb-2 mb-2">
+							<div class="fw-semibold">{{ experience.cargo }}</div>
+							<div class="text-muted">{{ experience.empresa }}</div>
+							<small class="text-muted">Período: {{ experience.inicio|date:"m/Y" }} - {{ experience.fim|date:"m/Y"|default:"Atual" }}</small>
+							{% if experience.atividades %}
+							<div class="mt-1">{{ experience.atividades }}</div>
+							{% endif %}
+						</div>
+						{% endfor %}
+					</div>
+					{% endif %}
+					
+					<!-- Habilidades Técnicas -->
+					{% if detailed_resume and detailed_resume.skills %}
+					<div class="mt-4">
+						<h6 class="text-primary"><i class="bi bi-lightning me-2"></i>{% trans 'Habilidades Técnicas' %}</h6>
+						<div class="mb-2">
+							{{ detailed_resume.skills }}
+						</div>
+					</div>
+					{% endif %}
+					
+					<!-- Idiomas -->
+					{% if detailed_resume and detailed_resume.languages %}
+					<div class="mt-4">
+						<h6 class="text-primary"><i class="bi bi-globe me-2"></i>{% trans 'Idiomas' %}</h6>
+						<div class="mb-2">
+							{{ detailed_resume.languages }}
+						</div>
+					</div>
+					{% endif %}
+					
+					<!-- Certificações -->
+					{% if detailed_resume and detailed_resume.certifications %}
+					<div class="mt-4">
+						<h6 class="text-primary"><i class="bi bi-award me-2"></i>{% trans 'Certificações' %}</h6>
+						<div class="mb-2">
+							{{ detailed_resume.certifications }}
+						</div>
+					</div>
+					{% endif %}
+					
+					<!-- Informações Complementares -->
+					{% if complementary_info %}
+					<div class="mt-4">
+						<h6 class="text-primary"><i class="bi bi-info-circle me-2"></i>{% trans 'Informações Complementares' %}</h6>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="mb-2">
+									<strong>{% trans 'Trabalha atualmente no hospital:' %}</strong> 
+									{{ complementary_info.currently_working|yesno:"Sim,Não" }}
+								</div>
+								{% if complementary_info.currently_working %}
+								<div class="mb-2">
+									<strong>{% trans 'Função atual:' %}</strong> {{ complementary_info.current_function|default:"Não informado" }}
+								</div>
+								{% endif %}
+							</div>
+							<div class="col-md-6">
+								<div class="mb-2">
+									<strong>{% trans 'Experiência na área:' %}</strong> 
+									{{ complementary_info.has_experience|yesno:"Sim,Não" }}
+								</div>
+								{% if complementary_info.has_experience %}
+								<div class="mb-2">
+									<strong>{% trans 'Descrição da experiência:' %}</strong> {{ complementary_info.experience_description|default:"Não informado" }}
+								</div>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+
+			{% if application.recruiter_notes %}
+			<div class="card mt-3">
+				<div class="card-header fw-semibold">{% trans 'Notas do Recrutador' %}</div>
+				<div class="card-body">
+					<p class="mb-0" style="white-space:pre-line;">{{ application.recruiter_notes }}</p>
+				</div>
+			</div>
+			{% endif %}
+
 			{% if evaluation_form or status_form %}
 			<div class="card mt-3">
-				<div class="card-header fw-semibold">{% trans 'Ações do Recrutador' %}</div>
+				<div class="card-header fw-semibold">
+					<span>{% trans 'Ações do Recrutador' %}</span>
+				</div>
 				<div class="card-body">
-					<div class="row g-3">
-						{% if status_form %}
-						<div class="col-md-6">
-							<form method="post">
-								{% csrf_token %}
-								{{ status_form.as_p }}
-								<button class="btn btn-primary" name="status_submit">{% trans 'Atualizar Status' %}</button>
-							</form>
+					<form method="post" id="recruiter-actions-form">
+						{% csrf_token %}
+						
+						<!-- Checkbox de estrela para favoritos -->
+						<div class="form-check mb-3">
+							<input class="form-check-input" type="checkbox" name="is_favorite" id="favorite_{{ application.pk }}" 
+								   {% if application.is_favorite %}checked{% endif %}>
+							<label class="form-check-label" for="favorite_{{ application.pk }}">
+								<i class="bi bi-star{% if application.is_favorite %}-fill text-warning{% endif %}"></i>
+								{% trans 'Favorito' %}
+							</label>
+						</div>
+						
+						<div class="row g-3">
+							{% if status_form %}
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label for="{{ status_form.status.id_for_label }}" class="form-label">{% trans 'Status' %}</label>
+									{{ status_form.status }}
+								</div>
+							</div>
+							{% endif %}
+							
+							{% if evaluation_form %}
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label for="{{ evaluation_form.technical_score.id_for_label }}" class="form-label">{% trans 'Pontuação Técnica' %}</label>
+									{{ evaluation_form.technical_score }}
+								</div>
+							</div>
+							{% endif %}
+						</div>
+						
+						{% if evaluation_form %}
+						<div class="row g-3">
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label for="{{ evaluation_form.experience_score.id_for_label }}" class="form-label">{% trans 'Pontuação de Experiência' %}</label>
+									{{ evaluation_form.experience_score }}
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="mb-3">
+									<label for="{{ evaluation_form.cultural_fit_score.id_for_label }}" class="form-label">{% trans 'Adequação Cultural' %}</label>
+									{{ evaluation_form.cultural_fit_score }}
+								</div>
+							</div>
+						</div>
+						
+						<div class="mb-3">
+							<label for="{{ evaluation_form.comments.id_for_label }}" class="form-label">{% trans 'Comentários da Avaliação' %}</label>
+							{{ evaluation_form.comments }}
 						</div>
 						{% endif %}
-						{% if evaluation_form %}
-						<div class="col-md-6">
-							<form method="post">
-								{% csrf_token %}
-								{{ evaluation_form.as_p }}
-								<button class="btn btn-success" name="evaluation_submit">{% trans 'Registrar Avaliação' %}</button>
-							</form>
+						
+						<!-- Formulário para notas do recrutador -->
+						<div class="mb-3">
+							<label for="recruiter_notes" class="form-label">{% trans 'Notas do Recrutador' %}</label>
+							<textarea name="recruiter_notes" id="recruiter_notes" class="form-control" rows="4" placeholder="{% trans 'Digite suas observações sobre o candidato...' %}">{{ application.recruiter_notes|default:'' }}</textarea>
+						</div>
+						
+						<!-- Botão único para salvar todas as informações -->
+						<div class="d-grid">
+							<button type="submit" class="btn btn-primary btn-lg" name="save_all">
+								<i class="bi bi-save me-2"></i>
+								{% trans 'Salvar Todas as Informações' %}
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- Avaliações existentes -->
+			{% if evaluations %}
+			<div class="card mt-3">
+				<div class="card-header fw-semibold">{% trans 'Avaliações Registradas' %}</div>
+				<div class="card-body">
+					{% for evaluation in evaluations %}
+					<div class="border-bottom pb-3 mb-3">
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<div class="fw-semibold">{{ evaluation.evaluator.user.get_full_name }}</div>
+							<small class="text-muted">{{ evaluation.created_at|date:'d/m/Y H:i' }}</small>
+						</div>
+						<div class="row g-2 mb-2">
+							<div class="col-md-4">
+								<small class="text-muted">{% trans 'Técnica:' %}</small>
+								<div class="fw-semibold">{{ evaluation.technical_score }}</div>
+							</div>
+							<div class="col-md-4">
+								<small class="text-muted">{% trans 'Experiência:' %}</small>
+								<div class="fw-semibold">{{ evaluation.experience_score }}</div>
+							</div>
+							<div class="col-md-4">
+								<small class="text-muted">{% trans 'Cultural:' %}</small>
+								<div class="fw-semibold">{{ evaluation.cultural_fit_score }}</div>
+							</div>
+						</div>
+						{% if evaluation.comments %}
+						<div>
+							<small class="text-muted">{% trans 'Comentários:' %}</small>
+							<div>{{ evaluation.comments }}</div>
 						</div>
 						{% endif %}
 					</div>
+					{% endfor %}
 				</div>
 			</div>
 			{% endif %}
 		</div>
 
 		<div class="col-lg-4">
-			<div class="card">
+			<!-- Resumo da Vaga -->
+			<div class="card mb-3">
 				<div class="card-header fw-semibold">{% trans 'Resumo da Vaga' %}</div>
-				<div class="card-body small">
-					<div class="mb-2"><strong>{% trans 'Título:' %}</strong> {{ application.vacancy.title }}</div>
-					<div class="mb-2"><strong>{% trans 'Departamento:' %}</strong> {{ application.vacancy.department.name }}</div>
-					<div class="mb-2"><strong>{% trans 'Categoria:' %}</strong> {{ application.vacancy.category.name }}</div>
-					<div class="mb-2"><strong>{% trans 'Localização:' %}</strong> {{ application.vacancy.location }}</div>
-					<div class="mb-2"><strong>{% trans 'Status da Vaga:' %}</strong> {{ application.vacancy.get_status_display }}</div>
-				</div>
-			</div>
-
-			{% if application.resume %}
-			<div class="card mt-3">
-				<div class="card-header fw-semibold">{% trans 'Currículo Enviado' %}</div>
 				<div class="card-body">
-					<a class="btn btn-outline-primary btn-sm" href="{{ application.resume.url }}" target="_blank">
-						<i class="bi bi-file-earmark-arrow-down me-1"></i> {% trans 'Baixar Currículo' %}
-					</a>
+					<div class="mb-2">
+						<strong>{% trans 'Título:' %}</strong> {{ application.vacancy.title }}
+					</div>
+					<div class="mb-2">
+						<strong>{% trans 'Departamento:' %}</strong> {{ application.vacancy.department.name }}
+					</div>
+					<div class="mb-2">
+						<strong>{% trans 'Categoria:' %}</strong> {{ application.vacancy.category.name }}
+					</div>
+					<div class="mb-2">
+						<strong>{% trans 'Localização:' %}</strong> {{ application.vacancy.location }}
+					</div>
+					<div class="mb-2">
+						<strong>{% trans 'Status da Vaga:' %}</strong> 
+						<span class="badge bg-{{ application.vacancy.status_color }}">{{ application.vacancy.get_status_display }}</span>
+					</div>
 				</div>
 			</div>
-			{% endif %}
 		</div>
 	</div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Aguarda o sistema de toasts estar disponível
+function waitForToastSystem() {
+    if (typeof showSuccessToast === 'function' && typeof showErrorToast === 'function' && typeof showWarningToast === 'function') {
+        initializeApplication();
+    } else {
+        setTimeout(waitForToastSystem, 100);
+    }
+}
+
+function initializeApplication() {
+    // Teste de toast
+    console.log('Toast functions available:', {
+        showSuccessToast: typeof showSuccessToast,
+        showErrorToast: typeof showErrorToast,
+        showWarningToast: typeof showWarningToast
+    });
+    
+    // Validação do formulário antes de enviar
+    const form = document.getElementById('recruiter-actions-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Valida se pelo menos um campo foi preenchido
+            const hasContent = 
+                document.querySelector('textarea[name="recruiter_notes"]')?.value.trim() !== '' ||
+                document.querySelector('input[name="technical_score"]')?.value !== '' ||
+                document.querySelector('input[name="experience_score"]')?.value !== '' ||
+                document.querySelector('input[name="cultural_fit_score"]')?.value !== '';
+            
+            if (!hasContent) {
+                e.preventDefault();
+                showWarningToast('Por favor, preencha pelo menos um campo antes de salvar.');
+                return false;
+            }
+        });
+    }
+    
+    // Botão de teste de toast
+    const testButton = document.createElement('button');
+    testButton.textContent = 'Testar Toast';
+    testButton.className = 'btn btn-warning btn-sm';
+    testButton.onclick = function() {
+        showSuccessToast('Toast funcionando!');
+    };
+    document.querySelector('.card-header').appendChild(testButton);
+}
+
+// Inicia quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    waitForToastSystem();
+});
+</script>
 {% endblock %} 

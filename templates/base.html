@@ -66,6 +66,52 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token }}" />
+    <style>
+        /* Estilos globais para corrigir sobreposição */
+        .dropdown-menu {
+            z-index: 9999 !important;
+            position: absolute !important;
+        }
+        
+        .navbar-nav .dropdown-menu {
+            z-index: 9999 !important;
+            position: absolute !important;
+        }
+        
+        /* Garantir que dropdowns não sobreponham conteúdo */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-menu.show {
+            z-index: 9999 !important;
+            position: absolute !important;
+        }
+        
+        /* Específico para dropdown do usuário */
+        .navbar .dropdown-menu {
+            z-index: 9999 !important;
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+        }
+        
+        /* Corrigir sobreposição de modais */
+        .modal {
+            z-index: 9999 !important;
+        }
+        
+        .modal-backdrop {
+            z-index: 9998 !important;
+        }
+        
+        /* Esconder imagens quebradas globalmente */
+        img[src*="RH Acqua Logo"],
+        img[alt*="RH Acqua Logo"] {
+            display: none !important;
+        }
+    </style>
   </head>
   <body class="{% block body_class %}{% endblock %}">
     <!-- Preloader -->
@@ -83,16 +129,15 @@
       {% include 'components/messages.html' %} {% block content %}{% endblock %}
     </main>
 
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+      <!-- Toasts serão inseridos aqui dinamicamente -->
+    </div>
+
     <!-- Footer -->
     {% include 'components/footer.html' %}
 
-    <!-- Back to top button -->
-    <a
-      href="#"
-      class="back-to-top d-flex align-items-center justify-content-center"
-    >
-      <i class="fas fa-arrow-up"></i>
-    </a>
+    <!-- Back to top button - REMOVIDO -->
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -100,12 +145,90 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Main JS -->
+    <!-- Main JavaScript -->
     <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Toast System JavaScript -->
+    <script>
+    // Sistema de Toasts para substituir alerts
+    class ToastSystem {
+        static show(message, type = 'info', duration = 5000) {
+            const toastContainer = document.querySelector('.toast-container');
+            
+            // Cria o toast
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            // Define as cores dos toasts
+            const bgColors = {
+                'success': 'success',
+                'error': 'danger',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            
+            const bgColor = bgColors[type] || 'info';
+            toast.className = `toast align-items-center text-white bg-${bgColor} border-0`;
+            
+            // Conteúdo do toast
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            // Adiciona o toast ao container
+            toastContainer.appendChild(toast);
+            
+            // Inicializa o toast do Bootstrap
+            const bsToast = new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: duration
+            });
+            
+            // Mostra o toast
+            bsToast.show();
+            
+            // Remove o toast do DOM após ser fechado
+            toast.addEventListener('hidden.bs.toast', () => {
+                toast.remove();
+            });
+            
+            return toast;
+        }
+        
+        static success(message, duration = 5000) {
+            return this.show(message, 'success', duration);
+        }
+        
+        static error(message, duration = 5000) {
+            return this.show(message, 'error', duration);
+        }
+        
+        static warning(message, duration = 5000) {
+            return this.show(message, 'warning', duration);
+        }
+        
+        static info(message, duration = 5000) {
+            return this.show(message, 'info', duration);
+        }
+    }
     
+    // Função global para mostrar toasts
+    window.showToast = ToastSystem.show.bind(ToastSystem);
+    window.showSuccessToast = ToastSystem.success.bind(ToastSystem);
+    window.showErrorToast = ToastSystem.error.bind(ToastSystem);
+    window.showWarningToast = ToastSystem.warning.bind(ToastSystem);
+    window.showInfoToast = ToastSystem.info.bind(ToastSystem);
+    </script>
 
-
-    <!-- Custom JS for specific pages -->
+    <!-- Custom JavaScript for specific pages -->
     {% block extra_js %}{% endblock %}
 
     <!-- CSRF Token for AJAX -->

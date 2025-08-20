@@ -1,5 +1,6 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Gestão de Vagas - RH Acqua{% endblock %}
 
@@ -176,7 +177,15 @@
               <td>{{ vacancy.department.name }}</td>
               <td>{{ vacancy.publication_date|date:"d/m/Y"|default:"-" }}</td>
               <td>{{ vacancy.closing_date|date:"d/m/Y"|default:"-" }}</td>
-              <td>{{ vacancy.applications_count|default:"0" }}</td>
+              <td>
+                <div class="text-center">
+                  <div class="fw-bold text-primary">{{ vacancy.application_count|default:"0" }}</div>
+                  <small class="text-muted">{% trans 'ativas' %}</small>
+                  {% if vacancy.total_applications > vacancy.application_count %}
+                  <br><small class="text-muted">{% trans 'Total:' %} {{ vacancy.total_applications }}</small>
+                  {% endif %}
+                </div>
+              </td>
               <td>
                 {% if vacancy.status == 'draft' %}
                   <span class="badge bg-secondary">Rascunho</span>

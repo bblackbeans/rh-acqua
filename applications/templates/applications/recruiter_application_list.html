@@ -1,5 +1,6 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Candidaturas - RH Acqua{% endblock %}
 
@@ -30,7 +31,8 @@
       Filtros
     </h5>
     <form method="get" class="row g-3">
-      <div class="col-md-3">
+      {% csrf_token %}
+      <div class="col-md-2">
         <label for="status" class="form-label">Status</label>
         <select id="status" name="status" class="form-select">
           <option value="" {% if not status_filter %}selected{% endif %}>Todos os Status</option>
@@ -42,7 +44,7 @@
           <option value="withdrawn" {% if status_filter == 'withdrawn' %}selected{% endif %}>Desistência</option>
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label for="vacancy" class="form-label">Vaga</label>
         <select id="vacancy" name="vacancy" class="form-select">
           <option value="" {% if not vacancy_filter %}selected{% endif %}>Todas as Vagas</option>
@@ -51,7 +53,7 @@
           {% endfor %}
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label for="hospital" class="form-label">Hospital</label>
         <select id="hospital" name="hospital" class="form-select">
           <option value="" {% if not hospital_filter %}selected{% endif %}>Todos os Hospitais</option>
@@ -62,7 +64,7 @@
           {% endfor %}
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label for="date" class="form-label">Período</label>
         <select id="date" name="date" class="form-select">
           <option value="" {% if not date_filter %}selected{% endif %}>Todas as Datas</option>
@@ -71,15 +73,33 @@
           <option value="90" {% if date_filter == '90' %}selected{% endif %}>Últimos 90 dias</option>
         </select>
       </div>
+      <div class="col-md-2">
+        <label for="score_sort" class="form-label">Ordenar por Score</label>
+        <select id="score_sort" name="score_sort" class="form-select">
+          <option value="" {% if not score_sort %}selected{% endif %}>Padrão</option>
+          <option value="high_to_low" {% if score_sort == 'high_to_low' %}selected{% endif %}>Maior para Menor</option>
+          <option value="low_to_high" {% if score_sort == 'low_to_high' %}selected{% endif %}>Menor para Maior</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="favorites" class="form-label">Favoritos</label>
+        <select id="favorites" name="favorites" class="form-select">
+          <option value="" {% if not favorites_filter %}selected{% endif %}>Todos</option>
+          <option value="true" {% if favorites_filter == 'true' %}selected{% endif %}>Apenas Favoritos</option>
+        </select>
+      </div>
       <div class="col-12">
-        <button type="submit" class="btn btn-primary">
-          <i class="bi bi-search me-2"></i>
-          Filtrar
-        </button>
-        <a href="{% url 'applications:application_list' %}" class="btn btn-outline-secondary">
-          <i class="bi bi-arrow-clockwise me-2"></i>
-          Limpar
-        </a>
+        <div class="input-group">
+          <input type="text" class="form-control" name="search" placeholder="Nome, email, título da vaga..." value="{{ search_query|default:'' }}">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search me-2"></i>
+            Filtrar
+          </button>
+          <a href="{% url 'applications:application_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Limpar
+          </a>
+        </div>
       </div>
     </form>
   </div>
@@ -87,63 +107,51 @@
 
 <!-- Estatísticas -->
 <div class="row mb-4">
-  <div class="col-md-3">
+  <div class="col-md-2">
     <div class="card bg-primary text-white">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="card-title">Total</h6>
-            <h3 class="mb-0">{{ applications|length }}</h3>
-          </div>
-          <div class="align-self-center">
-            <i class="bi bi-people fs-1"></i>
-          </div>
-        </div>
+      <div class="card-body text-center">
+        <h6 class="card-title">Total</h6>
+        <h3 class="mb-0">{{ status_counts.total|default:0 }}</h3>
       </div>
     </div>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-2">
     <div class="card bg-warning text-dark">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="card-title">Pendentes</h6>
-            <h3 class="mb-0">{{ applications|dictsort:"status"|length }}</h3>
-          </div>
-          <div class="align-self-center">
-            <i class="bi bi-clock fs-1"></i>
-          </div>
-        </div>
+      <div class="card-body text-center">
+        <h6 class="card-title">Pendentes</h6>
+        <h3 class="mb-0">{{ status_counts.pending|default:0 }}</h3>
       </div>
     </div>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-2">
     <div class="card bg-info text-white">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="card-title">Em Análise</h6>
-            <h3 class="mb-0">{{ applications|dictsort:"status"|length }}</h3>
-          </div>
-          <div class="align-self-center">
-            <i class="bi bi-search fs-1"></i>
-          </div>
-        </div>
+      <div class="card-body text-center">
+        <h6 class="card-title">Em Análise</h6>
+        <h3 class="mb-0">{{ status_counts.under_review|default:0 }}</h3>
       </div>
     </div>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-2">
+    <div class="card bg-primary text-white">
+      <div class="card-body text-center">
+        <h6 class="card-title">Entrevista</h6>
+        <h3 class="mb-0">{{ status_counts.interview|default:0 }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
     <div class="card bg-success text-white">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <div>
-            <h6 class="card-title">Aprovados</h6>
-            <h3 class="mb-0">{{ applications|dictsort:"status"|length }}</h3>
-          </div>
-          <div class="align-self-center">
-            <i class="bi bi-check-circle fs-1"></i>
-          </div>
-        </div>
+      <div class="card-body text-center">
+        <h6 class="card-title">Aprovadas</h6>
+        <h3 class="mb-0">{{ status_counts.approved|default:0 }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-2">
+    <div class="card bg-danger text-white">
+      <div class="card-body text-center">
+        <h6 class="card-title">Rejeitadas</h6>
+        <h3 class="mb-0">{{ status_counts.rejected|default:0 }}</h3>
       </div>
     </div>
   </div>
@@ -160,15 +168,15 @@
     {% if applications %}
       <div class="table-responsive">
         <table class="table table-hover">
-          <thead class="table-light">
+          <thead>
             <tr>
-              <th>Candidato</th>
-              <th>Vaga</th>
-              <th>Hospital/Unidade</th>
-              <th>Data da Candidatura</th>
-              <th>Status</th>
-              <th>Última Atualização</th>
-              <th>Ações</th>
+              <th>{% trans 'Candidato' %}</th>
+              <th>{% trans 'Vaga' %}</th>
+              <th>{% trans 'Hospital' %}</th>
+              <th>{% trans 'Data' %}</th>
+              <th>{% trans 'Status' %}</th>
+              <th>{% trans 'Score' %}</th>
+              <th>{% trans 'Ações' %}</th>
             </tr>
           </thead>
           <tbody>
@@ -176,13 +184,15 @@
             <tr>
               <td>
                 <div class="d-flex align-items-center">
-                  {% if application.candidate.user.profile_picture %}
-                    <img src="{{ application.candidate.user.profile_picture.url }}" class="rounded-circle me-2" width="40" height="40" alt="Foto">
-                  {% else %}
-                    <div class="bg-secondary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                      <i class="bi bi-person text-white"></i>
-                    </div>
-                  {% endif %}
+                  <div class="me-3">
+                    {% if application.candidate.user.profile_picture %}
+                      <img src="{{ application.candidate.user.profile_picture.url }}" class="rounded-circle" width="40" height="40" alt="foto">
+                    {% else %}
+                      <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                        <i class="bi bi-person text-white"></i>
+                      </div>
+                    {% endif %}
+                  </div>
                   <div>
                     <div class="fw-bold">{{ application.candidate.user.get_full_name }}</div>
                     <small class="text-muted">{{ application.candidate.user.email }}</small>
@@ -219,22 +229,31 @@
                 {% endif %}
               </td>
               <td>
-                <div>{{ application.updated_at|date:"d/m/Y" }}</div>
-                <small class="text-muted">{{ application.updated_at|date:"H:i" }}</small>
+                {% if application.avg_score %}
+                  {% if application.avg_score >= 7 %}
+                    <span class="badge bg-success">{{ application.avg_score }}</span>
+                  {% elif application.avg_score >= 5 %}
+                    <span class="badge bg-warning text-dark">{{ application.avg_score }}</span>
+                  {% else %}
+                    <span class="badge bg-danger">{{ application.avg_score }}</span>
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted">-</span>
+                {% endif %}
               </td>
               <td>
                 <div class="btn-group" role="group">
-                  <a href="{% url 'applications:application_detail' application.pk %}" class="btn btn-sm btn-outline-primary">
+                  <a href="{% url 'applications:application_detail' application.pk %}" class="btn btn-sm btn-outline-primary" title="Ver detalhes">
                     <i class="bi bi-eye"></i>
-                    Ver
                   </a>
-                  <button class="btn btn-sm btn-outline-success" onclick="updateStatus({{ application.pk }}, 'under_review')">
-                    <i class="bi bi-search"></i>
-                    Analisar
+                  <button class="btn btn-sm btn-outline-warning toggle-favorite" data-application-id="{{ application.pk }}" title="{% if application.is_favorite %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}">
+                    <i class="bi bi-star{% if application.is_favorite %}-fill text-warning{% endif %}"></i>
                   </button>
-                  <button class="btn btn-sm btn-outline-info" onclick="updateStatus({{ application.pk }}, 'interview')">
+                  <button class="btn btn-sm btn-outline-success" onclick="updateStatus({{ application.pk }}, 'under_review')" title="Marcar para análise">
+                    <i class="bi bi-search"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-info" onclick="updateStatus({{ application.pk }}, 'interview')" title="Marcar para entrevista">
                     <i class="bi bi-calendar-check"></i>
-                    Entrevista
                   </button>
                 </div>
               </td>
@@ -269,8 +288,8 @@ function updateStatus(applicationId, newStatus) {
     // Aqui você pode implementar a lógica para atualizar o status
     console.log('Atualizando candidatura:', applicationId, 'para status:', newStatus);
     
-    // Mostrar mensagem de sucesso
-    alert('Status atualizado com sucesso!');
+    // Mostra toast de sucesso
+    showSuccessToast('Status atualizado com sucesso!');
     
     // Recarregar a página para atualizar a lista
     location.reload();
@@ -279,7 +298,49 @@ function updateStatus(applicationId, newStatus) {
 
 function exportApplications() {
   // Aqui você pode implementar a lógica para exportar candidaturas
-  alert('Funcionalidade de exportação será implementada em breve!');
+  showInfoToast('Funcionalidade de exportação será implementada em breve!');
 }
+
+// Funcionalidade de favoritos
+document.addEventListener('DOMContentLoaded', function() {
+  const favoriteButtons = document.querySelectorAll('.toggle-favorite');
+  
+  favoriteButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const applicationId = this.dataset.applicationId;
+      const icon = this.querySelector('i');
+      
+      fetch(`/applications/toggle-favorite/${applicationId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Atualiza o ícone
+          if (data.is_favorite) {
+            icon.className = 'bi bi-star-fill text-warning';
+            this.title = 'Remover dos favoritos';
+          } else {
+            icon.className = 'bi bi-star';
+            this.title = 'Adicionar aos favoritos';
+          }
+          
+          // Mostra toast
+          showSuccessToast(data.message);
+        } else {
+          showErrorToast('Erro: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showErrorToast('Erro ao processar favorito');
+      });
+    });
+  });
+});
 </script>
 {% endblock %} 

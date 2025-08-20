@@ -456,7 +456,7 @@ def gestao_vagas(request):
     Exibe a página de gestão de vagas para recrutadores.
     """
     # Verifica se o usuário é um recrutador
-    if request.user.role != 'recruiter':
+    if request.user.role not in ['recruiter', 'recrutador', 'admin']:
         messages.error(request, _('Apenas recrutadores podem acessar esta página.'))
         return redirect('home')
     
@@ -497,6 +497,17 @@ def gestao_vagas(request):
     paginator = Paginator(vacancies.order_by('-created_at'), 10)
     page_number = request.GET.get('page')
     vacancies = paginator.get_page(page_number)
+    
+    # Adiciona contagem de candidaturas para cada vaga (após paginação)
+    for vacancy in vacancies:
+        # Conta candidaturas ativas (não rejeitadas ou desistidas)
+        active_applications = vacancy.applications.exclude(
+            status__in=['rejected', 'withdrawn']
+        ).count()
+        vacancy.application_count = active_applications
+        
+        # Também adiciona contagem total para referência
+        vacancy.total_applications = vacancy.applications.count()
     
     context = {
         'vacancies': vacancies,
@@ -828,6 +839,40 @@ def candidatura_view(request, pk):
 	}
 	
 	return render(request, 'vacancies/candidatura.html', context)
+
+
+def public_vacancy_detail(request, slug):
+    """
+    Exibe detalhes públicos de uma vaga para usuários não logados.
+    """
+    vacancy = get_object_or_404(Vacancy, slug=slug, status=Vacancy.PUBLISHED)
+    
+    # Conta candidaturas ativas (excluindo rejeitadas e desistências)
+    active_applications = vacancy.applications.exclude(
+        status__in=['rejected', 'withdrawn']
+    ).count()
+    
+    # Conta total de candidaturas
+    total_applications = vacancy.applications.count()
+    
+    # Busca vagas relacionadas (mesmo departamento ou categoria)
+    related_vacancies = Vacancy.objects.filter(
+        status=Vacancy.PUBLISHED
+    ).exclude(
+        id=vacancy.id
+    ).filter(
+        Q(department=vacancy.department) | Q(category=vacancy.category)
+    )[:3]
+    
+    context = {
+        'vacancy': vacancy,
+        'active_applications': active_applications,
+        'total_applications': total_applications,
+        'related_vacancies': related_vacancies,
+        'is_public': True,
+    }
+    
+    return render(request, 'vacancies/public_vacancy_detail.html', context)
 
 
 # API Views

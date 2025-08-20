@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Máscaras</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-control.is-valid {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">🧪 Teste de Máscaras</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Campos com Máscaras</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="cpf" class="form-label">CPF *</label>
+                            <input type="text" class="form-control cpf-mask" id="cpf" name="cpf" 
+                                   placeholder="000.000.000-00">
+                            <div class="form-text">Digite apenas números - máximo 11 dígitos</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="pis" class="form-label">PIS *</label>
+                            <input type="text" class="form-control pis-mask" id="pis" name="pis" 
+                                   placeholder="000.00000.00-0">
+                            <div class="form-text">Digite apenas números - máximo 11 dígitos</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rg" class="form-label">RG *</label>
+                            <input type="text" class="form-control rg-mask" id="rg" name="rg" 
+                                   placeholder="00.000.000-0">
+                            <div class="form-text">Digite apenas números - máximo 9 dígitos</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="telefone" class="form-label">Telefone *</label>
+                            <input type="tel" class="form-control phone-mask" id="telefone" name="telefone" 
+                                   placeholder="(00) 00000-0000">
+                            <div class="form-text">Digite apenas números - máximo 11 dígitos</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="cep" class="form-label">CEP *</label>
+                            <input type="text" class="form-control cep-mask" id="cep" name="cep" 
+                                   placeholder="00000-000">
+                            <div class="form-text">Digite apenas números - máximo 8 dígitos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Instruções de Teste</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>✅ O que deve funcionar:</h6>
+                        <ul>
+                            <li><strong>CPF:</strong> Digite números e veja a formatação 000.000.000-00</li>
+                            <li><strong>PIS:</strong> Digite números e veja a formatação 000.00000.00-0</li>
+                            <li><strong>RG:</strong> Digite números e veja a formatação 00.000.000-0</li>
+                            <li><strong>Telefone:</strong> Digite números e veja a formatação (00) 00000-0000</li>
+                            <li><strong>CEP:</strong> Digite números e veja a formatação 00000-000</li>
+                        </ul>
+                        
+                        <h6>🚫 O que deve ser bloqueado:</h6>
+                        <ul>
+                            <li>Letras (a-z, A-Z)</li>
+                            <li>Símbolos especiais (@, #, $, %, etc.)</li>
+                            <li>Caracteres especiais (ç, ã, õ, etc.)</li>
+                        </ul>
+                        
+                        <h6>🔍 Validação visual:</h6>
+                        <ul>
+                            <li><span class="text-success">Borda verde</span> quando o campo está completo</li>
+                            <li><span class="text-danger">Borda vermelha</span> quando o campo está incompleto</li>
+                            <li>Limitação automática de caracteres</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Console de Logs</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="console" class="bg-dark text-light p-3" style="height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                            <div>🎭 Aguardando carregamento das máscaras...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/js/masks.js"></script>
+    <script>
+        // Intercepta logs do console para exibir na tela
+        const originalLog = console.log;
+        const consoleDiv = document.getElementById('console');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${args.join(' ')}`;
+            consoleDiv.appendChild(logEntry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        // Testa as máscaras após carregamento
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página carregada, testando máscaras...');
+            
+            // Aguarda um pouco para as máscaras serem aplicadas
+            setTimeout(function() {
+                console.log('🧪 Testando campos com máscaras...');
+                
+                const fields = document.querySelectorAll('.cpf-mask, .pis-mask, .rg-mask, .phone-mask, .cep-mask');
+                fields.forEach(function(field) {
+                    console.log(`✅ Campo ${field.id} configurado com máscara`);
+                });
+                
+                console.log('🎯 Teste concluído! Tente digitar nos campos acima.');
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

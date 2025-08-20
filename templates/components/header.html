@@ -1,45 +1,540 @@
 {% load static %}
-<!-- Header Component -->
-<header id="header" class="header fixed-top">
-    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
-        <a href="{% url 'home' %}" class="logo d-flex align-items-center">
-            <img src="{% static 'img/logo.png' %}" alt="RH Acqua Logo">
-            <span>RH Acqua123</span>
-        </a>
-        
-        <nav id="navbar" class="navbar">
-            <ul>
-                {% if user.is_authenticated %}
-                    {% if user.profile.role == 'candidate' %}
-                        {% include 'navigation/candidate_menu.html' %}
-                    {% elif user.profile.role == 'recruiter' %}
-                        {% include 'navigation/recruiter_menu.html' %}
-                    {% elif user.profile.role == 'admin' or user.is_staff %}
-                        {% include 'navigation/admin_menu.html' %}
-                    {% else %}
-                        {% include 'navigation/default_menu.html' %}
-                    {% endif %}
-                    
-                    <li class="dropdown">
-                        <a href="#">
-                            <span>{{ user.get_full_name|default:user.username }}</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </a>
-                        <ul>
-                            <li><a href="{% url 'users:profile' %}">Meu Perfil</a></li>
-                            <li><a href="#">Configurações</a></li>
-                            <li><a href="#">Notificações</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a href="{% url 'users:logout' %}">Sair</a></li>
+<!-- Header Moderno e Limpo -->
+<header id="header" class="header-modern">
+    <div class="header-top">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="header-contact">
+                        <span><i class="bi bi-telephone me-2"></i>+55 11 5555-5555</span>
+                        <span class="ms-3"><i class="bi bi-envelope me-2"></i>contato@rhacqua.com.br</span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="header-social">
+                        <a href="#" class="social-link" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="social-link" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="header-main">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-md-6">
+                    <a href="{% url 'core:home' %}" class="logo-modern">
+                        <div class="logo-icon">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div class="logo-text">
+                            <span class="logo-title">RH Acqua</span>
+                            <span class="logo-subtitle">Recrutamento & Seleção</span>
+                        </div>
+                    </a>
+                </div>
+                
+                <div class="col-lg-6 d-none d-lg-block">
+                    <nav class="nav-main">
+                        <ul class="nav-list">
+                            <li><a href="{% url 'core:home' %}" class="nav-link">Início</a></li>
                         </ul>
-                    </li>
+                    </nav>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 text-end">
+                    <div class="header-actions">
+                        {% if user.is_authenticated %}
+                            <div class="user-menu">
+                                <div class="user-info">
+                                    <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                                    <span class="user-role">{{ user.profile.get_role_display|default:"Usuário" }}</span>
+                                </div>
+                                <div class="user-avatar">
+                                    <i class="bi bi-person-circle"></i>
+                                </div>
+                                <div class="user-dropdown">
+                                    <a href="{% url 'users:profile' %}" class="dropdown-item">
+                                        <i class="bi bi-person me-2"></i>Meu Perfil
+                                    </a>
+                                    <a href="#" class="dropdown-item">
+                                        <i class="bi bi-gear me-2"></i>Configurações
+                                    </a>
+                                    <a href="#" class="dropdown-item">
+                                        <i class="bi bi-bell me-2"></i>Notificações
+                                    </a>
+                                    <hr class="dropdown-divider">
+                                    <a href="{% url 'users:logout' %}" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Sair
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="auth-buttons">
+                                <a href="{% url 'users:login' %}" class="btn btn-outline-primary btn-sm me-2">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
+                                </a>
+                                <a href="{% url 'users:register' %}" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-person-plus me-1"></i>Cadastrar
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu Toggle -->
+    <div class="mobile-menu-toggle d-lg-none">
+        <button class="btn-toggle" type="button">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu d-lg-none">
+        <div class="mobile-menu-header">
+            <div class="mobile-logo">
+                <i class="bi bi-building"></i>
+                <span>RH Acqua</span>
+            </div>
+            <button class="btn-close" type="button">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <nav class="mobile-nav">
+            <ul class="mobile-nav-list">
+                <li><a href="{% url 'core:home' %}" class="mobile-nav-link">Início</a></li>
+                {% if user.is_authenticated %}
+                    <li><hr class="mobile-divider"></li>
+                    <li><a href="{% url 'users:profile' %}" class="mobile-nav-link">Meu Perfil</a></li>
+                    <li><a href="#" class="mobile-nav-link">Configurações</a></li>
+                    <li><a href="#" class="mobile-nav-link">Notificações</a></li>
+                    <li><a href="{% url 'users:logout' %}" class="mobile-nav-link text-danger">Sair</a></li>
                 {% else %}
-                    {% include 'navigation/public_menu.html' %}
-                    <li><a class="nav-link scrollto" href="{% url 'users:login' %}">Entrar</a></li>
-                    <li><a class="getstarted scrollto" href="{% url 'users:register' %}">Cadastre-se</a></li>
+                    <li><hr class="mobile-divider"></li>
+                    <li><a href="{% url 'users:login' %}" class="mobile-nav-link">Entrar</a></li>
+                    <li><a href="{% url 'users:register' %}" class="mobile-nav-link">Cadastrar</a></li>
                 {% endif %}
             </ul>
-            <i class="fas fa-bars mobile-nav-toggle"></i>
         </nav>
     </div>
 </header>
+
+<style>
+/* Header Moderno */
+.header-modern {
+    background: white;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1000;
+}
+
+/* Header Top */
+.header-top {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.header-contact span {
+    color: #bdc3c7;
+    font-size: 0.85rem;
+}
+
+.header-social .social-link {
+    color: #bdc3c7;
+    margin-left: 1rem;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.header-social .social-link:hover {
+    color: #3498db;
+}
+
+/* Header Main */
+.header-main {
+    padding: 1rem 0;
+    background: white;
+}
+
+/* Logo Moderno */
+.logo-modern {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #2c3e50;
+}
+
+.logo-icon {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1.2;
+}
+
+.logo-subtitle {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+    font-weight: 400;
+}
+
+/* Navegação Principal */
+.nav-main .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.nav-main .nav-link {
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-main .nav-link:hover {
+    color: #3498db;
+}
+
+.nav-main .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #3498db;
+    transition: width 0.3s ease;
+}
+
+.nav-main .nav-link:hover::after {
+    width: 100%;
+}
+
+/* Ações do Header */
+.header-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Botões de Autenticação */
+.auth-buttons .btn {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.auth-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Menu do Usuário */
+.user-menu {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.user-menu:hover {
+    background-color: #f8f9fa;
+}
+
+.user-info {
+    text-align: right;
+    line-height: 1.2;
+}
+
+.user-name {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 0.9rem;
+}
+
+.user-role {
+    display: block;
+    font-size: 0.75rem;
+    color: #7f8c8d;
+}
+
+.user-avatar {
+    font-size: 2rem;
+    color: #3498db;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+    margin-top: 0.5rem;
+}
+
+.user-menu:hover .user-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #2c3e50;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border-radius: 8px;
+    margin: 0.25rem;
+}
+
+.user-dropdown .dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #3498db;
+}
+
+.user-dropdown .dropdown-divider {
+    margin: 0.5rem 0;
+    border-color: #e9ecef;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    z-index: 1002;
+}
+
+.btn-toggle {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.btn-toggle span {
+    width: 25px;
+    height: 3px;
+    background: #2c3e50;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.btn-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.btn-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Mobile Menu */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: white;
+    z-index: 1003;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+}
+
+.mobile-menu.active {
+    transform: translateX(0);
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+.mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mobile-nav {
+    padding: 1.5rem;
+}
+
+.mobile-nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mobile-nav-link {
+    display: block;
+    padding: 1rem 0;
+    color: #2c3e50;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid #f1f3f4;
+    transition: color 0.3s ease;
+}
+
+.mobile-nav-link:hover {
+    color: #3498db;
+}
+
+.mobile-divider {
+    margin: 1rem 0;
+    border-color: #e9ecef;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .header-top {
+        text-align: center;
+    }
+    
+    .header-contact span {
+        display: block;
+        margin: 0.25rem 0;
+    }
+    
+    .header-social {
+        margin-top: 0.5rem;
+    }
+    
+    .header-social .social-link {
+        margin: 0 0.5rem;
+    }
+    
+    .logo-modern {
+        justify-content: center;
+    }
+    
+    .header-actions {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+}
+
+/* Animações */
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.header-modern {
+    animation: slideInDown 0.5s ease;
+}
+</style>
+
+<script>
+// Mobile Menu Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const btnToggle = document.querySelector('.btn-toggle');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    
+    if (btnToggle && mobileMenu) {
+        btnToggle.addEventListener('click', function() {
+            btnToggle.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        });
+        
+        // Fechar menu ao clicar no botão fechar
+        const btnClose = document.querySelector('.btn-close');
+        if (btnClose) {
+            btnClose.addEventListener('click', function() {
+                btnToggle.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Fechar menu ao clicar em um link
+        const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                btnToggle.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+});
+</script>

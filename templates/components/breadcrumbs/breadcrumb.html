@@ -1,7 +1,7 @@
 <!-- Breadcrumb Component -->
 <nav aria-label="breadcrumb" class="breadcrumb-container">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'home' %}"><i class="fas fa-home"></i> Início</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Início</a></li>
         {% for item in breadcrumbs %}
             {% if forloop.last %}
                 <li class="breadcrumb-item active" aria-current="page">{{ item.title }}</li>
