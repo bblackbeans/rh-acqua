@@ -240,6 +240,73 @@
         transform: translateY(-2px);
         box-shadow: 0 5px 20px rgba(0,0,0,0.12);
     }
+    
+    /* Footer Moderno */
+    .footer-modern {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 3rem 0 2rem;
+        margin-top: 4rem;
+    }
+    
+    .footer-modern .footer-section h5 {
+        color: #3498db;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .footer-description {
+        color: #bdc3c7 !important;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .footer-modern .contact-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .footer-modern .contact-list li {
+        margin-bottom: 0.8rem;
+        color: #bdc3c7 !important;
+    }
+    
+    .footer-modern .social-links a {
+        color: #bdc3c7;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        transition: color 0.3s ease;
+    }
+    
+    .footer-modern .social-links a:hover {
+        color: #3498db;
+    }
+    
+    .footer-modern .footer-bottom {
+        border-top: 1px solid #34495e;
+        padding-top: 2rem;
+        margin-top: 2rem;
+        text-align: center;
+        color: #95a5a6 !important;
+    }
+    
+    /* Responsividade do Footer */
+    @media (max-width: 768px) {
+        .footer-modern {
+            padding: 2rem 0 1rem;
+        }
+        
+        .footer-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .social-links {
+            justify-content: center;
+            display: flex;
+        }
+    }
     </style>
 </head>
 <body>
@@ -505,6 +572,36 @@
         </div>
         {% endif %}
     </div>
+
+    <!-- Footer -->
+    <footer class="footer-modern">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 footer-section">
+                    <h5><i class="bi bi-building me-2"></i>RH Acqua</h5>
+                    <p class="footer-description">Sistema de Recrutamento e Seleção para unidades hospitalares. Conectando os melhores talentos às melhores oportunidades na área da saúde.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 col-md-6 footer-section">
+                    <h5>Contato</h5>
+                    <ul class="contact-list">
+                        <li><i class="bi bi-geo-alt me-2"></i>Av. Paulista, 1000<br>São Paulo, SP 01310-100</li>
+                        <li><i class="bi bi-telephone me-2"></i>+55 11 5555-5555</li>
+                        <li><i class="bi bi-envelope me-2"></i>contato@rhacqua.com.br</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="mb-0">&copy; Copyright RH Acqua. Todos os direitos reservados | Desenvolvido por Equipe RH Acqua</p>
+            </div>
+        </div>
+    </footer>
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
