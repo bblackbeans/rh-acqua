@@ -18,10 +18,13 @@ urlpatterns = [
     path('recruiter/vacancy/<int:pk>/change-status/', views.change_vacancy_status, name='vacancy_change_status'),
     path('recruiter/vacancy/<int:pk>/delete/', views.delete_vacancy, name='delete_vacancy'),
     
-    # URLs para vagas (necessárias para os templates)
+    # URLs AJAX
+    path('ajax/load-departments/', views.load_departments, name='ajax_load_departments'),
+    
+    # URLs para vagas (necessárias para os templates) - URLs específicas primeiro
+    path('vacancy/create/', views.VacancyCreateView.as_view(), name='vacancy_create'),
+    path('vacancy/<int:pk>/update/', views.VacancyUpdateView.as_view(), name='vacancy_update'),
     path('vacancy/<slug:slug>/', views.public_vacancy_detail, name='vacancy_detail'),
-    path('vacancy/create/', views.vagas_disponiveis, name='vacancy_create'),
-    path('vacancy/<int:pk>/update/', views.vagas_disponiveis, name='vacancy_update'),
     
     # URLs de compatibilidade (para templates existentes)
     path('vacancy-list/', views.vagas_disponiveis, name='vacancy_list'),

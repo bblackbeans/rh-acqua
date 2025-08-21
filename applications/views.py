@@ -15,8 +15,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from users.models import UserProfile
-from vacancies.models import Vacancy
+from users.models import UserProfile, TechnicalSkill, SoftSkill, Certification, Language, Education as UserEducation, Experience as UserExperience
+from vacancies.models import Vacancy, Hospital
 from .models import Application, ApplicationEvaluation, Resume, Education, WorkExperience, ApplicationFavorite, ApplicationComplementaryInfo
 from .forms import (
     ApplicationForm, ApplicationEvaluationForm, ResumeForm, 
@@ -30,6 +30,15 @@ from .serializers import (
 )
 from .permissions import IsOwnerOrRecruiter, IsRecruiterOrAdmin, IsResumeOwner, IsEducationOrExperienceOwner
 
+import csv
+import openpyxl
+from openpyxl.utils.dataframe import dataframe_to_rows
+import pandas as pd
+from io import BytesIO
+from django.http import HttpResponse
+from django.utils import timezone
+from datetime import timedelta
+
 
 # Views para interface web
 
@@ -40,6 +49,15 @@ def application_list(request):
     """
     user_profile = request.user.profile
     
+    # Inicializar variáveis de filtro para todos os usuários
+    status_filter = request.GET.get('status')
+    vacancy_filter = request.GET.get('vacancy')
+    hospital_filter = request.GET.get('hospital')
+    date_filter = request.GET.get('date')
+    search_query = request.GET.get('search')
+    score_sort = request.GET.get('score_sort')
+    favorites_filter = request.GET.get('favorites')
+    
     if request.user.role == 'candidate':
         # Candidatos veem apenas suas próprias candidaturas
         applications = Application.objects.filter(candidate=user_profile)
@@ -47,15 +65,6 @@ def application_list(request):
     else:
         # Recrutadores e administradores veem todas as candidaturas
         applications = Application.objects.all()
-        
-        # Filtros para recrutadores
-        status_filter = request.GET.get('status')
-        vacancy_filter = request.GET.get('vacancy')
-        hospital_filter = request.GET.get('hospital')
-        date_filter = request.GET.get('date')
-        search_query = request.GET.get('search')
-        score_sort = request.GET.get('score_sort')
-        favorites_filter = request.GET.get('favorites')
         
         if status_filter:
             applications = applications.filter(status=status_filter)
@@ -348,38 +357,87 @@ def resume_edit(request):
 @login_required
 def resume_detail(request):
     """
-    Exibe os detalhes do currículo do candidato.
+    Exibe as informações completas da candidatura do candidato.
     """
     user_profile = request.user.profile
     
-    # Verifica se é um recrutador vendo currículo de outro candidato
+    # Verifica se é um recrutador vendo candidatura de outro candidato
     candidate_id = request.GET.get('candidate_id')
     
     if candidate_id and request.user.role in ['recruiter', 'recrutador', 'admin']:
-        # Recrutador vendo currículo de outro candidato
+        # Recrutador vendo candidatura de outro candidato
         candidate_profile = get_object_or_404(UserProfile, id=candidate_id)
+        
+        # Busca a candidatura mais recente deste candidato
         try:
-            resume = Resume.objects.get(candidate=candidate_profile)
-        except Resume.DoesNotExist:
-            # Se não existe currículo, cria um vazio
-            resume = Resume.objects.create(candidate=candidate_profile)
-        page_title = f'Currículo de {candidate_profile.user.get_full_name()}'
+            application = Application.objects.filter(candidate=candidate_profile).latest('created_at')
+        except Application.DoesNotExist:
+            messages.error(request, _('Nenhuma candidatura encontrada para este candidato.'))
+            return redirect('applications:candidaturas')
+        
+        page_title = f'Informações da Candidatura - {candidate_profile.user.get_full_name()}'
+        
+        # Busca informações complementares da candidatura
+        try:
+            complementary_info = ApplicationComplementaryInfo.objects.get(application=application)
+        except ApplicationComplementaryInfo.DoesNotExist:
+            complementary_info = None
+            
     else:
-        # Candidato vendo seu próprio currículo
+        # Candidato vendo sua própria candidatura
         if request.user.role != 'candidate':
-            messages.error(request, _('Apenas candidatos podem ver seus próprios currículos.'))
-            return redirect('users:login')  # Corrigido: usar namespace correto
+            messages.error(request, _('Apenas candidatos podem ver suas próprias candidaturas.'))
+            return redirect('users:login')
+        
+        # Busca a candidatura mais recente do candidato
         try:
-            resume = Resume.objects.get(candidate=user_profile)
-        except Resume.DoesNotExist:
-            # Se não existe currículo, cria um vazio
-            resume = Resume.objects.create(candidate=user_profile)
-        page_title = _('Meu Currículo')
+            application = Application.objects.filter(candidate=user_profile).latest('created_at')
+        except Application.DoesNotExist:
+            messages.error(request, _('Nenhuma candidatura encontrada.'))
+            return redirect('applications:minhas_candidaturas')
+        
+        page_title = _('Minha Candidatura')
+        
+        # Busca informações complementares da candidatura
+        try:
+            complementary_info = ApplicationComplementaryInfo.objects.get(application=application)
+        except ApplicationComplementaryInfo.DoesNotExist:
+            complementary_info = None
+    
+    # Busca currículo se existir
+    try:
+        resume = Resume.objects.get(candidate=candidate_profile if candidate_id else user_profile)
+        education_list = resume.education.all()
+        experience_list = resume.work_experiences.all()
+    except Resume.DoesNotExist:
+        resume = None
+        education_list = []
+        experience_list = []
+    
+    # Busca informações do usuário
+    candidate_user = candidate_profile.user if candidate_id else user_profile.user
+    
+    # Busca dados do currículo do usuário
+    technical_skills = candidate_user.technical_skills.all()
+    soft_skills = candidate_user.soft_skills.all()
+    certifications = candidate_user.certifications.all()
+    languages = candidate_user.languages.all()
+    user_educations = candidate_user.educations.all()
+    user_experiences = candidate_user.experiences.all()
     
     context = {
+        'application': application,
+        'candidate_profile': candidate_profile if candidate_id else user_profile,
+        'complementary_info': complementary_info,
         'resume': resume,
-        'education_list': resume.education.all(),
-        'experience_list': resume.work_experiences.all(),
+        'education_list': education_list,  # Do Resume antigo
+        'experience_list': experience_list,  # Do Resume antigo
+        'user_educations': user_educations,  # Do User (dados atuais)
+        'user_experiences': user_experiences,  # Do User (dados atuais)
+        'technical_skills': technical_skills,
+        'soft_skills': soft_skills,
+        'certifications': certifications,
+        'languages': languages,
         'page_title': page_title,
     }
     
@@ -619,12 +677,12 @@ def candidaturas(request):
             month_ago = today - timedelta(days=30)
             applications = applications.filter(created_at__date__gte=month_ago)
     
-    search_filter = request.GET.get('search', '')
-    if search_filter:
+    search_query = request.GET.get('search', '')
+    if search_query:
         applications = applications.filter(
-            Q(candidate__user__first_name__icontains=search_filter) |
-            Q(candidate__user__last_name__icontains=search_filter) |
-            Q(candidate__user__email__icontains=search_filter)
+            Q(candidate__user__first_name__icontains=search_query) |
+            Q(candidate__user__last_name__icontains=search_query) |
+            Q(candidate__user__email__icontains=search_query)
         )
     
     # Filtro de favoritos
@@ -673,8 +731,9 @@ def candidaturas(request):
         'withdrawn': applications.filter(status='withdrawn').count(),
     }
     
-    # Obtém dados para os filtros
-    vacancies = Vacancy.objects.filter(status='published')
+    # Obtém dados para os filtros - todas as vagas e hospitais
+    vacancies = Vacancy.objects.all()
+    hospitals = Hospital.objects.all()
     
     # Paginação
     from django.core.paginator import Paginator
@@ -685,12 +744,13 @@ def candidaturas(request):
     context = {
         'applications': applications,
         'vacancies': vacancies,
+        'hospitals': hospitals,
         'status_counts': status_counts,
         'status_filter': status_filter,
         'vacancy_filter': vacancy_filter,
         'hospital_filter': hospital_filter,
         'date_filter': date_filter,
-        'search_filter': search_filter,
+        'search_query': search_query,
         'score_sort': score_sort,
         'favorites_filter': favorites_filter,
         'page_title': _('Candidaturas'),
@@ -792,7 +852,6 @@ def minhas_candidaturas(request):
         entrevistas_data = []
     
     # Obtém dados para filtros
-    from vacancies.models import Hospital
     hospitals = Hospital.objects.all()
     
     context = {
@@ -859,6 +918,257 @@ def toggle_favorite(request, application_id):
         return JsonResponse({'error': 'Candidatura não encontrada'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def export_candidaturas(request):
+    """
+    Exporta candidaturas filtradas para CSV ou Excel.
+    """
+    # Verifica se o usuário é um recrutador
+    if request.user.role not in ['recruiter', 'recrutador', 'admin']:
+        messages.error(request, _('Apenas recrutadores podem acessar esta página.'))
+        return redirect('home')
+    
+    # Obtém o formato de exportação
+    export_format = request.GET.get('format', 'csv')
+    
+    # Aplica os mesmos filtros da view de candidaturas
+    applications = Application.objects.all()
+    
+    # Filtros
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        applications = applications.filter(status=status_filter)
+    
+    vacancy_filter = request.GET.get('vacancy', '')
+    if vacancy_filter:
+        applications = applications.filter(vacancy_id=vacancy_filter)
+    
+    hospital_filter = request.GET.get('hospital', '')
+    if hospital_filter:
+        applications = applications.filter(vacancy__hospital_id=hospital_filter)
+    
+    date_filter = request.GET.get('date', '')
+    if date_filter:
+        today = timezone.now().date()
+        if date_filter == 'today':
+            applications = applications.filter(created_at__date=today)
+        elif date_filter == 'week':
+            week_ago = today - timedelta(days=7)
+            applications = applications.filter(created_at__date__gte=week_ago)
+        elif date_filter == 'month':
+            month_ago = today - timedelta(days=30)
+            applications = applications.filter(created_at__date__gte=month_ago)
+    
+    search_filter = request.GET.get('search', '')
+    if search_filter:
+        applications = applications.filter(
+            Q(candidate__user__first_name__icontains=search_filter) |
+            Q(candidate__user__last_name__icontains=search_filter) |
+            Q(candidate__user__email__icontains=search_filter)
+        )
+    
+    # Filtro de favoritos
+    favorites_filter = request.GET.get('favorites', '')
+    if favorites_filter == 'true':
+        applications = applications.filter(favorites__recruiter=request.user.profile)
+    
+    # Ordenação por score
+    score_sort = request.GET.get('score_sort', '')
+    if score_sort == 'high_to_low':
+        applications = applications.annotate(
+            avg_score=(Avg('evaluations__technical_score') + 
+                     Avg('evaluations__experience_score') + 
+                     Avg('evaluations__cultural_fit_score')) / 3
+        ).order_by('-avg_score')
+    elif score_sort == 'low_to_high':
+        applications = applications.annotate(
+            avg_score=(Avg('evaluations__technical_score') + 
+                     Avg('evaluations__experience_score') + 
+                     Avg('evaluations__cultural_fit_score')) / 3
+        ).order_by('avg_score')
+    else:
+        # Ordenação padrão por data de criação
+        applications = applications.order_by('-created_at')
+    
+    # Prepara os dados para exportação
+    data = []
+    for application in applications:
+        # Calcula o score médio se houver avaliações
+        avg_score = None
+        if application.evaluations.exists():
+            evaluation = application.evaluations.first()
+            total_score = evaluation.technical_score + evaluation.experience_score + evaluation.cultural_fit_score
+            avg_score = round(total_score / 3, 1)
+        
+        # Obtém informações do candidato
+        candidate = application.candidate
+        user = candidate.user
+        
+        # Tenta obter o perfil de candidato se existir
+        candidate_profile = None
+        try:
+            candidate_profile = user.candidate_profile
+        except:
+            pass
+        
+        # Obtém informações da vaga e hospital
+        vacancy = application.vacancy
+        hospital_name = vacancy.hospital.name if vacancy.hospital else "N/A"
+        hospital_location = f"{vacancy.hospital.city}, {vacancy.hospital.state}" if vacancy.hospital else "N/A"
+        
+        # Status em português
+        status_map = {
+            'pending': 'Pendente',
+            'under_review': 'Em Análise',
+            'interview': 'Entrevista',
+            'approved': 'Aprovado',
+            'rejected': 'Rejeitado',
+            'withdrawn': 'Desistência'
+        }
+        
+        # Obtém dados priorizando CandidateProfile quando disponível
+        telefone = user.phone
+        if candidate_profile and candidate_profile.phone:
+            telefone = candidate_profile.phone
+        
+        whatsapp = user.whatsapp
+        if candidate_profile and candidate_profile.whatsapp:
+            whatsapp = candidate_profile.whatsapp
+            
+        cpf = user.cpf
+        if candidate_profile and candidate_profile.cpf:
+            cpf = candidate_profile.cpf
+            
+        endereco = user.address
+        if candidate_profile and candidate_profile.address:
+            endereco = candidate_profile.address
+            
+        cidade = user.city
+        if candidate_profile and candidate_profile.city:
+            cidade = candidate_profile.city
+            
+        estado = user.state
+        if candidate_profile and candidate_profile.state:
+            estado = candidate_profile.state
+            
+        cep = user.zip_code
+        if candidate_profile and candidate_profile.zip_code:
+            cep = candidate_profile.zip_code
+        
+        row = {
+            'Nome Completo': user.get_full_name(),
+            'Email': user.email,
+            'Telefone': telefone or 'N/A',
+            'WhatsApp': whatsapp or 'N/A',
+            'CPF': cpf or 'N/A',
+            'Data de Nascimento': user.date_of_birth.strftime('%d/%m/%Y') if user.date_of_birth else 'N/A',
+            'Endereço': endereco or 'N/A',
+            'Cidade': cidade or 'N/A',
+            'Estado': estado or 'N/A',
+            'CEP': cep or 'N/A',
+            'Vaga': vacancy.title,
+            'Hospital': hospital_name,
+            'Localização': hospital_location,
+            'Status': status_map.get(application.status, application.status),
+            'Score': avg_score if avg_score else 'N/A',
+            'Data da Candidatura': application.created_at.strftime('%d/%m/%Y %H:%M'),
+            'Carta de Apresentação': application.cover_letter or 'N/A',
+            'Notas do Recrutador': application.recruiter_notes or 'N/A'
+        }
+        data.append(row)
+    
+    # Nome do arquivo
+    timestamp = timezone.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'candidaturas_{timestamp}'
+    
+    if export_format == 'excel':
+        return export_as_excel_candidaturas(data, filename)
+    else:
+        return export_as_csv_candidaturas(data, filename)
+
+
+def export_as_csv_candidaturas(data, filename):
+    """
+    Exporta candidaturas para CSV.
+    """
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = f'attachment; filename="{filename}.csv"'
+    
+    # Adiciona BOM para UTF-8
+    response.write('\ufeff')
+    
+    if not data:
+        return response
+    
+    writer = csv.DictWriter(response, fieldnames=data[0].keys())
+    writer.writeheader()
+    writer.writerows(data)
+    
+    return response
+
+
+def export_as_excel_candidaturas(data, filename):
+    """
+    Exporta candidaturas para Excel.
+    """
+    if not data:
+        # Retorna um arquivo Excel vazio
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Candidaturas"
+        ws['A1'] = "Nenhuma candidatura encontrada"
+        
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}.xlsx"'
+        
+        wb.save(response)
+        return response
+    
+    # Cria um DataFrame com os dados
+    df = pd.DataFrame(data)
+    
+    # Cria o arquivo Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Candidaturas"
+    
+    # Adiciona os dados
+    for r in dataframe_to_rows(df, index=False, header=True):
+        ws.append(r)
+    
+    # Ajusta a largura das colunas
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Formata o cabeçalho
+    from openpyxl.styles import Font, PatternFill
+    header_font = Font(bold=True)
+    header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+    
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+    
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="{filename}.xlsx"'
+    
+    wb.save(response)
+    return response
 
 
 # API Views

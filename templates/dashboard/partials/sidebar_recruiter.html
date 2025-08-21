@@ -29,12 +29,13 @@
 
   <ul class="list-unstyled flex-grow-1 p-0 m-0">
     <li class="mb-1">
-      <a
-        href="{% url 'core:home' %}"
-        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none {% if request.resolver_match.url_name == 'home' %}bg-white bg-opacity-25 border-start border-white border-3{% endif %}"
+      <span
+        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none opacity-50"
+        style="cursor: not-allowed;"
+        title="Funcionalidade não disponível no pré-MVP"
       >
         <i class="bi bi-speedometer2 me-3"></i> Dashboard
-      </a>
+      </span>
     </li>
     <li class="mb-1">
       <a
@@ -53,28 +54,31 @@
       </a>
     </li>
     <li class="mb-1">
-      <a
-        href="{% url 'interviews:entrevistas' %}"
-        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none {% if request.resolver_match.url_name == 'entrevistas' %}bg-white bg-opacity-25 border-start border-white border-3{% endif %}"
+      <span
+        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none opacity-50"
+        style="cursor: not-allowed;"
+        title="Funcionalidade não disponível no pré-MVP"
       >
         <i class="bi bi-calendar-event me-3"></i> Entrevistas
-      </a>
+      </span>
     </li>
     <li class="mb-1">
-      <a
-        href="{% url 'talent_pool:banco_talentos' %}"
-        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none {% if request.resolver_match.url_name == 'banco_talentos' %}bg-white bg-opacity-25 border-start border-white border-3{% endif %}"
+      <span
+        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none opacity-50"
+        style="cursor: not-allowed;"
+        title="Funcionalidade não disponível no pré-MVP"
       >
         <i class="bi bi-people me-3"></i> Banco de Talentos
-      </a>
+      </span>
     </li>
     <li class="mb-1">
-      <a
-        href="{% url 'administration:relatorios' %}"
-        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none {% if request.resolver_match.url_name == 'relatorios' %}bg-white bg-opacity-25 border-start border-white border-3{% endif %}"
+      <span
+        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none opacity-50"
+        style="cursor: not-allowed;"
+        title="Funcionalidade não disponível no pré-MVP"
       >
         <i class="bi bi-graph-up me-3"></i> Relatórios
-      </a>
+      </span>
     </li>
   </ul>
 

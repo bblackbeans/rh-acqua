@@ -258,6 +258,10 @@ class VacancyCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
                 else:
                     obj.recruiter = recruiter
                 
+                # Define data de publicação se não estiver definida
+                if not obj.publication_date:
+                    obj.publication_date = timezone.now().date()
+                
                 # Salva a vaga
                 obj.save()
                 
@@ -685,6 +689,11 @@ def candidatura_view(request, pk):
 	Página de candidatura completa com formulário e sidebar personalizada
 	"""
 	vacancy = get_object_or_404(Vacancy, pk=pk, status=Vacancy.PUBLISHED)
+	
+	# Verificar se o usuário é candidato
+	if not hasattr(request.user, 'role') or request.user.role != 'candidate':
+		messages.error(request, _('Apenas candidatos podem se candidatar às vagas.'))
+		return redirect('vacancies:vacancy_detail', slug=vacancy.slug)
 	
 	# Verifica se o usuário já se candidatou
 	already_applied = False

@@ -365,7 +365,7 @@
 function confirmDelete(vacancyId, vacancyTitle) {
   // Atualiza o modal com as informações da vaga
   document.getElementById('deleteVacancyTitle').textContent = vacancyTitle;
-  document.getElementById('deleteVacancyForm').action = `/vacancies/recruiter/vacancy/${vacancyId}/delete-vacancy/`;
+  document.getElementById('deleteVacancyForm').action = `/vacancies/recruiter/vacancy/${vacancyId}/delete/`;
   
   // Mostra o modal
   const deleteModal = new bootstrap.Modal(document.getElementById('deleteVacancyModal'));

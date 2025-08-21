@@ -55,13 +55,14 @@
 						</div>
 					</div>
 					
-					<!-- Botão para ver informações da vaga -->
-					<div class="d-grid">
-						<a href="{% url 'vacancies:vacancy_detail' application.vacancy.slug %}" class="btn btn-outline-primary">
-							<i class="bi bi-briefcase me-2"></i>
-							{% trans 'Ver Detalhes da Vaga' %}
+					<!-- Botão para ver currículo completo -->
+					<div class="d-grid mt-3">
+						<a href="{% url 'applications:resume_detail' %}?candidate_id={{ application.candidate.id }}" class="btn btn-outline-primary">
+							<i class="bi bi-file-earmark-text me-2"></i>
+							{% trans 'Ver Currículo Completo' %}
 						</a>
 					</div>
+
 				</div>
 			</div>
 
@@ -74,178 +75,9 @@
 			</div>
 			{% endif %}
 
-			<!-- Informações Completas do Candidato -->
-			<div class="card mt-3">
-				<div class="card-header fw-semibold d-flex justify-content-between align-items-center">
-					<span>{% trans 'Informações Completas do Candidato' %}</span>
-					<a href="{% url 'applications:resume_detail' %}?candidate_id={{ application.candidate.id }}" class="btn btn-outline-primary btn-sm">
-						<i class="bi bi-file-earmark-text me-1"></i> {% trans 'Ver Currículo Completo' %}
-					</a>
-				</div>
-				<div class="card-body">
-					<div class="row">
-						<!-- Informações Pessoais -->
-						<div class="col-md-6">
-							<h6 class="text-primary">{% trans 'Informações Pessoais' %}</h6>
-							<div class="mb-2">
-								<strong>{% trans 'Nome Completo:' %}</strong> {{ candidate.user.get_full_name }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'E-mail:' %}</strong> {{ candidate.user.email }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Telefone:' %}</strong> {{ candidate.phone|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Data de Nascimento:' %}</strong> {{ candidate.date_of_birth|date:"d/m/Y"|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'RG:' %}</strong> {{ candidate.rg|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'CPF:' %}</strong> {{ candidate.cpf|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'PIS:' %}</strong> {{ candidate.pis|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Nome Social:' %}</strong> {{ candidate.nome_social|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Endereço:' %}</strong> 
-								{{ candidate.address|default:"Não informado" }}
-								{% if candidate.city %}, {{ candidate.city }}{% endif %}
-								{% if candidate.state %}, {{ candidate.state }}{% endif %}
-							</div>
-						</div>
-						
-						<!-- Informações Profissionais -->
-						<div class="col-md-6">
-							<h6 class="text-primary">{% trans 'Informações Profissionais' %}</h6>
-							<div class="mb-2">
-								<strong>{% trans 'Objetivo Profissional:' %}</strong> {{ candidate.bio|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Disponibilidade:' %}</strong> 
-								{% if candidate.candidate_profile %}
-									{{ candidate.candidate_profile.experience_years|default:"Não informado" }}
-								{% else %}
-									Não informado
-								{% endif %}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Pretensão Salarial:' %}</strong> 
-								{% if candidate.candidate_profile %}
-									{{ candidate.candidate_profile.current_position|default:"Não informado" }}
-								{% else %}
-									Não informado
-								{% endif %}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Biografia:' %}</strong> {{ candidate.bio|default:"Não informado" }}
-							</div>
-							<div class="mb-2">
-								<strong>{% trans 'Estado Civil:' %}</strong> {{ candidate.estado_civil|default:"Não informado" }}
-							</div>
-						</div>
-					</div>
-					
-					<!-- Formação Educacional -->
-					{% if candidate.educations.exists %}
-					<div class="mt-4">
-						<h6 class="text-primary"><i class="bi bi-mortarboard me-2"></i>{% trans 'Formação Educacional' %}</h6>
-						{% for education in candidate.educations.all %}
-						<div class="border-bottom pb-2 mb-2">
-							<div class="fw-semibold">{{ education.curso }}</div>
-							<div class="text-muted">{{ education.instituicao }}</div>
-							<small class="text-muted">Nível: {{ education.nivel|default:"Não informado" }} • Ano: {{ education.inicio|date:"Y" }}</small>
-							{% if education.atividades %}
-							<div class="mt-1">{{ education.atividades }}</div>
-							{% endif %}
-						</div>
-						{% endfor %}
-					</div>
-					{% endif %}
-					
-					<!-- Experiência Profissional -->
-					{% if candidate.experiences.exists %}
-					<div class="mt-4">
-						<h6 class="text-primary"><i class="bi bi-briefcase me-2"></i>{% trans 'Experiência Profissional' %}</h6>
-						{% for experience in candidate.experiences.all %}
-						<div class="border-bottom pb-2 mb-2">
-							<div class="fw-semibold">{{ experience.cargo }}</div>
-							<div class="text-muted">{{ experience.empresa }}</div>
-							<small class="text-muted">Período: {{ experience.inicio|date:"m/Y" }} - {{ experience.fim|date:"m/Y"|default:"Atual" }}</small>
-							{% if experience.atividades %}
-							<div class="mt-1">{{ experience.atividades }}</div>
-							{% endif %}
-						</div>
-						{% endfor %}
-					</div>
-					{% endif %}
-					
-					<!-- Habilidades Técnicas -->
-					{% if detailed_resume and detailed_resume.skills %}
-					<div class="mt-4">
-						<h6 class="text-primary"><i class="bi bi-lightning me-2"></i>{% trans 'Habilidades Técnicas' %}</h6>
-						<div class="mb-2">
-							{{ detailed_resume.skills }}
-						</div>
-					</div>
-					{% endif %}
-					
-					<!-- Idiomas -->
-					{% if detailed_resume and detailed_resume.languages %}
-					<div class="mt-4">
-						<h6 class="text-primary"><i class="bi bi-globe me-2"></i>{% trans 'Idiomas' %}</h6>
-						<div class="mb-2">
-							{{ detailed_resume.languages }}
-						</div>
-					</div>
-					{% endif %}
-					
-					<!-- Certificações -->
-					{% if detailed_resume and detailed_resume.certifications %}
-					<div class="mt-4">
-						<h6 class="text-primary"><i class="bi bi-award me-2"></i>{% trans 'Certificações' %}</h6>
-						<div class="mb-2">
-							{{ detailed_resume.certifications }}
-						</div>
-					</div>
-					{% endif %}
-					
-					<!-- Informações Complementares -->
-					{% if complementary_info %}
-					<div class="mt-4">
-						<h6 class="text-primary"><i class="bi bi-info-circle me-2"></i>{% trans 'Informações Complementares' %}</h6>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="mb-2">
-									<strong>{% trans 'Trabalha atualmente no hospital:' %}</strong> 
-									{{ complementary_info.currently_working|yesno:"Sim,Não" }}
-								</div>
-								{% if complementary_info.currently_working %}
-								<div class="mb-2">
-									<strong>{% trans 'Função atual:' %}</strong> {{ complementary_info.current_function|default:"Não informado" }}
-								</div>
-								{% endif %}
-							</div>
-							<div class="col-md-6">
-								<div class="mb-2">
-									<strong>{% trans 'Experiência na área:' %}</strong> 
-									{{ complementary_info.has_experience|yesno:"Sim,Não" }}
-								</div>
-								{% if complementary_info.has_experience %}
-								<div class="mb-2">
-									<strong>{% trans 'Descrição da experiência:' %}</strong> {{ complementary_info.experience_description|default:"Não informado" }}
-								</div>
-								{% endif %}
-							</div>
-						</div>
-					</div>
-					{% endif %}
-				</div>
-			</div>
+
+
+
 
 			{% if application.recruiter_notes %}
 			<div class="card mt-3">

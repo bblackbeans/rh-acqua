@@ -69,7 +69,16 @@ class LoginView(FormView):
             login(self.request, user)
             messages.success(self.request, _('Login realizado com sucesso!'))
 
-            # Redireciona para a página inicial após login bem-sucedido
+            # Redireciona baseado no role do usuário
+            if hasattr(user, 'role'):
+                if user.role == 'recruiter':
+                    return redirect('vacancies:gestao_vagas')
+                elif user.role == 'candidate':
+                    return redirect('vacancies:vagas_disponiveis')
+                elif user.role == 'admin':
+                    return redirect('core:home')
+            
+            # Fallback para a página inicial
             return redirect('/')
         else:
             messages.error(self.request, _('Email ou senha inválidos.'))

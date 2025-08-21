@@ -8,67 +8,75 @@
 <div class="container py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h4 mb-0">{{ page_title }}</h2>
-        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> {% trans 'Voltar' %}
-        </a>
+        <div>
+            {% if resume %}
+            <a href="{% url 'applications:resume_detail' %}?candidate_id={{ candidate_profile.id }}" class="btn btn-outline-primary btn-sm me-2">
+                <i class="bi bi-file-earmark-text me-1"></i> {% trans 'Ver Currículo Completo' %}
+            </a>
+            {% endif %}
+            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> {% trans 'Voltar' %}
+            </a>
+        </div>
     </div>
 
     <div class="row">
         <div class="col-lg-8">
-            <!-- Informações Básicas -->
+            <!-- Informações da Candidatura -->
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0">{% trans 'Informações Básicas' %}</h5>
+                    <h5 class="mb-0">{% trans 'Informações da Candidatura' %}</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-2">
-                                <strong>{% trans 'Nome Completo:' %}</strong> {{ resume.candidate.user.get_full_name }}
+                                <strong>{% trans 'Nome Completo:' %}</strong> {{ candidate_profile.user.get_full_name }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'E-mail:' %}</strong> {{ resume.candidate.user.email }}
+                                <strong>{% trans 'E-mail:' %}</strong> {{ candidate_profile.user.email }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Telefone:' %}</strong> {{ resume.candidate.phone|default:"Não informado" }}
+                                <strong>{% trans 'Telefone:' %}</strong> {{ candidate_profile.user.phone|default:"Não informado" }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Data de Nascimento:' %}</strong> {{ resume.candidate.birth_date|date:"d/m/Y"|default:"Não informado" }}
+                                <strong>{% trans 'Data de Nascimento:' %}</strong> {{ candidate_profile.user.date_of_birth|date:"d/m/Y"|default:"Não informado" }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'RG:' %}</strong> {{ resume.candidate.rg|default:"Não informado" }}
+                                <strong>{% trans 'RG:' %}</strong> {{ candidate_profile.user.rg|default:"Não informado" }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'CPF:' %}</strong> {{ resume.candidate.cpf|default:"Não informado" }}
+                                <strong>{% trans 'CPF:' %}</strong> {{ candidate_profile.user.cpf|default:"Não informado" }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'PIS:' %}</strong> {{ resume.candidate.pis|default:"Não informado" }}
+                                <strong>{% trans 'PIS:' %}</strong> {{ candidate_profile.user.pis|default:"Não informado" }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Nome Social:' %}</strong> {{ resume.candidate.social_name|default:"Não informado" }}
+                                <strong>{% trans 'Nome Social:' %}</strong> {{ candidate_profile.user.nome_social|default:"Não informado" }}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-2">
                                 <strong>{% trans 'Endereço:' %}</strong> 
-                                {{ resume.candidate.address|default:"Não informado" }}
-                                {% if resume.candidate.city %}, {{ resume.candidate.city }}{% endif %}
-                                {% if resume.candidate.state %}, {{ resume.candidate.state }}{% endif %}
+                                {{ candidate_profile.user.address|default:"Não informado" }}
+                                {% if candidate_profile.user.city %}, {{ candidate_profile.user.city }}{% endif %}
+                                {% if candidate_profile.user.state %}, {{ candidate_profile.user.state }}{% endif %}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Objetivo Profissional:' %}</strong> {{ resume.candidate.professional_objective|default:"Não informado" }}
+                                <strong>{% trans 'Objetivo Profissional:' %}</strong> {{ candidate_profile.user.bio|default:"Não informado" }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Disponibilidade:' %}</strong> {{ resume.candidate.availability|default:"Não informado" }}
+                                <strong>{% trans 'Disponibilidade:' %}</strong> 
+                                {% if candidate_profile.user.is_active %}Disponível{% else %}Indisponível{% endif %}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Pretensão Salarial:' %}</strong> {{ resume.candidate.salary_expectation|default:"Não informado" }}
+                                <strong>{% trans 'Pretensão Salarial:' %}</strong> Não informado
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Biografia:' %}</strong> {{ resume.candidate.biography|default:"Não informado" }}
+                                <strong>{% trans 'Biografia:' %}</strong> {{ candidate_profile.user.bio|default:"Não informado" }}
                             </div>
                             <div class="mb-2">
-                                <strong>{% trans 'Estado Civil:' %}</strong> {{ resume.candidate.marital_status|default:"Não informado" }}
+                                <strong>{% trans 'Estado Civil:' %}</strong> {{ candidate_profile.user.estado_civil|default:"Não informado" }}
                             </div>
                         </div>
                     </div>
@@ -76,20 +84,24 @@
             </div>
 
             <!-- Formação Educacional -->
-            {% if education_list %}
+            {% if user_educations %}
             <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-mortarboard me-2"></i>{% trans 'Formação Acadêmica' %}</h5>
                 </div>
                 <div class="card-body">
-                    {% for education in education_list %}
+                    {% for education in user_educations %}
                     <div class="border-bottom pb-2 mb-2">
-                        <h6>{{ education.degree }}</h6>
-                        <p class="mb-1">{{ education.institution }}</p>
-                        <small class="text-muted">Nível: {{ education.level|default:"Não informado" }} • Ano: {{ education.start_date|date:"Y" }}</small>
-                        {% if education.description %}
-                        <div class="mt-2">{{ education.description }}</div>
-                        {% endif %}
+                        <h6>{{ education.curso }}</h6>
+                        <p class="mb-1">{{ education.instituicao }}</p>
+                        <small class="text-muted">
+                            Nível: {{ education.get_nivel_display|default:"Não informado" }} • 
+                            {% if education.em_andamento %}
+                                {{ education.inicio|date:"m/Y" }} - Atual
+                            {% else %}
+                                {{ education.inicio|date:"m/Y" }} - {{ education.fim|date:"m/Y"|default:"Não informado" }}
+                            {% endif %}
+                        </small>
                     </div>
                     {% endfor %}
                 </div>
@@ -97,19 +109,26 @@
             {% endif %}
 
             <!-- Experiência Profissional -->
-            {% if experience_list %}
+            {% if user_experiences %}
             <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>{% trans 'Experiência Profissional' %}</h5>
                 </div>
                 <div class="card-body">
-                    {% for experience in experience_list %}
+                    {% for experience in user_experiences %}
                     <div class="border-bottom pb-2 mb-2">
-                        <h6>{{ experience.job_title }}</h6>
-                        <p class="mb-1">{{ experience.company }}</p>
-                        <small class="text-muted">Período: {{ experience.start_date|date:"m/Y" }} - {{ experience.end_date|date:"m/Y"|default:"Atual" }}</small>
-                        {% if experience.description %}
-                        <div class="mt-2">{{ experience.description }}</div>
+                        <h6>{{ experience.cargo }}</h6>
+                        <p class="mb-1">{{ experience.empresa }}</p>
+                        <small class="text-muted">
+                            Período: {{ experience.inicio|date:"m/Y" }} - 
+                            {% if experience.atual %}
+                                Atual
+                            {% else %}
+                                {{ experience.fim|date:"m/Y"|default:"Não informado" }}
+                            {% endif %}
+                        </small>
+                        {% if experience.atividades %}
+                        <div class="mt-2">{{ experience.atividades }}</div>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -118,49 +137,52 @@
             {% endif %}
 
             <!-- Habilidades Técnicas -->
-            {% if resume.candidate.technical_skills.exists %}
+            {% if technical_skills %}
             <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>{% trans 'Habilidades Técnicas' %}</h5>
                 </div>
                 <div class="card-body">
-                    {% for skill in resume.candidate.technical_skills.all %}
-                    <span class="badge bg-primary me-2 mb-2">{{ skill.name }} {{ skill.level }}</span>
+                    {% for skill in technical_skills %}
+                    <span class="badge bg-primary me-2 mb-2">{{ skill.nome }} ({{ skill.get_nivel_display }})</span>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
             <!-- Habilidades Emocionais -->
-            {% if resume.candidate.soft_skills.exists %}
+            {% if soft_skills %}
             <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-heart me-2"></i>{% trans 'Habilidades Emocionais' %}</h5>
                 </div>
                 <div class="card-body">
-                    {% for skill in resume.candidate.soft_skills.all %}
-                    <span class="badge bg-success me-2 mb-2">{{ skill.name }} {{ skill.level }}</span>
+                    {% for skill in soft_skills %}
+                    <span class="badge bg-success me-2 mb-2">{{ skill.nome }}</span>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
             <!-- Certificações -->
-            {% if resume.candidate.certifications.exists %}
+            {% if certifications %}
             <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-award me-2"></i>{% trans 'Certificações' %}</h5>
                 </div>
                 <div class="card-body">
-                    {% for cert in resume.candidate.certifications.all %}
+                    {% for cert in certifications %}
                     <div class="border-bottom pb-2 mb-2">
-                        <h6>{{ cert.name }}</h6>
-                        <p class="mb-1">{{ cert.description|default:"Sem descrição" }}</p>
-                        <small class="text-muted">Emissão: {{ cert.issue_date|date:"m/Y" }} • 
-                        {% if cert.expiry_date %}
-                            Validade: {{ cert.expiry_date|date:"m/Y" }}
-                        {% else %}
-                            Sem data de validade
+                        <h6>{{ cert.titulo }}</h6>
+                        <p class="mb-1">{{ cert.orgao|default:"Órgão não informado" }}</p>
+                        <small class="text-muted">
+                        {% if cert.emissao %}
+                            Emissão: {{ cert.emissao|date:"m/Y" }}
+                        {% endif %}
+                        {% if cert.validade %}
+                            • Validade: {{ cert.validade|date:"m/Y" }}
+                        {% elif cert.sem_validade %}
+                            • Sem data de validade
                         {% endif %}
                         </small>
                     </div>
@@ -170,48 +192,199 @@
             {% endif %}
 
             <!-- Idiomas -->
-            {% if resume.candidate.languages.exists %}
+            {% if languages %}
             <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-globe me-2"></i>{% trans 'Idiomas' %}</h5>
                 </div>
                 <div class="card-body">
-                    {% for lang in resume.candidate.languages.all %}
-                    <span class="badge bg-warning me-2 mb-2">{{ lang.language }} {{ lang.proficiency_level }}</span>
+                    {% for lang in languages %}
+                    <span class="badge bg-warning me-2 mb-2">{{ lang.get_idioma_display }} ({{ lang.get_nivel_display }})</span>
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Informações Complementares -->
-            {% if resume.candidate.complementary_info %}
+            <!-- Informações Complementares da Candidatura -->
+            {% if complementary_info %}
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>{% trans 'Informações Complementares' %}</h5>
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>{% trans 'Informações Complementares da Candidatura' %}</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
+                    <!-- Histórico Profissional -->
+                    <h6 class="text-primary mb-3">{% trans 'Histórico Profissional' %}</h6>
+                    <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="mb-2">
                                 <strong>{% trans 'Trabalha atualmente no hospital:' %}</strong> 
-                                {{ resume.candidate.complementary_info.currently_working|yesno:"Sim,Não" }}
+                                {{ complementary_info.trabalha_atualmente|yesno:"Sim,Não" }}
                             </div>
-                            {% if resume.candidate.complementary_info.currently_working %}
+                            {% if complementary_info.funcao_atual %}
                             <div class="mb-2">
-                                <strong>{% trans 'Função atual:' %}</strong> {{ resume.candidate.complementary_info.current_function|default:"Não informado" }}
+                                <strong>{% trans 'Função atual:' %}</strong> {{ complementary_info.funcao_atual }}
                             </div>
                             {% endif %}
                         </div>
                         <div class="col-md-6">
                             <div class="mb-2">
                                 <strong>{% trans 'Experiência na área:' %}</strong> 
-                                {{ resume.candidate.complementary_info.has_experience|yesno:"Sim,Não" }}
+                                {{ complementary_info.experiencia_area|yesno:"Sim,Não" }}
                             </div>
-                            {% if resume.candidate.complementary_info.has_experience %}
+                            {% if complementary_info.descricao_experiencia %}
                             <div class="mb-2">
-                                <strong>{% trans 'Descrição da experiência:' %}</strong> {{ resume.candidate.complementary_info.experience_description|default:"Não informado" }}
+                                <strong>{% trans 'Descrição da experiência:' %}</strong> {{ complementary_info.descricao_experiencia }}
                             </div>
                             {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Última função exercida:' %}</strong> {{ complementary_info.ultima_funcao|default:"Não informado" }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Tempo de experiência:' %}</strong> 
+                                {% if complementary_info.tempo_experiencia == 'menos_6_meses' %}Menos de 6 meses
+                                {% elif complementary_info.tempo_experiencia == '6_meses_1_ano' %}6 meses a 1 ano
+                                {% elif complementary_info.tempo_experiencia == '1_2_anos' %}1 a 2 anos
+                                {% elif complementary_info.tempo_experiencia == '2_5_anos' %}2 a 5 anos
+                                {% elif complementary_info.tempo_experiencia == 'acima_5_anos' %}Acima de 5 anos
+                                {% else %}Não informado{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Disponibilidade -->
+                    <h6 class="text-primary mb-3">{% trans 'Disponibilidade' %}</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Horários:' %}</strong><br>
+                                {% if complementary_info.disponibilidade_manha %}• Manhã<br>{% endif %}
+                                {% if complementary_info.disponibilidade_tarde %}• Tarde<br>{% endif %}
+                                {% if complementary_info.disponibilidade_noite %}• Noite<br>{% endif %}
+                                {% if complementary_info.disponibilidade_comercial %}• Horário Comercial<br>{% endif %}
+                                {% if complementary_info.disponibilidade_plantao_dia %}• Plantão 12x36 (dia)<br>{% endif %}
+                                {% if complementary_info.disponibilidade_plantao_noite %}• Plantão 12x36 (noite)<br>{% endif %}
+                                {% if not complementary_info.disponibilidade_manha and not complementary_info.disponibilidade_tarde and not complementary_info.disponibilidade_noite and not complementary_info.disponibilidade_comercial and not complementary_info.disponibilidade_plantao_dia and not complementary_info.disponibilidade_plantao_noite %}
+                                Nenhum horário selecionado
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Início imediato:' %}</strong> {{ complementary_info.inicio_imediato|yesno:"Sim,Não" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informações ACQUA -->
+                    <h6 class="text-primary mb-3">{% trans 'Informações ACQUA' %}</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Já trabalhou no Instituto ACQUA:' %}</strong> 
+                                {{ complementary_info.trabalhou_acqua|yesno:"Sim,Não" }}
+                            </div>
+                            {% if complementary_info.area_cargo_acqua %}
+                            <div class="mb-2">
+                                <strong>{% trans 'Área/Cargo no ACQUA:' %}</strong> {{ complementary_info.area_cargo_acqua }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if complementary_info.data_desligamento %}
+                            <div class="mb-2">
+                                <strong>{% trans 'Data de desligamento:' %}</strong> {{ complementary_info.data_desligamento|date:"d/m/Y" }}
+                            </div>
+                            {% endif %}
+                            <div class="mb-2">
+                                <strong>{% trans 'Possui parentes na instituição:' %}</strong> 
+                                {{ complementary_info.parentes_instituicao|yesno:"Sim,Não" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PCD -->
+                    <h6 class="text-primary mb-3">{% trans 'Pessoa com Deficiência (PCD)' %}</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'É PCD:' %}</strong> {{ complementary_info.is_pcd|yesno:"Sim,Não" }}
+                            </div>
+                            {% if complementary_info.cid %}
+                            <div class="mb-2">
+                                <strong>{% trans 'CID:' %}</strong> {{ complementary_info.cid }}
+                            </div>
+                            {% endif %}
+                            {% if complementary_info.atestado_pcd %}
+                            <div class="mb-2">
+                                <strong>{% trans 'Atestado médico:' %}</strong> 
+                                <a href="{{ complementary_info.atestado_pcd.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>{% trans 'Ver Atestado' %}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Necessita adaptações:' %}</strong> 
+                                {{ complementary_info.necessita_adaptacoes|yesno:"Sim,Não" }}
+                            </div>
+                            {% if complementary_info.descricao_adaptacoes %}
+                            <div class="mb-2">
+                                <strong>{% trans 'Descrição das adaptações:' %}</strong> {{ complementary_info.descricao_adaptacoes }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Conselho Regional -->
+                    <h6 class="text-primary mb-3">{% trans 'Conselho Regional' %}</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Conselho:' %}</strong> {{ complementary_info.conselho_regional|default:"Não informado" }}
+                            </div>
+                            {% if complementary_info.numero_registro %}
+                            <div class="mb-2">
+                                <strong>{% trans 'Número do registro:' %}</strong> {{ complementary_info.numero_registro }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            {% if complementary_info.validade_registro %}
+                            <div class="mb-2">
+                                <strong>{% trans 'Validade do registro:' %}</strong> {{ complementary_info.validade_registro|date:"d/m/Y" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Declarações -->
+                    <h6 class="text-primary mb-3">{% trans 'Declarações' %}</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Declaração de veracidade:' %}</strong> 
+                                {{ complementary_info.declaracao_veracidade|yesno:"Sim,Não" }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>{% trans 'Concordância com edital:' %}</strong> 
+                                {{ complementary_info.declaracao_edital|yesno:"Sim,Não" }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-2">
+                                <strong>{% trans 'Autorização de uso de dados:' %}</strong> 
+                                {{ complementary_info.autorizacao_dados|yesno:"Sim,Não" }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>{% trans 'Data da declaração:' %}</strong> {{ complementary_info.data_declaracao }}
+                            </div>
                         </div>
                     </div>
                 </div>

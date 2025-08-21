@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Máscaras - Candidatura</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-control.is-valid {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">🧪 Teste de Máscaras - Página de Candidatura</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="mb-4">📋 Dados Pessoais</h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="cpf" class="form-label fw-bold">CPF <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control cpf-mask" id="cpf" name="cpf" 
+                                       placeholder="000.000.000-00" value="12312312312">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="pis" class="form-label fw-bold">PIS <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control pis-mask" id="pis" name="pis" 
+                                       placeholder="000.00000.00-0" value="12345678901">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="rg" class="form-label fw-bold">RG</label>
+                                <input type="text" class="form-control rg-mask" id="rg" name="rg" 
+                                       placeholder="00.000.000-0">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefone" class="form-label fw-bold">Telefone <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control phone-mask" id="telefone" name="telefone" 
+                                       placeholder="(00) 00000-0000">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="cep" class="form-label fw-bold">CEP <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control cep-mask" id="cep" name="cep" 
+                                       placeholder="00000-000">
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="alert alert-info">
+                            <h6>📋 Instruções de Teste:</h6>
+                            <ul class="mb-0">
+                                <li><strong>Digite números</strong> nos campos para ver as máscaras funcionando</li>
+                                <li><strong>Verifique o console</strong> do navegador para logs detalhados</li>
+                                <li><strong>Campos pré-preenchidos</strong> devem mostrar máscaras aplicadas</li>
+                                <li><strong>Validação visual</strong> com bordas coloridas</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h6>🔍 Console de Logs:</h6>
+                            <div id="console" class="bg-dark text-light p-3" style="height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                                <div>🎭 Aguardando carregamento das máscaras...</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>🧪 Testes Automáticos:</h6>
+                            <button class="btn btn-sm btn-outline-primary" onclick="testMasks()">Testar Máscaras</button>
+                            <button class="btn btn-sm btn-outline-success" onclick="clearFields()">Limpar Campos</button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="fillTestData()">Preencher Dados de Teste</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carregar o arquivo de máscaras progressivo -->
+    <script src="/static/js/masks_progressive.js"></script>
+    
+    <script>
+        // Intercepta logs do console para exibir na tela
+        const originalLog = console.log;
+        const consoleDiv = document.getElementById('console');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${args.join(' ')}`;
+            consoleDiv.appendChild(logEntry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        // Função para testar máscaras
+        function testMasks() {
+            console.log('🧪 Iniciando teste de máscaras...');
+            
+            const fields = document.querySelectorAll('.cpf-mask, .pis-mask, .rg-mask, .phone-mask, .cep-mask');
+            console.log(`📊 Encontrados ${fields.length} campos com máscaras`);
+            
+            fields.forEach(function(field, index) {
+                console.log(`✅ Campo ${index + 1}: ${field.name} (${field.className}) - Valor: "${field.value}"`);
+            });
+            
+            // Teste específico do PIS
+            const pisField = document.getElementById('pis');
+            if (pisField) {
+                console.log('🎯 Testando campo PIS...');
+                pisField.focus();
+                pisField.value = '12345678901';
+                pisField.dispatchEvent(new Event('input'));
+                console.log(`📝 PIS após teste: "${pisField.value}"`);
+            }
+        }
+        
+        // Função para limpar campos
+        function clearFields() {
+            console.log('🧹 Limpando todos os campos...');
+            const fields = document.querySelectorAll('.cpf-mask, .pis-mask, .rg-mask, .phone-mask, .cep-mask');
+            fields.forEach(field => {
+                field.value = '';
+                field.classList.remove('is-valid', 'is-invalid');
+            });
+            console.log('✅ Campos limpos!');
+        }
+        
+        // Função para preencher dados de teste
+        function fillTestData() {
+            console.log('📝 Preenchendo dados de teste...');
+            
+            document.getElementById('cpf').value = '12345678901';
+            document.getElementById('pis').value = '12345678901';
+            document.getElementById('rg').value = '123456789';
+            document.getElementById('telefone').value = '11987654321';
+            document.getElementById('cep').value = '12345678';
+            
+            // Aplicar máscaras
+            const fields = document.querySelectorAll('.cpf-mask, .pis-mask, .rg-mask, .phone-mask, .cep-mask');
+            fields.forEach(field => {
+                field.dispatchEvent(new Event('input'));
+            });
+            
+            console.log('✅ Dados de teste preenchidos e máscaras aplicadas!');
+        }
+        
+        // Teste automático após carregamento
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página carregada, aguardando máscaras...');
+            
+            setTimeout(function() {
+                console.log('⏰ Teste automático após 2 segundos...');
+                testMasks();
+            }, 2000);
+        });
+    </script>
+</body>
+</html> 

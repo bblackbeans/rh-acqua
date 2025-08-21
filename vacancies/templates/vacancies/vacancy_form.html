@@ -799,8 +799,23 @@ document.addEventListener('DOMContentLoaded', function() {
         departmentSelect.innerHTML = '<option value="">Carregando...</option>';
         
         if (hospitalId) {
-            fetch('/vacancies/ajax/load-departments/?hospital=' + hospitalId)
-                .then(response => response.json())
+            // Obter token CSRF
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch('/vacancies/ajax/load-departments/?hospital=' + hospitalId, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'  // Inclui cookies de sessão
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na resposta do servidor');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     departmentSelect.innerHTML = '<option value="">Selecione um departamento</option>';
                     data.forEach(dept => {
@@ -871,35 +886,26 @@ document.addEventListener('DOMContentLoaded', function() {
             hasErrors = true;
         }
         
+        // Validação de skills (checkboxes)
+        const skillsCheckboxes = document.querySelectorAll('input[name="skills"]:checked');
+        if (skillsCheckboxes.length === 0) {
+            errorMessage += '• Pelo menos uma habilidade deve ser selecionada\n';
+            hasErrors = true;
+        }
+        
         if (hasErrors) {
             console.log('Form validation failed:', errorMessage);
             e.preventDefault();
             showToast(errorMessage, 'error');
+            // Reabilita o botão se houver erro
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Criar Vaga';
         } else {
             console.log('Form validation passed, submitting...');
         }
     });
     
-    // Validação em tempo real
-    const requiredFields = ['title', 'description', 'requirements', 'location'];
-    requiredFields.forEach(fieldName => {
-        const field = document.getElementById('form_' + fieldName + '_id');
-        if (field) {
-            field.addEventListener('blur', function() {
-                if (this.value.trim() === '') {
-                    this.classList.add('is-invalid');
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-            
-            field.addEventListener('input', function() {
-                if (this.value.trim() !== '') {
-                    this.classList.remove('is-invalid');
-                }
-            });
-        }
-    });
+    // Validação em tempo real removida temporariamente para debugging
     
     // Desabilita botão durante envio
     form.addEventListener('submit', function() {

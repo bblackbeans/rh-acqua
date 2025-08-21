@@ -16,7 +16,7 @@
       <i class="bi bi-briefcase me-2"></i>
       Gerenciar Vagas
     </a>
-    <button class="btn btn-primary" onclick="exportApplications()">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
       <i class="bi bi-download me-2"></i>
       Exportar
     </button>
@@ -48,8 +48,8 @@
         <label for="vacancy" class="form-label">Vaga</label>
         <select id="vacancy" name="vacancy" class="form-select">
           <option value="" {% if not vacancy_filter %}selected{% endif %}>Todas as Vagas</option>
-          {% for app in applications %}
-          <option value="{{ app.vacancy.id }}" {% if vacancy_filter == app.vacancy.id|stringformat:'s' %}selected{% endif %}>{{ app.vacancy.title }}</option>
+          {% for vacancy in vacancies %}
+          <option value="{{ vacancy.id }}" {% if vacancy_filter == vacancy.id|stringformat:'s' %}selected{% endif %}>{{ vacancy.title }}</option>
           {% endfor %}
         </select>
       </div>
@@ -57,10 +57,8 @@
         <label for="hospital" class="form-label">Hospital</label>
         <select id="hospital" name="hospital" class="form-select">
           <option value="" {% if not hospital_filter %}selected{% endif %}>Todos os Hospitais</option>
-          {% for app in applications %}
-          {% if app.vacancy.hospital %}
-          <option value="{{ app.vacancy.hospital.id }}" {% if hospital_filter == app.vacancy.hospital.id|stringformat:'s' %}selected{% endif %}>{{ app.vacancy.hospital.name }}</option>
-          {% endif %}
+          {% for hospital in hospitals %}
+          <option value="{{ hospital.id }}" {% if hospital_filter == hospital.id|stringformat:'s' %}selected{% endif %}>{{ hospital.name }}</option>
           {% endfor %}
         </select>
       </div>
@@ -249,12 +247,16 @@
                   <button class="btn btn-sm btn-outline-warning toggle-favorite" data-application-id="{{ application.pk }}" title="{% if application.is_favorite %}Remover dos favoritos{% else %}Adicionar aos favoritos{% endif %}">
                     <i class="bi bi-star{% if application.is_favorite %}-fill text-warning{% endif %}"></i>
                   </button>
+                  <!-- Botão desabilitado temporariamente
                   <button class="btn btn-sm btn-outline-success" onclick="updateStatus({{ application.pk }}, 'under_review')" title="Marcar para análise">
                     <i class="bi bi-search"></i>
                   </button>
+                  -->
+                  <!-- Botão desabilitado temporariamente
                   <button class="btn btn-sm btn-outline-info" onclick="updateStatus({{ application.pk }}, 'interview')" title="Marcar para entrevista">
                     <i class="bi bi-calendar-check"></i>
                   </button>
+                  -->
                 </div>
               </td>
             </tr>
@@ -279,6 +281,40 @@
     {% endif %}
   </div>
 </div>
+
+<!-- Modal de Exportação -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exportModalLabel">
+          <i class="bi bi-download me-2"></i>
+          Exportar Candidaturas
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-3">
+          Escolha o formato de exportação. Os dados serão exportados de acordo com os filtros aplicados.
+        </p>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-outline-success" onclick="exportApplications('csv')">
+            <i class="bi bi-file-earmark-text me-2"></i>
+            Exportar como CSV
+          </button>
+          <button type="button" class="btn btn-outline-primary" onclick="exportApplications('excel')">
+            <i class="bi bi-file-earmark-excel me-2"></i>
+            Exportar como Excel
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -296,9 +332,18 @@ function updateStatus(applicationId, newStatus) {
   }
 }
 
-function exportApplications() {
-  // Aqui você pode implementar a lógica para exportar candidaturas
-  showInfoToast('Funcionalidade de exportação será implementada em breve!');
+function exportApplications(format) {
+  // Fecha o modal
+  const modal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
+  modal.hide();
+  
+  // Obtém os filtros atuais da URL
+  const urlParams = new URLSearchParams(window.location.search);
+  urlParams.set('format', format);
+  
+  // Redireciona para a URL de exportação com os filtros
+  const exportUrl = `{% url 'applications:export_candidaturas' %}?${urlParams.toString()}`;
+  window.location.href = exportUrl;
 }
 
 // Funcionalidade de favoritos

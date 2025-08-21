@@ -1,5 +1,6 @@
 {% extends 'dashboard/base.html' %}
 {% load static %}
+{% load masks %}
 
 {% block title %}Candidatura - {{ vacancy.title }}{% endblock %}
 
@@ -462,7 +463,7 @@
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">CPF <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="cpf" value="{{ user.cpf|default:'' }}" required>
+              <input type="text" class="form-control cpf-mask" name="cpf" value="{{ user.cpf|default:'' }}" required>
             </div>
           </div>
           
@@ -470,7 +471,7 @@
           <div class="row mb-3">
             <div class="col-md-4">
               <label class="form-label fw-bold">RG</label>
-              <input type="text" class="form-control" name="rg" value="{{ user.rg|default:'' }}">
+              <input type="text" class="form-control rg-mask" name="rg" value="{{ user.rg|default:'' }}">
             </div>
             <div class="col-md-4">
               <label class="form-label fw-bold">Data de Emissão</label>
@@ -485,7 +486,7 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label fw-bold">PIS <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="pis" value="{{ user.pis|default:'' }}" required>
+              <input type="text" class="form-control pis-mask" name="pis" value="{{ user.pis|default:'' }}" required>
             </div>
             <div class="col-md-6">
               <label class="form-label fw-bold">Raça/Cor</label>
@@ -578,7 +579,7 @@
         </div>
                   <div class="col-md-6">
             <label class="form-label fw-bold">Telefone com WhatsApp <span class="text-danger">*</span></label>
-            <input type="tel" class="form-control" name="whatsapp" value="{{ user.whatsapp|default:user.phone|default:'' }}" required>
+            <input type="tel" class="form-control phone-mask" name="whatsapp" value="{{ user.whatsapp|default:user.phone|default:'' }}" required>
             {% if user.whatsapp %}
               <span class="badge bg-success mt-1">
                 <i class="bi bi-whatsapp me-1"></i>WhatsApp disponível
@@ -655,7 +656,7 @@
         </div>
         <div class="col-md-4">
           <label class="form-label fw-bold">CEP <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" name="cep" value="{{ user.zip_code|default:'' }}" required>
+          <input type="text" class="form-control cep-mask" name="cep" value="{{ user.zip_code|default:'' }}" required>
         </div>
       </div>
     </div>
@@ -949,36 +950,36 @@
         <label class="form-label">Se você é filiado a algum conselho regional, indique:</label>
         <select class="form-select" name="conselho_regional" id="conselhoRegional">
           <option value="">Selecione um conselho...</option>
-          <option value="COREN">COREN - Conselho Regional de Enfermagem</option>
-          <option value="CRA">CRA - Conselho Regional de Administração</option>
-          <option value="CRBM">CRBM - Conselho Regional de Biomedicina</option>
-          <option value="CRC">CRC - Conselho Regional de Contabilidade</option>
-          <option value="CREA">CREA - Arquitetura e Agronomia</option>
-          <option value="CREFITO">CREFITO - Conselho Regional de Fisioterapia e Terapia Ocupacional</option>
-          <option value="CRESS">CRESS - Conselho Regional de Serviço Social</option>
-          <option value="CRF">CRF - Conselho Regional de Farmácia</option>
-          <option value="CRFA">CRFA - Conselho Regional de Fonoaudiologia</option>
-          <option value="CRM">CRM - Conselho Regional de Medicina</option>
-          <option value="CRN">CRN - Conselho Regional de Nutricionistas</option>
-          <option value="CRO">CRO - Conselho Regional de Odontologia</option>
-          <option value="CRP">CRP - Conselho Regional de Psicologia</option>
-          <option value="CRQ">CRQ - Conselho Regional de Química</option>
-          <option value="CRTR">CRTR - Conselho Regional de Técnicos Em Radiologia</option>
-          <option value="MTE">MTE - Secretaria de Segurança e Saúde No Trabalho</option>
+          <option value="COREN" {% if complementary_info and complementary_info.conselho_regional == 'COREN' %}selected{% endif %}>COREN - Conselho Regional de Enfermagem</option>
+          <option value="CRA" {% if complementary_info and complementary_info.conselho_regional == 'CRA' %}selected{% endif %}>CRA - Conselho Regional de Administração</option>
+          <option value="CRBM" {% if complementary_info and complementary_info.conselho_regional == 'CRBM' %}selected{% endif %}>CRBM - Conselho Regional de Biomedicina</option>
+          <option value="CRC" {% if complementary_info and complementary_info.conselho_regional == 'CRC' %}selected{% endif %}>CRC - Conselho Regional de Contabilidade</option>
+          <option value="CREA" {% if complementary_info and complementary_info.conselho_regional == 'CREA' %}selected{% endif %}>CREA - Arquitetura e Agronomia</option>
+          <option value="CREFITO" {% if complementary_info and complementary_info.conselho_regional == 'CREFITO' %}selected{% endif %}>CREFITO - Conselho Regional de Fisioterapia e Terapia Ocupacional</option>
+          <option value="CRESS" {% if complementary_info and complementary_info.conselho_regional == 'CRESS' %}selected{% endif %}>CRESS - Conselho Regional de Serviço Social</option>
+          <option value="CRF" {% if complementary_info and complementary_info.conselho_regional == 'CRF' %}selected{% endif %}>CRF - Conselho Regional de Farmácia</option>
+          <option value="CRFA" {% if complementary_info and complementary_info.conselho_regional == 'CRFA' %}selected{% endif %}>CRFA - Conselho Regional de Fonoaudiologia</option>
+          <option value="CRM" {% if complementary_info and complementary_info.conselho_regional == 'CRM' %}selected{% endif %}>CRM - Conselho Regional de Medicina</option>
+          <option value="CRN" {% if complementary_info and complementary_info.conselho_regional == 'CRN' %}selected{% endif %}>CRN - Conselho Regional de Nutricionistas</option>
+          <option value="CRO" {% if complementary_info and complementary_info.conselho_regional == 'CRO' %}selected{% endif %}>CRO - Conselho Regional de Odontologia</option>
+          <option value="CRP" {% if complementary_info and complementary_info.conselho_regional == 'CRP' %}selected{% endif %}>CRP - Conselho Regional de Psicologia</option>
+          <option value="CRQ" {% if complementary_info and complementary_info.conselho_regional == 'CRQ' %}selected{% endif %}>CRQ - Conselho Regional de Química</option>
+          <option value="CRTR" {% if complementary_info and complementary_info.conselho_regional == 'CRTR' %}selected{% endif %}>CRTR - Conselho Regional de Técnicos Em Radiologia</option>
+          <option value="MTE" {% if complementary_info and complementary_info.conselho_regional == 'MTE' %}selected{% endif %}>MTE - Secretaria de Segurança e Saúde No Trabalho</option>
         </select>
       </div>
       
-      <div class="row" id="conselhoFields" style="display: none;">
+      <div class="row" id="conselhoFields" style="display: {% if complementary_info and complementary_info.conselho_regional %}block{% else %}none{% endif %};">
         <div class="col-md-6">
           <div class="mb-3">
             <label class="form-label">Número de registro profissional</label>
-            <input type="text" class="form-control" name="numero_registro" placeholder="Ex: 12345">
+            <input type="text" class="form-control" name="numero_registro" placeholder="Ex: 12345" value="{% if complementary_info %}{{ complementary_info.numero_registro }}{% endif %}">
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
             <label class="form-label">Validade do registro</label>
-            <input type="date" class="form-control" name="validade_registro">
+            <input type="date" class="form-control" name="validade_registro" value="{% if complementary_info and complementary_info.validade_registro %}{{ complementary_info.validade_registro|date:'Y-m-d' }}{% endif %}">
           </div>
         </div>
       </div>
@@ -1000,22 +1001,22 @@
       <div class="mb-3">
         <label class="form-label">Você é pessoa com deficiência?</label>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="is_pcd" id="pcdSim" value="sim">
+          <input class="form-check-input" type="radio" name="is_pcd" id="pcdSim" value="sim" {% if complementary_info and complementary_info.is_pcd == 'sim' %}checked{% endif %}>
           <label class="form-check-label" for="pcdSim">Sim</label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="is_pcd" id="pcdNao" value="nao" checked>
+          <input class="form-check-input" type="radio" name="is_pcd" id="pcdNao" value="nao" {% if not complementary_info or complementary_info.is_pcd != 'sim' %}checked{% endif %}>
           <label class="form-check-label" for="pcdNao">Não</label>
         </div>
       </div>
       
-      <div id="pcdFields" style="display: none;">
+      <div id="pcdFields" style="display: {% if complementary_info and complementary_info.is_pcd == 'sim' %}block{% else %}none{% endif %};">
         <div class="row">
           <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label">CID (Classificação Internacional de Doença) <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="cid" placeholder="Ex: F41.1">
-            </div>
+                      <div class="mb-3">
+            <label class="form-label">CID (Classificação Internacional de Doença) <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="cid" placeholder="Ex: F41.1" value="{% if complementary_info %}{{ complementary_info.cid }}{% endif %}">
+          </div>
           </div>
           <div class="col-md-6">
             <div class="mb-3">
@@ -1029,18 +1030,18 @@
         <div class="mb-3">
           <label class="form-label">Necessita de adaptações durante o processo? <span class="text-danger">*</span></label>
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="necessita_adaptacoes" id="adaptacoesSim" value="sim">
+            <input class="form-check-input" type="radio" name="necessita_adaptacoes" id="adaptacoesSim" value="sim" {% if complementary_info and complementary_info.necessita_adaptacoes == 'sim' %}checked{% endif %}>
             <label class="form-check-label" for="adaptacoesSim">Sim</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="necessita_adaptacoes" id="adaptacoesNao" value="nao" checked>
+            <input class="form-check-input" type="radio" name="necessita_adaptacoes" id="adaptacoesNao" value="nao" {% if not complementary_info or complementary_info.necessita_adaptacoes != 'sim' %}checked{% endif %}>
             <label class="form-check-label" for="adaptacoesNao">Não</label>
           </div>
         </div>
         
-        <div class="mb-3" id="adaptacoesDescricao" style="display: none;">
+        <div class="mb-3" id="adaptacoesDescricao" style="display: {% if complementary_info and complementary_info.necessita_adaptacoes == 'sim' %}block{% else %}none{% endif %};">
           <label class="form-label">Descreva as adaptações necessárias <span class="text-danger">*</span></label>
-          <textarea class="form-control" name="descricao_adaptacoes" rows="3" placeholder="Descreva as adaptações necessárias..."></textarea>
+          <textarea class="form-control" name="descricao_adaptacoes" rows="3" placeholder="Descreva as adaptações necessárias...">{% if complementary_info %}{{ complementary_info.descricao_adaptacoes }}{% endif %}</textarea>
         </div>
       </div>
     </div>
@@ -3149,6 +3150,73 @@ document.addEventListener('DOMContentLoaded', function() {
     mesDeclaracao.value = (hojeObj.getMonth() + 1).toString().padStart(2, '0');
     anoDeclaracao.value = hojeObj.getFullYear();
   }
+  
+  // Configuração inicial dos campos baseada nos dados salvos
+  {% if complementary_info %}
+    // Configurar campos PCD
+    const pcdSim = document.getElementById('pcdSim');
+    const pcdFields = document.getElementById('pcdFields');
+    if (pcdSim && pcdSim.checked && pcdFields) {
+      pcdFields.style.display = 'block';
+    }
+    
+    // Configurar campos de conselho regional
+    const conselhoRegional = document.getElementById('conselhoRegional');
+    const conselhoFields = document.getElementById('conselhoFields');
+    if (conselhoRegional && conselhoRegional.value && conselhoFields) {
+      conselhoFields.style.display = 'block';
+    }
+    
+    // Configurar campos de adaptações
+    const adaptacoesSim = document.getElementById('adaptacoesSim');
+    const adaptacoesDescricao = document.getElementById('adaptacoesDescricao');
+    if (adaptacoesSim && adaptacoesSim.checked && adaptacoesDescricao) {
+      adaptacoesDescricao.style.display = 'block';
+    }
+  {% endif %}
+  
+  // Configuração inicial dos campos baseada nos dados salvos (executar sempre)
+  setTimeout(function() {
+    console.log('🔍 Configurando campos iniciais...');
+    
+    // Configurar campos PCD baseado na seleção atual
+    const pcdSim = document.getElementById('pcdSim');
+    const pcdFields = document.getElementById('pcdFields');
+    console.log('PCD Sim:', pcdSim, 'PCD Fields:', pcdFields);
+    if (pcdSim && pcdSim.checked && pcdFields) {
+      console.log('✅ Mostrando campos PCD');
+      pcdFields.style.display = 'block';
+      pcdFields.style.visibility = 'visible';
+      pcdFields.style.opacity = '1';
+    }
+    
+    // Configurar campos de conselho regional baseado na seleção atual
+    const conselhoRegional = document.getElementById('conselhoRegional');
+    const conselhoFields = document.getElementById('conselhoFields');
+    console.log('Conselho Regional:', conselhoRegional, 'Conselho Fields:', conselhoFields);
+    if (conselhoRegional && conselhoRegional.value && conselhoFields) {
+      console.log('✅ Mostrando campos conselho');
+      conselhoFields.style.display = 'block';
+      conselhoFields.style.visibility = 'visible';
+      conselhoFields.style.opacity = '1';
+    }
+    
+    // Configurar campos de adaptações baseado na seleção atual
+    const adaptacoesSim = document.getElementById('adaptacoesSim');
+    const adaptacoesDescricao = document.getElementById('adaptacoesDescricao');
+    console.log('Adaptações Sim:', adaptacoesSim, 'Adaptações Descrição:', adaptacoesDescricao);
+    if (adaptacoesSim && adaptacoesSim.checked && adaptacoesDescricao) {
+      console.log('✅ Mostrando campos adaptações');
+      adaptacoesDescricao.style.display = 'block';
+      adaptacoesDescricao.style.visibility = 'visible';
+      adaptacoesDescricao.style.opacity = '1';
+    }
+    
+    // Forçar reflow para garantir que os campos apareçam
+    if (pcdFields) pcdFields.offsetHeight;
+    if (conselhoFields) conselhoFields.offsetHeight;
+    if (adaptacoesDescricao) adaptacoesDescricao.offsetHeight;
+  }, 1000);
 });
 </script>
 

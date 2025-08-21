@@ -124,6 +124,28 @@ class VacancyForm(ModelForm):
         help_text=_('Selecione as habilidades necessárias para a vaga'),
         widget=forms.CheckboxSelectMultiple
     )
+    
+    # Campos obrigatórios que não estão sendo incluídos pelo exclude
+    status = forms.ChoiceField(
+        choices=[],
+        required=True,
+        label=_('Status'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    contract_type = forms.ChoiceField(
+        choices=[],
+        required=True,
+        label=_('Tipo de Contrato'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    
+    experience_level = forms.ChoiceField(
+        choices=[],
+        required=True,
+        label=_('Nível de Experiência'),
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
     class Meta:
         model = Vacancy
@@ -161,6 +183,19 @@ class VacancyForm(ModelForm):
             ).order_by('name')
         else:
             self.fields["department"].queryset = Department.objects.all().order_by('name')
+        
+        # Define valores padrão para campos obrigatórios
+        if not data and not instance:
+            from vacancies.models import Vacancy
+            self.fields['status'].initial = Vacancy.PUBLISHED
+            self.fields['contract_type'].initial = Vacancy.FULL_TIME
+            self.fields['experience_level'].initial = Vacancy.MID
+        
+        # Define as choices para os campos
+        from vacancies.models import Vacancy
+        self.fields['status'].choices = Vacancy.STATUS_CHOICES
+        self.fields['contract_type'].choices = Vacancy.CONTRACT_TYPE_CHOICES
+        self.fields['experience_level'].choices = Vacancy.EXPERIENCE_LEVEL_CHOICES
 
     def clean(self):
         cleaned = super().clean()
