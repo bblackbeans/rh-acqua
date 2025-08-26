@@ -852,9 +852,9 @@ def candidatura_view(request, pk):
 
 def public_vacancy_detail(request, slug):
     """
-    Exibe detalhes públicos de uma vaga para usuários não logados.
+    vacancy = get_object_or_404(Vacancy, slug=slug)
     """
-    vacancy = get_object_or_404(Vacancy, slug=slug, status=Vacancy.PUBLISHED)
+    vacancy = get_object_or_404(Vacancy, slug=slug)
     
     # Conta candidaturas ativas (excluindo rejeitadas e desistências)
     active_applications = vacancy.applications.exclude(

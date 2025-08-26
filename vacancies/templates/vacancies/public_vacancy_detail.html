@@ -182,6 +182,18 @@
         text-decoration: none;
     }
     
+    .btn-apply:disabled {
+        background: #6c757d;
+        color: #fff;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .btn-apply:disabled:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        color: #fff;
+    }
     /* Responsividade */
     @media (max-width: 768px) {
         .simple-header .container {
@@ -529,32 +541,54 @@
             <h4><i class="bi bi-arrow-up-circle me-2"></i>{% trans 'Interessado nesta vaga?' %}</h4>
             <p>{% trans 'Clique no botão abaixo para se candidatar e fazer parte da nossa equipe!' %}</p>
             
-            {% if user.is_authenticated %}
-                {% if user.role == 'candidate' %}
-                    <a href="{% url 'vacancies:candidatura' vacancy.id %}" class="btn-apply">
-                        <i class="bi bi-person-plus me-2"></i>{% trans 'Candidatar-se Agora' %}
+            {% if vacancy.status == 'closed' or vacancy.status == 'filled' %}
+                <div class="alert alert-warning text-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    {% if vacancy.status == 'closed' %}
+                        {% trans 'Esta vaga está fechada e não aceita mais candidaturas.' %}
+                    {% else %}
+                        {% trans 'Esta vaga já foi preenchida.' %}
+                    {% endif %}
+                </div>
+                <button class="btn-apply" disabled style="opacity: 0.6; cursor: not-allowed;">
+                    <i class="bi bi-lock me-2"></i>{% trans 'Candidaturas Encerradas' %}
+                </button>
+            {% elif vacancy.status == 'draft' %}
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    {% trans 'Esta vaga ainda está sendo preparada e não está disponível para candidaturas.' %}
+                </div>
+                <button class="btn-apply" disabled style="opacity: 0.6; cursor: not-allowed;">
+                    <i class="bi bi-clock me-2"></i>{% trans 'Em Preparação' %}
+                </button>
+            {% else %}
+                {% if user.is_authenticated %}
+                    {% if user.role == 'candidate' %}
+                        <a href="{% url 'vacancies:candidatura' vacancy.id %}" class="btn-apply">
+                            <i class="bi bi-person-plus me-2"></i>{% trans 'Candidatar-se Agora' %}
+                        </a>
+                    {% elif user.role == 'recruiter' %}
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            {% trans 'Você está logado como recrutador. Apenas candidatos podem se candidatar às vagas.' %}
+                        </div>
+                    {% elif user.role == 'admin' %}
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-shield-check me-2"></i>
+                            {% trans 'Você está logado como administrador. Apenas candidatos podem se candidatar às vagas.' %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'users:login' %}?next={% url 'vacancies:candidatura' vacancy.id %}" class="btn-apply">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>{% trans 'Fazer Login e Candidatar-se' %}
                     </a>
-                {% elif user.role == 'recruiter' %}
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle me-2"></i>
-                        {% trans 'Você está logado como recrutador. Apenas candidatos podem se candidatar às vagas.' %}
-                    </div>
-                {% elif user.role == 'admin' %}
-                    <div class="alert alert-warning text-center">
-                        <i class="bi bi-shield-check me-2"></i>
-                        {% trans 'Você está logado como administrador. Apenas candidatos podem se candidatar às vagas.' %}
+                    <div class="mt-3">
+                        <small class="opacity-75">
+                            {% trans 'Não tem conta?' %} 
+                            <a href="{% url 'users:register' %}?next={% url 'vacancies:candidatura' vacancy.id %}" style="color: white; text-decoration: underline;">{% trans 'Cadastre-se aqui' %}</a>
+                        </small>
                     </div>
                 {% endif %}
-            {% else %}
-                <a href="{% url 'users:login' %}?next={% url 'vacancies:candidatura' vacancy.id %}" class="btn-apply">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>{% trans 'Fazer Login e Candidatar-se' %}
-                </a>
-                <div class="mt-3">
-                    <small class="opacity-75">
-                        {% trans 'Não tem conta?' %} 
-                        <a href="{% url 'users:register' %}?next={% url 'vacancies:candidatura' vacancy.id %}" style="color: white; text-decoration: underline;">{% trans 'Cadastre-se aqui' %}</a>
-                    </small>
-                </div>
             {% endif %}
         </div>
         
