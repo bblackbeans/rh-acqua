@@ -861,10 +861,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hasErrors = true;
         }
         
-        if (!description) {
-            errorMessage += '• Descrição da vaga é obrigatória\n';
-            hasErrors = true;
-        }
+        // Descrição não é mais obrigatória - validação removida
         
         if (!requirements) {
             errorMessage += '• Requisitos são obrigatórios\n';
@@ -876,10 +873,7 @@ document.addEventListener('DOMContentLoaded', function() {
             hasErrors = true;
         }
         
-        if (!department) {
-            errorMessage += '• Departamento/Setor é obrigatório\n';
-            hasErrors = true;
-        }
+        // Departamento não é mais obrigatório - validação removida
         
         if (!location) {
             errorMessage += '• Localização é obrigatória\n';

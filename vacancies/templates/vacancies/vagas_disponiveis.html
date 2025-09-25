@@ -4,7 +4,8 @@
 {% block title %}Vagas Disponíveis - RH Acqua{% endblock %}
 
 {% block content %}
-<!-- Filtros -->
+<!-- Filtros - COMENTADO TEMPORARIAMENTE -->
+<!--
 <div class="card mb-4">
   <div class="card-body">
     <h5 class="card-title">Filtros</h5>
@@ -43,6 +44,7 @@
     </form>
   </div>
 </div>
+-->
 
 <!-- Vagas -->
 <div class="row">
@@ -115,13 +117,13 @@
             {% endif %}
           </p>
           
-          {% if vaga.category %}
+          {% comment %} {% if vaga.category %}
           <p class="card-text"><i class="bi bi-tag"></i> {{ vaga.category.name }}</p>
-          {% endif %}
+          {% endif %} {% endcomment %}
           
-          {% if vaga.contract_type %}
+          {% comment %} {% if vaga.contract_type %}
           <p class="card-text"><i class="bi bi-file-earmark-text"></i> {{ vaga.get_contract_type_display }}</p>
-          {% endif %}
+          {% endif %} {% endcomment %}
           
           <hr>
           <div class="d-flex gap-2 mt-3">

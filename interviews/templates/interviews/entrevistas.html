@@ -66,73 +66,9 @@
   <!-- Ações -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h5>Entrevistas Agendadas</h5>
-    <a href="{% url 'interviews:schedule_interview' %}" class="btn btn-primary">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleInterviewModal">
       <i class="bi bi-plus-circle"></i> Nova Entrevista
-    </a>
-  </div>
-
-  <!-- Calendário de Entrevistas -->
-  <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 fw-bold text-primary">Calendário de Entrevistas</h6>
-      <div class="btn-group">
-        <button class="btn btn-sm btn-outline-primary active" id="dayView">Dia</button>
-        <button class="btn btn-sm btn-outline-primary" id="weekView">Semana</button>
-        <button class="btn btn-sm btn-outline-primary" id="monthView">Mês</button>
-      </div>
-    </div>
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 id="currentDate">Sexta-feira, 6 de Junho de 2025</h5>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-outline-secondary" id="prevDay">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-secondary" id="todayBtn">Hoje</button>
-          <button class="btn btn-sm btn-outline-secondary" id="nextDay">
-            <i class="bi bi-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Horários -->
-      <div class="row">
-        <div class="col-md-2">
-          <div class="time-slots">
-            <div class="time-slot">08:00</div>
-            <div class="time-slot">09:00</div>
-            <div class="time-slot">10:00</div>
-            <div class="time-slot">11:00</div>
-            <div class="time-slot">12:00</div>
-            <div class="time-slot">13:00</div>
-            <div class="time-slot">14:00</div>
-            <div class="time-slot">15:00</div>
-            <div class="time-slot">16:00</div>
-            <div class="time-slot">17:00</div>
-          </div>
-        </div>
-        <div class="col-md-10">
-                     <div class="calendar-events" style="position: relative; height: 600px;">
-             {% for interview in interviews %}
-               {% if interview.is_today %}
-                 <div class="calendar-event" style="position: absolute; top: {% widthratio interview.scheduled_date.hour|add:'-8' 1 60 %}px; left: 0; right: 0; height: {% widthratio interview.duration 1 1 %}px; background-color: rgba(111, 66, 193, 0.2); border-left: 4px solid #6f42c1; padding: 10px; border-radius: 4px; margin-top: {{ interview.scheduled_date.minute }}px;">
-                   <h6>Entrevista: {{ interview.application.candidate.user.get_full_name }}</h6>
-                   <p class="mb-0">{{ interview.scheduled_date|time:"H:i" }} - {{ interview.application.vacancy.title }}</p>
-                   <span class="badge {% if interview.type == 'presential' %}bg-primary{% elif interview.type == 'video' %}bg-success{% else %}bg-info{% endif %}">
-                     {{ interview.get_type_display }}
-                   </span>
-                 </div>
-               {% endif %}
-             {% empty %}
-               <div class="text-center text-muted py-5">
-                 <i class="bi bi-calendar-x fs-1"></i>
-                 <p class="mt-2">Nenhuma entrevista agendada para hoje</p>
-               </div>
-             {% endfor %}
-           </div>
-        </div>
-      </div>
-    </div>
+    </button>
   </div>
 
   <!-- Lista de Entrevistas -->
@@ -177,7 +113,7 @@
               </td>
               <td>{{ interview.application.vacancy.title }}</td>
               <td>{{ interview.scheduled_date|date:"d/m/Y" }}</td>
-                             <td>{{ interview.scheduled_date|time:"H:i" }} - {{ interview.duration }}min</td>
+              <td>{{ interview.scheduled_date|time:"H:i" }} - {{ interview.duration }}min</td>
               <td>
                 <span class="badge {% if interview.type == 'presential' %}bg-primary{% elif interview.type == 'video' %}bg-success{% else %}bg-info{% endif %}">
                   {{ interview.get_type_display }}
@@ -200,21 +136,16 @@
               </td>
               <td>
                 <div class="btn-group" role="group">
-                  <a href="{% url 'applications:application_detail' interview.application.pk %}" 
-                     class="btn btn-sm btn-info" title="Ver CV">
-                    <i class="bi bi-eye"></i>
-                  </a>
-                  <a href="{% url 'interviews:interview_detail' interview.pk %}" 
-                     class="btn btn-sm btn-primary" title="Editar">
+                  <button type="button" class="btn btn-sm btn-outline-primary" 
+                          onclick="editInterview({{ interview.id }})" 
+                          title="Editar Entrevista">
                     <i class="bi bi-pencil"></i>
-                  </a>
-                  {% if interview.status == 'scheduled' or interview.status == 'confirmed' %}
-                    <button class="btn btn-sm btn-danger" 
-                            onclick="cancelInterview('{{ interview.pk }}')" 
-                            title="Cancelar">
-                      <i class="bi bi-x-circle"></i>
-                    </button>
-                  {% endif %}
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" 
+                          onclick="cancelInterview({{ interview.id }})" 
+                          title="Cancelar Entrevista">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -224,9 +155,9 @@
                 <div class="text-muted">
                   <i class="bi bi-calendar-x fs-1"></i>
                   <p class="mt-2">Nenhuma entrevista encontrada</p>
-                  <a href="{% url 'interviews:schedule_interview' %}" class="btn btn-primary">
+                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleInterviewModal">
                     Agendar primeira entrevista
-                  </a>
+                  </button>
                 </div>
               </td>
             </tr>
@@ -250,7 +181,7 @@
               <span class="page-link">Anterior</span>
             </li>
           {% endif %}
-
+          
           {% for num in interviews.paginator.page_range %}
             {% if interviews.number == num %}
               <li class="page-item active">
@@ -264,16 +195,16 @@
               </li>
             {% endif %}
           {% endfor %}
-
+          
           {% if interviews.has_next %}
             <li class="page-item">
               <a class="page-link" href="?page={{ interviews.next_page_number }}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if vacancy_filter %}&vacancy={{ vacancy_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_filter %}&search={{ search_filter }}{% endif %}">
-                Próximo
+                Próxima
               </a>
             </li>
           {% else %}
             <li class="page-item disabled">
-              <span class="page-link">Próximo</span>
+              <span class="page-link">Próxima</span>
             </li>
           {% endif %}
         </ul>
@@ -282,70 +213,59 @@
     </div>
   </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+{% include 'interviews/schedule_interview_modal.html' %}
+
 <script>
-// Função para cancelar entrevista
-function cancelInterview(interviewId) {
-  if (confirm('Tem certeza que deseja cancelar esta entrevista?')) {
-    fetch(`/interviews/cancel/${interviewId}/`, {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-        'Content-Type': 'application/json',
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        location.reload();
-      } else {
-        alert('Erro ao cancelar entrevista: ' + data.error);
-      }
-    })
-    .catch(error => {
-      console.error('Erro:', error);
-      alert('Erro ao cancelar entrevista');
-    });
+  function reloadInterviewsList() {
+    location.reload();
   }
-}
 
-// Navegação do calendário
-document.getElementById('prevDay').addEventListener('click', function() {
-  // Implementar navegação para dia anterior
-  console.log('Dia anterior');
-});
+  function cancelInterview(interviewId) {
+    if (confirm('Tem certeza que deseja cancelar esta entrevista?')) {
+      // Implementar lógica AJAX para cancelar
+      fetch(`/interviews/cancel/${interviewId}/`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showMessage('Entrevista cancelada com sucesso!', 'success');
+          reloadInterviewsList();
+        } else {
+          showMessage(data.message || 'Erro ao cancelar entrevista', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Erro:', error);
+        showMessage('Erro ao cancelar entrevista', 'error');
+      });
+    }
+  }
 
-document.getElementById('nextDay').addEventListener('click', function() {
-  // Implementar navegação para próximo dia
-  console.log('Próximo dia');
-});
-
-document.getElementById('todayBtn').addEventListener('click', function() {
-  // Voltar para hoje
-  window.location.href = '{% url "interviews:entrevistas" %}?date=today';
-});
-
-// Alternar visualizações do calendário
-document.getElementById('dayView').addEventListener('click', function() {
-  document.getElementById('dayView').classList.add('active');
-  document.getElementById('weekView').classList.remove('active');
-  document.getElementById('monthView').classList.remove('active');
-});
-
-document.getElementById('weekView').addEventListener('click', function() {
-  document.getElementById('dayView').classList.remove('active');
-  document.getElementById('weekView').classList.add('active');
-  document.getElementById('monthView').classList.remove('active');
-});
-
-document.getElementById('monthView').addEventListener('click', function() {
-  document.getElementById('dayView').classList.remove('active');
-  document.getElementById('weekView').classList.remove('active');
-  document.getElementById('monthView').classList.add('active');
-});
+  function showMessage(message, type) {
+    // Criar e mostrar alerta
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alert = document.createElement('div');
+    alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+    alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    // Remover após 5 segundos
+    setTimeout(() => {
+      if (alert.parentNode) {
+        alert.parentNode.removeChild(alert);
+      }
+    }, 5000);
+  }
 </script>
-
-
 {% endblock %}

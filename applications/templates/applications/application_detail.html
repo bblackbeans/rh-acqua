@@ -19,13 +19,13 @@
 				<div class="card-header d-flex justify-content-between align-items-center">
 					<span class="fw-semibold">{% trans 'Candidato' %}</span>
 					<span class="badge {% if application.status == 'pending' %}bg-warning text-dark{% elif application.status == 'under_review' %}bg-info{% elif application.status == 'interview' %}bg-primary{% elif application.status == 'approved' %}bg-success{% elif application.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
-						{{ application.get_status_display }}
+						{{ application.get_status_display|default:'Status não informado' }}
 					</span>
 				</div>
 				<div class="card-body">
 					<div class="d-flex align-items-center mb-3">
 						<div class="me-3">
-							{% if application.candidate.user.profile_picture %}
+							{% if application.candidate.user.profile_picture and application.candidate.user.profile_picture.url %}
 								<img src="{{ application.candidate.user.profile_picture.url }}" class="rounded-circle" width="56" height="56" alt="foto">
 							{% else %}
 								<div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
@@ -34,8 +34,8 @@
 							{% endif %}
 						</div>
 						<div>
-							<div class="fw-semibold">{{ application.candidate.user.get_full_name }}</div>
-							<div class="text-muted small">{{ application.candidate.user.email }}</div>
+							<div class="fw-semibold">{{ application.candidate.user.get_full_name|default:application.candidate.user.email }}</div>
+							<div class="text-muted small">{{ application.candidate.user.email|default:'Email não informado' }}</div>
 							<div class="text-muted small">{{ application.candidate.user.city|default:'-' }}{% if application.candidate.user.state %}, {{ application.candidate.user.state }}{% endif %}</div>
 						</div>
 					</div>
@@ -43,21 +43,21 @@
 					<div class="row g-2 mb-3">
 						<div class="col-md-4">
 							<div class="small text-muted">{% trans 'Data da candidatura' %}</div>
-							<div>{{ application.created_at|date:'d/m/Y H:i' }}</div>
+							<div>{{ application.created_at|date:'d/m/Y H:i'|default:'Data não informada' }}</div>
 						</div>
 						<div class="col-md-4">
 							<div class="small text-muted">{% trans 'Vaga' %}</div>
-							<div>{{ application.vacancy.title }}</div>
+							<div>{{ application.vacancy.title|default:'Vaga não informada' }}</div>
 						</div>
 						<div class="col-md-4">
 							<div class="small text-muted">{% trans 'Unidade' %}</div>
-							<div>{{ application.vacancy.hospital.name }}</div>
+							<div>{{ application.vacancy.hospital.name|default:'Hospital não informado' }}</div>
 						</div>
 					</div>
 					
 					<!-- Botão para ver currículo completo -->
 					<div class="d-grid mt-3">
-						<a href="{% url 'applications:resume_detail' %}?candidate_id={{ application.candidate.id }}" class="btn btn-outline-primary">
+						<a href="{% url 'applications:resume_detail' %}?candidate_id={{ application.candidate.id|default:0 }}" class="btn btn-outline-primary">
 							<i class="bi bi-file-earmark-text me-2"></i>
 							{% trans 'Ver Currículo Completo' %}
 						</a>
@@ -66,7 +66,7 @@
 				</div>
 			</div>
 
-			{% if application.cover_letter %}
+			{% if application.cover_letter and application.cover_letter.strip %}
 			<div class="card mt-3">
 				<div class="card-header fw-semibold">{% trans 'Carta de Apresentação' %}</div>
 				<div class="card-body">
@@ -79,7 +79,7 @@
 
 
 
-			{% if application.recruiter_notes %}
+			{% if application.recruiter_notes and application.recruiter_notes.strip %}
 			<div class="card mt-3">
 				<div class="card-header fw-semibold">{% trans 'Notas do Recrutador' %}</div>
 				<div class="card-body">
@@ -99,9 +99,9 @@
 						
 						<!-- Checkbox de estrela para favoritos -->
 						<div class="form-check mb-3">
-							<input class="form-check-input" type="checkbox" name="is_favorite" id="favorite_{{ application.pk }}" 
+							<input class="form-check-input" type="checkbox" name="is_favorite" id="favorite_{{ application.pk|default:0 }}" 
 								   {% if application.is_favorite %}checked{% endif %}>
-							<label class="form-check-label" for="favorite_{{ application.pk }}">
+							<label class="form-check-label" for="favorite_{{ application.pk|default:0 }}">
 								<i class="bi bi-star{% if application.is_favorite %}-fill text-warning{% endif %}"></i>
 								{% trans 'Favorito' %}
 							</label>
@@ -152,7 +152,7 @@
 						<!-- Formulário para notas do recrutador -->
 						<div class="mb-3">
 							<label for="recruiter_notes" class="form-label">{% trans 'Notas do Recrutador' %}</label>
-							<textarea name="recruiter_notes" id="recruiter_notes" class="form-control" rows="4" placeholder="{% trans 'Digite suas observações sobre o candidato...' %}">{{ application.recruiter_notes|default:'' }}</textarea>
+							<textarea name="recruiter_notes" id="recruiter_notes" class="form-control" rows="4" placeholder="{% trans 'Digite suas observações sobre o candidato...' %}">{{ application.recruiter_notes|default:''|safe }}</textarea>
 						</div>
 						
 						<!-- Botão único para salvar todas as informações -->
@@ -168,31 +168,31 @@
 			{% endif %}
 
 			<!-- Avaliações existentes -->
-			{% if evaluations %}
+			{% if evaluations and evaluations.exists %}
 			<div class="card mt-3">
 				<div class="card-header fw-semibold">{% trans 'Avaliações Registradas' %}</div>
 				<div class="card-body">
 					{% for evaluation in evaluations %}
 					<div class="border-bottom pb-3 mb-3">
 						<div class="d-flex justify-content-between align-items-start mb-2">
-							<div class="fw-semibold">{{ evaluation.evaluator.user.get_full_name }}</div>
-							<small class="text-muted">{{ evaluation.created_at|date:'d/m/Y H:i' }}</small>
+							<div class="fw-semibold">{{ evaluation.evaluator.user.get_full_name|default:evaluation.evaluator.user.email }}</div>
+							<small class="text-muted">{{ evaluation.created_at|date:'d/m/Y H:i'|default:'Data não informada' }}</small>
 						</div>
 						<div class="row g-2 mb-2">
 							<div class="col-md-4">
 								<small class="text-muted">{% trans 'Técnica:' %}</small>
-								<div class="fw-semibold">{{ evaluation.technical_score }}</div>
+								<div class="fw-semibold">{{ evaluation.technical_score|default:'-' }}</div>
 							</div>
 							<div class="col-md-4">
 								<small class="text-muted">{% trans 'Experiência:' %}</small>
-								<div class="fw-semibold">{{ evaluation.experience_score }}</div>
+								<div class="fw-semibold">{{ evaluation.experience_score|default:'-' }}</div>
 							</div>
 							<div class="col-md-4">
 								<small class="text-muted">{% trans 'Cultural:' %}</small>
-								<div class="fw-semibold">{{ evaluation.cultural_fit_score }}</div>
+								<div class="fw-semibold">{{ evaluation.cultural_fit_score|default:'-' }}</div>
 							</div>
 						</div>
-						{% if evaluation.comments %}
+						{% if evaluation.comments and evaluation.comments.strip %}
 						<div>
 							<small class="text-muted">{% trans 'Comentários:' %}</small>
 							<div>{{ evaluation.comments }}</div>
@@ -211,20 +211,24 @@
 				<div class="card-header fw-semibold">{% trans 'Resumo da Vaga' %}</div>
 				<div class="card-body">
 					<div class="mb-2">
-						<strong>{% trans 'Título:' %}</strong> {{ application.vacancy.title }}
+						<strong>{% trans 'Título:' %}</strong> {{ application.vacancy.title|default:'Vaga não informada' }}
 					</div>
+					{% comment %} {% if application.vacancy.department %}
 					<div class="mb-2">
 						<strong>{% trans 'Departamento:' %}</strong> {{ application.vacancy.department.name }}
 					</div>
+					{% endif %} {% endcomment %}
+					{% comment %} {% if application.vacancy.category %}
 					<div class="mb-2">
 						<strong>{% trans 'Categoria:' %}</strong> {{ application.vacancy.category.name }}
 					</div>
+					{% endif %} {% endcomment %}
 					<div class="mb-2">
-						<strong>{% trans 'Localização:' %}</strong> {{ application.vacancy.location }}
+						<strong>{% trans 'Localização:' %}</strong> {{ application.vacancy.location|default:'Localização não informada' }}
 					</div>
 					<div class="mb-2">
 						<strong>{% trans 'Status da Vaga:' %}</strong> 
-						<span class="badge bg-{{ application.vacancy.status_color }}">{{ application.vacancy.get_status_display }}</span>
+						<span class="badge {% if application.vacancy.status == 'published' %}bg-success{% elif application.vacancy.status == 'draft' %}bg-warning text-dark{% elif application.vacancy.status == 'closed' %}bg-secondary{% elif application.vacancy.status == 'filled' %}bg-info{% else %}bg-secondary{% endif %}">{{ application.vacancy.get_status_display|default:'Status não informado' }}</span>
 					</div>
 				</div>
 			</div>
@@ -246,11 +250,13 @@ function waitForToastSystem() {
 
 function initializeApplication() {
     // Teste de toast
-    console.log('Toast functions available:', {
-        showSuccessToast: typeof showSuccessToast,
-        showErrorToast: typeof showErrorToast,
-        showWarningToast: typeof showWarningToast
-    });
+    if (typeof console !== 'undefined' && console.log) {
+        console.log('Toast functions available:', {
+            showSuccessToast: typeof showSuccessToast,
+            showErrorToast: typeof showErrorToast,
+            showWarningToast: typeof showWarningToast
+        });
+    }
     
     // Validação do formulário antes de enviar
     const form = document.getElementById('recruiter-actions-form');
@@ -258,14 +264,16 @@ function initializeApplication() {
         form.addEventListener('submit', function(e) {
             // Valida se pelo menos um campo foi preenchido
             const hasContent = 
-                document.querySelector('textarea[name="recruiter_notes"]')?.value.trim() !== '' ||
-                document.querySelector('input[name="technical_score"]')?.value !== '' ||
-                document.querySelector('input[name="experience_score"]')?.value !== '' ||
-                document.querySelector('input[name="cultural_fit_score"]')?.value !== '';
+                (document.querySelector('textarea[name="recruiter_notes"]')?.value.trim() || '') !== '' ||
+                (document.querySelector('input[name="technical_score"]')?.value || '') !== '' ||
+                (document.querySelector('input[name="experience_score"]')?.value || '') !== '' ||
+                (document.querySelector('input[name="cultural_fit_score"]')?.value || '') !== '';
             
             if (!hasContent) {
                 e.preventDefault();
-                showWarningToast('Por favor, preencha pelo menos um campo antes de salvar.');
+                if (typeof showWarningToast === 'function') {
+                    showWarningToast('Por favor, preencha pelo menos um campo antes de salvar.');
+                }
                 return false;
             }
         });
@@ -276,9 +284,14 @@ function initializeApplication() {
     testButton.textContent = 'Testar Toast';
     testButton.className = 'btn btn-warning btn-sm';
     testButton.onclick = function() {
-        showSuccessToast('Toast funcionando!');
+        if (typeof showSuccessToast === 'function') {
+            showSuccessToast('Toast funcionando!');
+        }
     };
-    document.querySelector('.card-header').appendChild(testButton);
+    const cardHeader = document.querySelector('.card-header');
+    if (cardHeader) {
+        cardHeader.appendChild(testButton);
+    }
 }
 
 // Inicia quando o DOM estiver pronto

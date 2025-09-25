@@ -94,6 +94,20 @@
                                         {{ vacancy.hospital.name }}
                                     </p>
                                     
+                                    {% if vacancy.department %}
+                                        <p class="card-text text-muted small mb-2">
+                                            <i class="bi bi-gear me-1"></i>
+                                            {{ vacancy.department.name }}
+                                        </p>
+                                    {% endif %}
+                                    
+                                    {% if vacancy.category %}
+                                        <p class="card-text text-muted small mb-2">
+                                            <i class="bi bi-tag me-1"></i>
+                                            {{ vacancy.category.name }}
+                                        </p>
+                                    {% endif %}
+                                    
                                     <p class="card-text text-muted small mb-2">
                                         <i class="bi bi-geo-alt me-1"></i>
                                         {{ vacancy.location }}
@@ -107,9 +121,11 @@
                                         {% endif %}
                                     </div>
                                     
-                                    <p class="card-text small text-muted">
-                                        {{ vacancy.description|truncatewords:20 }}
-                                    </p>
+                                    {% if vacancy.description %}
+                                        <p class="card-text small text-muted">
+                                            {{ vacancy.description|truncatewords:20 }}
+                                        </p>
+                                    {% endif %}
                                     
                                     {% if vacancy.skills.all %}
                                         <div class="mb-3">

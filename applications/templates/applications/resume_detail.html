@@ -269,7 +269,9 @@
                                 {% if complementary_info.disponibilidade_comercial %}• Horário Comercial<br>{% endif %}
                                 {% if complementary_info.disponibilidade_plantao_dia %}• Plantão 12x36 (dia)<br>{% endif %}
                                 {% if complementary_info.disponibilidade_plantao_noite %}• Plantão 12x36 (noite)<br>{% endif %}
-                                {% if not complementary_info.disponibilidade_manha and not complementary_info.disponibilidade_tarde and not complementary_info.disponibilidade_noite and not complementary_info.disponibilidade_comercial and not complementary_info.disponibilidade_plantao_dia and not complementary_info.disponibilidade_plantao_noite %}
+                                {% if complementary_info.disponibilidade_plantao_12x60_dia %}• Plantão 12x60 (dia)<br>{% endif %}
+                                {% if complementary_info.disponibilidade_plantao_12x60_noite %}• Plantão 12x60 (noite)<br>{% endif %}
+                                {% if not complementary_info.disponibilidade_manha and not complementary_info.disponibilidade_tarde and not complementary_info.disponibilidade_noite and not complementary_info.disponibilidade_comercial and not complementary_info.disponibilidade_plantao_dia and not complementary_info.disponibilidade_plantao_noite and not complementary_info.disponibilidade_plantao_12x60_dia and not complementary_info.disponibilidade_plantao_12x60_noite %}
                                 Nenhum horário selecionado
                                 {% endif %}
                             </div>

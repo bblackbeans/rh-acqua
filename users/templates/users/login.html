@@ -103,13 +103,12 @@
           <input type="hidden" name="next" value="{{ next }}" />
         </form>
 
-        <div class="links">
-          <a href="{% url 'password_reset' %}" class="text-decoration-none"
-            >Esqueceu sua senha?</a
-          >
-          <a href="{% url 'users:register' %}" class="text-decoration-none"
-            >Criar conta</a
-          >
+        <div class="text-center mt-3 mb-3">
+          <p class="text-muted small">
+            Para acessar as vagas disponíveis, realize seu cadastro no botão ao lado - 
+            <a href="{% url 'users:register' %}" class="text-decoration-none fw-bold">Criar Conta</a>. 
+            E então faça seu login.
+          </p>
         </div>
       </div>
     </div>

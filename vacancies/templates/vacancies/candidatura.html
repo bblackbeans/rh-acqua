@@ -237,12 +237,16 @@
         <div class="mb-3">
           <strong>Hospital:</strong> {{ vacancy.hospital.name }}
         </div>
+        {% comment %} {% if vacancy.department %}
         <div class="mb-3">
           <strong>Departamento:</strong> {{ vacancy.department.name }}
         </div>
+        {% endif %} {% endcomment %}
+        {% comment %} {% if vacancy.category %}
         <div class="mb-3">
           <strong>Categoria:</strong> {{ vacancy.category.name }}
         </div>
+        {% endif %} {% endcomment %}
         <div class="mb-3">
           <strong>Localização:</strong> {{ vacancy.location }}
         </div>
@@ -261,10 +265,10 @@
             {{ vacancy.get_status_display }}
           </span>
         </div>
-        <div class="mb-3">
+        {% comment %} <div class="mb-3">
           <strong>Tipo de Contrato:</strong> 
           <span class="badge bg-primary">{{ vacancy.get_contract_type_display }}</span>
-        </div>
+        </div> {% endcomment %}
       </div>
     </div>
 
@@ -279,16 +283,16 @@
                 <i class="bi bi-cash-coin text-success me-3" style="font-size: 1.2rem;"></i>
                 <div>
                   {% if vacancy.salary_range_min and vacancy.salary_range_max %}
-                    <h6 class="text-success mb-1">Faixa Salarial</h6>
+                    <h6 class="text-success mb-1">Salário Base</h6>
                     <p class="h6 text-success mb-0">R$ {{ vacancy.salary_range_min }} - R$ {{ vacancy.salary_range_max }}</p>
                   {% elif vacancy.salary_range_min %}
-                    <h6 class="text-success mb-1">Salário</h6>
-                    <p class="h6 text-success mb-0">A partir de R$ {{ vacancy.salary_range_min }}</p>
+                    <h6 class="text-success mb-1">Salário Base</h6>
+                    <p class="h6 text-success mb-0">R$ {{ vacancy.salary_range_min }}</p>
                   {% elif vacancy.salary_range_max %}
-                    <h6 class="text-success mb-1">Salário</h6>
-                    <p class="h6 text-success mb-0">Até R$ {{ vacancy.salary_range_max }}</p>
+                    <h6 class="text-success mb-1">Salário Base</h6>
+                    <p class="h6 text-success mb-0">R$ {{ vacancy.salary_range_max }}</p>
                   {% else %}
-                    <h6 class="text-success mb-1">Salário</h6>
+                    <h6 class="text-success mb-1">Salário Base</h6>
                     <p class="h6 text-success mb-0">A combinar</p>
                   {% endif %}
                 </div>
@@ -314,12 +318,14 @@
 
     <!-- Detalhes da Vaga -->
     <div class="row mb-4">
+      {% if vacancy.description %}
       <div class="col-md-6">
         <h6 class="text-primary mb-3"><i class="bi bi-file-text me-2"></i>Descrição da Vaga</h6>
         <div class="p-3 bg-light rounded">
           {{ vacancy.description|linebreaks }}
         </div>
       </div>
+      {% endif %}
       <div class="col-md-6">
         <h6 class="text-primary mb-3"><i class="bi bi-list-check me-2"></i>Requisitos</h6>
         <div class="p-3 bg-light rounded">
@@ -342,19 +348,19 @@
       <div class="col-md-6">
         <h6 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Informações Adicionais</h6>
         <div class="p-3 bg-light rounded">
-          {% if vacancy.experience_level %}
+          {% comment %} {% if vacancy.experience_level %}
           <div class="mb-2">
             <strong>Nível de Experiência:</strong> 
             <span class="badge bg-info">{{ vacancy.get_experience_level_display }}</span>
           </div>
-          {% endif %}
+          {% endif %} {% endcomment %}
           {% if vacancy.is_remote %}
           <div class="mb-2">
             <strong>Modalidade:</strong> 
             <span class="badge bg-success">Remoto</span>
           </div>
           {% endif %}
-          {% if vacancy.skills.all %}
+          {% comment %} {% if vacancy.skills.all %}
           <div class="mb-2">
             <strong>Habilidades:</strong>
             <div class="mt-2">
@@ -363,7 +369,7 @@
               {% endfor %}
             </div>
           </div>
-          {% endif %}
+          {% endif %} {% endcomment %}
         </div>
       </div>
     </div>
@@ -1134,21 +1140,20 @@
       <!-- Disponibilidade -->
       <div class="mb-4">
         <h6 class="text-primary mb-3">Disponibilidade</h6>
-        
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" name="disponibilidade_manha" id="disp_manha" value="manha" 
                      {% if complementary_info and complementary_info.disponibilidade_manha %}checked{% endif %}>
               <label class="form-check-label" for="disp_manha">Manhã</label>
-            </div>
+            </div>  
             <div class="form-check">
               <input class="form-check-input" type="checkbox" name="disponibilidade_tarde" id="disp_tarde" value="tarde" 
                      {% if complementary_info and complementary_info.disponibilidade_tarde %}checked{% endif %}>
               <label class="form-check-label" for="disp_tarde">Tarde</label>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" name="disponibilidade_noite" id="disp_noite" value="noite" 
                      {% if complementary_info and complementary_info.disponibilidade_noite %}checked{% endif %}>
@@ -1160,7 +1165,7 @@
               <label class="form-check-label" for="disp_comercial">Horário Comercial</label>
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" name="disponibilidade_plantao_dia" id="disp_plantao_dia" value="plantao_dia" 
                      {% if complementary_info and complementary_info.disponibilidade_plantao_dia %}checked{% endif %}>
@@ -1170,6 +1175,19 @@
               <input class="form-check-input" type="checkbox" name="disponibilidade_plantao_noite" id="disp_plantao_noite" value="plantao_noite" 
                      {% if complementary_info and complementary_info.disponibilidade_plantao_noite %}checked{% endif %}>
               <label class="form-check-label" for="disp_plantao_noite">Plantão 12x36 (noite)</label>
+            </div>
+          </div>
+          <!-- Segunda linha para as novas opções -->
+          <div class="col-md-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_plantao_12x60_dia" id="disp_plantao_12x60_dia" value="plantao_12x60_dia" 
+                      {% if complementary_info and complementary_info.disponibilidade_plantao_12x60_dia %}checked{% endif %}>
+              <label class="form-check-label" for="disp_plantao_12x60_dia">Plantão 12x60 (dia)</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="disponibilidade_plantao_12x60_noite" id="disp_plantao_12x60_noite" value="plantao_12x60_noite" 
+                      {% if complementary_info and complementary_info.disponibilidade_plantao_12x60_noite %}checked{% endif %}>
+              <label class="form-check-label" for="disp_plantao_12x60_noite">Plantão 12x60 (noite)</label>
             </div>
           </div>
         </div>
@@ -1568,7 +1586,7 @@ function loadEducationForm(action = 'create', educationId = null) {
   let url;
   
   if (action === 'create') {
-    url = '/users/meu-curriculo/education/create/';
+    url = '/users/meu-curriculo/education/form/';
   } else {
     url = `/users/meu-curriculo/education/${educationId}/edit/`;
   }
@@ -1673,7 +1691,7 @@ function submitEducationForm(keepModalOpen = false) {
     console.log('Editando educação:', educationId);
     isEdit = true;
   } else {
-    url = '/users/meu-curriculo/education/create/';
+    url = '/users/meu-curriculo/education/form/';
     console.log('Criando nova educação');
   }
   
@@ -3248,6 +3266,10 @@ document.addEventListener('DOMContentLoaded', function() {
   border-radius: 50% !important;
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/masks_progressive.js' %}"></script>
 {% endblock %}
 
  

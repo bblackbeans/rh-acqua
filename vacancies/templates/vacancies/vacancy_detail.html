@@ -156,8 +156,8 @@
                         <span class="badge vacancy-badge bg-{% if vacancy.status == 'published' %}success{% elif vacancy.status == 'draft' %}warning{% else %}secondary{% endif %}">
                             {{ vacancy.get_status_display }}
                         </span>
-                        <span class="badge vacancy-badge bg-primary">{{ vacancy.get_contract_type_display }}</span>
-                        <span class="badge vacancy-badge bg-info">{{ vacancy.get_experience_level_display }}</span>
+                        {% comment %} <span class="badge vacancy-badge bg-primary">{{ vacancy.get_contract_type_display }}</span> {% endcomment %}
+                        {% comment %} <span class="badge vacancy-badge bg-info">{{ vacancy.get_experience_level_display }}</span> {% endcomment %}
                         {% if vacancy.is_remote %}
                             <span class="badge vacancy-badge bg-success">{% trans 'Remoto' %}</span>
                         {% endif %}
@@ -199,16 +199,18 @@
                                 <i class="bi bi-building"></i>
                                 <strong>{% trans 'Hospital:' %}</strong> {{ vacancy.hospital.name }}
                             </div>
-                            <div class="info-item">
-                                <i class="bi bi-gear"></i>
-                                <strong>{% trans 'Departamento:' %}</strong> {{ vacancy.department.name }}
-                            </div>
-                            {% if vacancy.category %}
+                            {% comment %} {% if vacancy.department %}
+                                <div class="info-item">
+                                    <i class="bi bi-gear"></i>
+                                    <strong>{% trans 'Departamento:' %}</strong> {{ vacancy.department.name }}
+                                </div>
+                            {% endif %} {% endcomment %}
+                            {% comment %} {% if vacancy.category %}
                                 <div class="info-item">
                                     <i class="bi bi-tag"></i>
                                     <strong>{% trans 'Categoria:' %}</strong> {{ vacancy.category.name }}
                                 </div>
-                            {% endif %}
+                            {% endif %} {% endcomment %}
                         </div>
                         <div class="col-md-6">
                             <div class="info-item">
@@ -232,10 +234,12 @@
                 </div>
 
                 <!-- Descrição da Vaga -->
-                <div class="vacancy-section">
-                    <h3><i class="bi bi-file-text me-2"></i>{% trans 'Descrição da Vaga' %}</h3>
-                    <p class="mb-0">{{ vacancy.description|linebreaks }}</p>
-                </div>
+                {% if vacancy.description %}
+                    <div class="vacancy-section">
+                        <h3><i class="bi bi-file-text me-2"></i>{% trans 'Descrição da Vaga' %}</h3>
+                        <p class="mb-0">{{ vacancy.description|linebreaks }}</p>
+                    </div>
+                {% endif %}
 
                 <!-- Requisitos -->
                 <div class="vacancy-section">
@@ -243,13 +247,13 @@
                     <p class="mb-0">{{ vacancy.requirements|linebreaks }}</p>
                 </div>
 
-                <!-- Benefícios -->
+                {% comment %} <!-- Benefícios -->
                 {% if vacancy.benefits %}
                     <div class="vacancy-section">
                         <h3><i class="bi bi-gift me-2"></i>{% trans 'Benefícios' %}</h3>
                         <p class="mb-0">{{ vacancy.benefits|linebreaks }}</p>
                     </div>
-                {% endif %}
+                {% endif %} {% endcomment %}
 
                 <!-- Seção de Candidatos (apenas para recrutadores) -->
                 {% if user.is_authenticated and user.is_recruiter and applications %}
@@ -405,7 +409,7 @@
 
             <!-- Sidebar -->
             <div class="col-lg-4">
-                <!-- Habilidades -->
+                {% comment %} <!-- Habilidades -->
                 <div class="sidebar-card">
                     <h5><i class="bi bi-lightning me-2"></i>{% trans 'Habilidades' %}</h5>
                     {% if vacancy.skills.all %}
@@ -417,7 +421,7 @@
                     {% else %}
                         <p class="text-muted mb-0">{% trans 'Nenhuma habilidade especificada' %}</p>
                     {% endif %}
-                </div>
+                </div> {% endcomment %}
 
                 <!-- Informações do Recrutador -->
                 <div class="sidebar-card">

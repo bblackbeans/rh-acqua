@@ -335,8 +335,7 @@
                 </div>
             </a>
             <div class="contact-info">
-                <span><i class="bi bi-telephone me-1"></i>+55 11 5555-5555</span>
-                <span><i class="bi bi-envelope me-1"></i>contato@rhacqua.com.br</span>
+                <span><i class="bi bi-email me-1"></i>seletivo.serra@institutoacqua.org.br</span>
             </div>
         </div>
     </header>
@@ -357,18 +356,18 @@
                     <h1 class="h2 mb-3">{{ vacancy.title }}</h1>
                     
                     <div class="vacancy-badges">
-                        {% if vacancy.department %}
+                        {% comment %} {% if vacancy.department %}
                         <span class="badge bg-primary">{{ vacancy.department.name }}</span>
-                        {% endif %}
-                        {% if vacancy.category %}
+                        {% endif %} {% endcomment %}
+                        {% comment %} {% if vacancy.category %}
                         <span class="badge bg-secondary">{{ vacancy.category.name }}</span>
-                        {% endif %}
+                        {% endif %} {% endcomment %}
                         {% if vacancy.location %}
                         <span class="badge bg-info">{{ vacancy.location }}</span>
                         {% endif %}
-                        {% if vacancy.contract_type %}
+                        {% comment %} {% if vacancy.contract_type %}
                         <span class="badge bg-success">{{ vacancy.get_contract_type_display }}</span>
-                        {% endif %}
+                        {% endif %} {% endcomment %}
                     </div>
                     
                     {% if vacancy.hospital %}
@@ -483,19 +482,26 @@
                             </div>
                             {% endif %}
                             
-                            {% if vacancy.salary_min and vacancy.salary_max %}
+                            {% if vacancy.is_salary_visible and vacancy.formatted_salary_range %}
                             <div class="mb-3">
-                                <strong>{% trans 'Faixa Salarial:' %}</strong><br>
-                                R$ {{ vacancy.salary_min|floatformat:2 }} - R$ {{ vacancy.salary_max|floatformat:2 }}
+                                <strong>{% trans 'Salário:' %}</strong><br>
+                                <span class="text-success fw-bold">{{ vacancy.formatted_salary_range }}</span>
                             </div>
                             {% endif %}
                             
-                            {% if vacancy.experience_level %}
+                            {% if vacancy.monthly_hours %}
+                            <div class="mb-3">
+                                <strong>{% trans 'Carga Horária Mensal:' %}</strong><br>
+                                <span class="text-primary fw-bold">{{ vacancy.monthly_hours }} {% trans 'horas' %}</span>
+                            </div>
+                            {% endif %}
+                            
+                            {% comment %} {% if vacancy.experience_level %}
                             <div class="mb-3">
                                 <strong>{% trans 'Nível de Experiência:' %}</strong><br>
                                 {{ vacancy.get_experience_level_display }}
                             </div>
-                            {% endif %}
+                            {% endif %} {% endcomment %}
                             
                             {% if vacancy.is_remote %}
                             <div class="mb-3">
@@ -636,9 +642,8 @@
                 <div class="col-lg-6 col-md-6 footer-section">
                     <h5>Contato</h5>
                     <ul class="contact-list">
-                        <li><i class="bi bi-geo-alt me-2"></i>Av. Paulista, 1000<br>São Paulo, SP 01310-100</li>
-                        <li><i class="bi bi-telephone me-2"></i>+55 11 5555-5555</li>
-                        <li><i class="bi bi-envelope me-2"></i>contato@rhacqua.com.br</li>
+                        <!-- <li><i class="bi bi-geo-alt me-2"></i>Av. Paulista, 1000<br>São Paulo, SP 01310-100</li> -->
+                        <li><i class="bi bi-email me-2"></i>seletivo.serra@institutoacqua.org.br</li>
                     </ul>
                 </div>
             </div>
