@@ -28,8 +28,9 @@ urlpatterns = [
     path('reports/', include('reports.urls')),
     path('administration/', include('administration.urls')),
     path('users/', include('users.urls', namespace='users')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    # path('accounts/', include('django.contrib.auth.urls')),  # Comentado para evitar conflito com /accounts/login/
     path('vacancies/', include('vacancies.urls')),
+    path('email-system/', include('email_system.urls')),
     path('api/', include('api.urls')),
 ]
 
