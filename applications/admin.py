@@ -124,7 +124,7 @@ class ApplicationComplementaryInfoAdmin(admin.ModelAdmin):
             'fields': ('trabalha_atualmente', 'funcao_atual', 'experiencia_area', 'descricao_experiencia', 'ultima_funcao', 'tempo_experiencia')
         }),
         (_('Disponibilidade'), {
-            'fields': ('disponibilidade_manha', 'disponibilidade_tarde', 'disponibilidade_noite', 'disponibilidade_comercial', 'disponibilidade_plantao_dia', 'disponibilidade_plantao_noite', 'inicio_imediato')
+            'fields': ('disponibilidade_manha', 'disponibilidade_tarde', 'disponibilidade_noite', 'disponibilidade_comercial', 'disponibilidade_plantao_dia', 'disponibilidade_plantao_noite', 'disponibilidade_plantao_12x60_dia', 'disponibilidade_plantao_12x60_noite', 'inicio_imediato')
         }),
         (_('Informações ACQUA'), {
             'fields': ('trabalhou_acqua', 'area_cargo_acqua', 'data_desligamento')

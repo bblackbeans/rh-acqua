@@ -384,6 +384,8 @@ class ApplicationComplementaryInfo(models.Model):
     disponibilidade_comercial = models.BooleanField(default=False, verbose_name=_('Disponibilidade Horário Comercial'))
     disponibilidade_plantao_dia = models.BooleanField(default=False, verbose_name=_('Disponibilidade Plantão 12x36 (dia)'))
     disponibilidade_plantao_noite = models.BooleanField(default=False, verbose_name=_('Disponibilidade Plantão 12x36 (noite)'))
+    disponibilidade_plantao_12x60_dia = models.BooleanField(default=False, verbose_name=_('Disponibilidade Plantão 12x60 (dia)'))
+    disponibilidade_plantao_12x60_noite = models.BooleanField(default=False, verbose_name=_('Disponibilidade Plantão 12x60 (noite)'))
     inicio_imediato = models.CharField(
         max_length=3,
         choices=[('sim', 'Sim'), ('nao', 'Não')],

@@ -24,6 +24,9 @@ urlpatterns = [
     path('export/', views.export_candidaturas, name='export_candidaturas'),
     path('toggle-favorite/<int:application_id>/', views.toggle_favorite, name='toggle_favorite'),
     
+    # APIs
+    path('api/available-for-interview/', views.available_for_interview, name='available_for_interview'),
+    
     # Currículo
     path('resume/edit/', views.resume_edit, name='resume_edit'),
     path('resume/detail/', views.resume_detail, name='resume_detail'),

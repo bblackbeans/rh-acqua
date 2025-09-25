@@ -14,6 +14,8 @@ from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 from users.models import UserProfile, TechnicalSkill, SoftSkill, Certification, Language, Education as UserEducation, Experience as UserExperience
 from vacancies.models import Vacancy, Hospital
@@ -162,7 +164,12 @@ def application_detail(request, pk):
     Exibe os detalhes de uma candidatura específica.
     """
     application = get_object_or_404(Application, pk=pk)
-    user_profile = request.user.profile
+    
+    # Verifica se o usuário tem perfil, se não tiver, cria um
+    try:
+        user_profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
     
     # Verifica permissões
     if request.user.role == 'candidate' and application.candidate != user_profile:
@@ -359,7 +366,11 @@ def resume_detail(request):
     """
     Exibe as informações completas da candidatura do candidato.
     """
-    user_profile = request.user.profile
+    # Verifica se o usuário tem perfil, se não tiver, cria um
+    try:
+        user_profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        user_profile = UserProfile.objects.create(user=request.user)
     
     # Verifica se é um recrutador vendo candidatura de outro candidato
     candidate_id = request.GET.get('candidate_id')
@@ -846,6 +857,12 @@ def minhas_candidaturas(request):
         # Simula dados de próximas entrevistas (pode ser implementado no futuro)
         entrevistas_data = []
         
+        # Paginação
+        from django.core.paginator import Paginator
+        paginator = Paginator(candidaturas_data, 10)
+        page_number = request.GET.get('page')
+        candidaturas_data = paginator.get_page(page_number)
+        
     except Exception as e:
         print(f"Erro ao carregar candidaturas: {e}")
         candidaturas_data = []
@@ -861,7 +878,6 @@ def minhas_candidaturas(request):
         'status_filter': status_filter,
         'vacancy_filter': vacancy_filter,
         'date_filter': date_filter,
-
         'page_title': _('Minhas Candidaturas'),
     }
     
@@ -1336,3 +1352,55 @@ class WorkExperienceViewSet(viewsets.ModelViewSet):
             raise permissions.PermissionDenied(_('Você não tem permissão para adicionar experiência a este currículo.'))
         
         serializer.save(resume=resume)
+
+
+@api_view(['GET'])
+def available_for_interview(request):
+    """
+    API endpoint para retornar candidaturas disponíveis para agendar entrevista.
+    Disponível apenas para recrutadores e administradores.
+    """
+    # Debug info
+    print(f"DEBUG: User authenticated: {request.user.is_authenticated}")
+    print(f"DEBUG: User: {request.user}")
+    if hasattr(request.user, 'role'):
+        print(f"DEBUG: User role: {request.user.role}")
+    
+    # Verificar se o usuário tem permissão
+    if not request.user.is_authenticated or request.user.role not in ['recruiter', 'admin']:
+        return Response({'error': 'Acesso negado', 'debug': {'authenticated': request.user.is_authenticated, 'role': getattr(request.user, 'role', 'N/A')}}, status=status.HTTP_403_FORBIDDEN)
+    
+    # Filtrar candidaturas baseado no tipo de usuário
+    if request.user.role == 'recruiter':
+        # Recrutadores veem apenas candidaturas de suas vagas
+        applications = Application.objects.filter(
+            vacancy__recruiter=request.user,
+            status__in=['pending', 'submitted', 'under_review', 'reviewed', 'interview_scheduled']
+        ).select_related('candidate', 'vacancy')
+    else:
+        # Administradores veem todas as candidaturas
+        applications = Application.objects.filter(
+            status__in=['pending', 'submitted', 'under_review', 'reviewed', 'interview_scheduled']
+        ).select_related('candidate', 'vacancy')
+    
+    # Serializar os dados
+    data = []
+    for app in applications:
+        candidate_name = 'N/A'
+        candidate_email = 'N/A'
+        
+        if app.candidate:
+            candidate_name = app.candidate.user.get_full_name()
+            candidate_email = app.candidate.user.email
+        
+        data.append({
+            'id': app.id,
+            'candidate_name': candidate_name,
+            'candidate_email': candidate_email,
+            'vacancy_title': app.vacancy.title,
+            'vacancy_id': app.vacancy.id,
+            'status': app.get_status_display(),
+            'applied_at': app.created_at.strftime('%d/%m/%Y %H:%M')
+        })
+    
+    return Response(data)
