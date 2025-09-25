@@ -17,6 +17,9 @@ from rest_framework.views import APIView
 from users.models import UserProfile
 from applications.models import Application
 from vacancies.models import Vacancy
+from email_system.services import EmailService
+from email_system.models import EmailTemplate
+import logging
 from .models import (
     Interview, InterviewFeedback, InterviewQuestion, 
     InterviewTemplate, TemplateQuestion, InterviewSchedule
@@ -37,6 +40,7 @@ from .permissions import (
     IsQuestionAuthorOrAdmin, IsTemplateAuthorOrAdmin, IsScheduleOwnerOrAdmin
 )
 
+logger = logging.getLogger(__name__)
 
 # Views para interface web
 
@@ -146,12 +150,16 @@ def schedule_interview(request, application_id=None):
     """
     Permite que um recrutador agende uma entrevista.
     """
-    user_profile = request.user.profile
-    
     # Verifica se o usuário é um recrutador ou administrador
-    if user_profile.role not in ['recruiter', 'admin']:
+    if not request.user.is_authenticated or request.user.role not in ['recruiter', 'admin']:
         messages.error(request, _('Apenas recrutadores e administradores podem agendar entrevistas.'))
-        return redirect('dashboard')
+        return redirect('core:home')
+    
+    # Obter o UserProfile do usuário
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+    if not user_profile:
+        messages.error(request, _('Perfil de usuário não encontrado.'))
+        return redirect('core:home')
     
     # Se um ID de candidatura foi fornecido, pré-seleciona a candidatura
     initial_data = {}
@@ -159,18 +167,30 @@ def schedule_interview(request, application_id=None):
         application = get_object_or_404(Application, pk=application_id)
         
         # Verifica se o recrutador tem permissão para esta vaga
-        if user_profile.role == 'recruiter' and application.vacancy.recruiter != user_profile:
+        if request.user.role == 'recruiter' and application.vacancy.recruiter != user_profile:
             messages.error(request, _('Você não tem permissão para agendar entrevistas para esta vaga.'))
-            return redirect('application_list')
+            return redirect('applications:application_list')
         
         initial_data['application'] = application
     
     if request.method == 'POST':
+        # Suporte para requisições AJAX
+        if request.headers.get('Content-Type') == 'application/json' or 'application/json' in request.headers.get('Accept', ''):
+            return schedule_interview_ajax(request)
+        
         form = InterviewForm(request.POST, user=request.user)
         if form.is_valid():
             interview = form.save()
-            messages.success(request, _('Entrevista agendada com sucesso!'))
-            return redirect('interview_detail', pk=interview.pk)
+            
+            # Enviar email de notificação
+            try:
+                send_interview_notification_email(interview)
+                messages.success(request, _('Entrevista agendada com sucesso! Email enviado ao candidato.'))
+            except Exception as e:
+                messages.success(request, _('Entrevista agendada com sucesso!'))
+                messages.warning(request, _('Não foi possível enviar o email de notificação.'))
+                
+            return redirect('interviews:interview_detail', pk=interview.pk)
     else:
         form = InterviewForm(initial=initial_data, user=request.user)
     
@@ -901,13 +921,16 @@ def entrevistas(request):
     """
     Exibe a página de entrevistas para recrutadores.
     """
-    # Verifica se o usuário é um recrutador
-    if request.user.role != 'recruiter':
-        messages.error(request, _('Apenas recrutadores podem acessar esta página.'))
-        return redirect('home')
+    # Verifica se o usuário é um recrutador ou admin
+    if not request.user.is_authenticated or request.user.role not in ['recruiter', 'admin']:
+        messages.error(request, _('Apenas recrutadores e administradores podem acessar esta página.'))
+        return redirect('core:home')
     
-    # Obtém todas as entrevistas
-    interviews = Interview.objects.all()
+    # Obtém entrevistas do recrutador atual
+    if request.user.role == 'recruiter':
+        interviews = Interview.objects.filter(application__vacancy__recruiter=request.user)
+    else:
+        interviews = Interview.objects.all()
     
     # Filtros
     date_filter = request.GET.get('date', '')
@@ -966,3 +989,354 @@ def entrevistas(request):
     }
     
     return render(request, 'interviews/entrevistas.html', context)
+
+
+def send_interview_notification_email(interview):
+    """
+    Envia email de notificação de entrevista agendada para o candidato usando o sistema de templates.
+    """
+    try:
+        from email_system.services import EmailTriggerService
+        
+        # Dados da entrevista
+        candidate = interview.application.candidate
+        vacancy = interview.application.vacancy
+        
+        # Formatar data e hora
+        scheduled_date = interview.scheduled_date.strftime('%d/%m/%Y')
+        scheduled_time = interview.scheduled_date.strftime('%H:%M')
+        
+        # Contexto para o template (usando as variáveis corretas do template)
+        context_data = {
+            'user_name': candidate.user.get_full_name(),
+            'vacancy_title': vacancy.title,
+            'interview_date': scheduled_date,
+            'interview_time': scheduled_time,
+            'interview_type': interview.get_type_display(),
+            'interview_location': interview.location or 'A definir',
+            'interviewer_name': interview.interviewer.user.get_full_name() if interview.interviewer else 'Equipe RH',
+            'company_name': 'RH Acqua',
+            'site_name': 'RH Acqua',
+            'site_url': 'https://rh.institutoacqua.org.br'
+        }
+        
+        # Usar o EmailTriggerService para disparar o email
+        email_queue = EmailTriggerService.trigger_email(
+            trigger_type='interview_scheduled',
+            to_email=candidate.user.email,
+            context_data=context_data,
+            to_name=candidate.user.get_full_name(),
+            priority=3  # Prioridade alta para entrevistas
+        )
+        
+        if email_queue:
+            logger.info(f"Email de entrevista adicionado à fila: {email_queue.id}")
+            return True
+        else:
+            logger.error("Falha ao adicionar email de entrevista à fila")
+            return False
+        
+    except Exception as e:
+        logger.error(f"Erro ao enviar email de entrevista: {e}")
+        raise e
+
+
+@login_required
+def schedule_interview_ajax(request):
+    """
+    View AJAX para agendamento de entrevistas.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Método não permitido'})
+    
+    # Verificar permissões
+    if not request.user.is_authenticated or request.user.role not in ['recruiter', 'admin']:
+        return JsonResponse({'success': False, 'message': 'Acesso negado'})
+    
+    try:
+        # Obter dados do formulário
+        application_id = request.POST.get('application')
+        interviewer_id = request.POST.get('interviewer')
+        interview_type = request.POST.get('type')
+        scheduled_date = request.POST.get('scheduled_date')
+        duration = request.POST.get('duration', 60)
+        location = request.POST.get('location', '')
+        meeting_link = request.POST.get('meeting_link', '')
+        notes = request.POST.get('notes', '')
+        
+        # Validar dados obrigatórios
+        if not all([application_id, interviewer_id, interview_type, scheduled_date]):
+            return JsonResponse({'success': False, 'message': 'Dados obrigatórios não fornecidos'})
+        
+        # Buscar objetos relacionados
+        application = get_object_or_404(Application, pk=application_id)
+        interviewer = get_object_or_404(UserProfile, pk=interviewer_id)
+        
+        # Verificar se o recrutador tem permissão para esta vaga
+        if request.user.role == 'recruiter':
+            if application.vacancy.recruiter != request.user:
+                return JsonResponse({'success': False, 'message': 'Sem permissão para esta vaga'})
+        
+        # Converter data/hora
+        from django.utils.dateparse import parse_datetime
+        from django.utils import timezone
+        
+        scheduled_datetime = parse_datetime(scheduled_date)
+        if not scheduled_datetime:
+            return JsonResponse({'success': False, 'message': 'Data/hora inválida'})
+        
+        # Tornar a data timezone-aware se necessário
+        if scheduled_datetime.tzinfo is None:
+            scheduled_datetime = timezone.make_aware(scheduled_datetime)
+        
+        # Verificar se a data é no futuro
+        if scheduled_datetime <= timezone.now():
+            return JsonResponse({'success': False, 'message': 'A data deve ser no futuro'})
+        
+        # Criar entrevista
+        interview = Interview.objects.create(
+            application=application,
+            interviewer=interviewer,
+            type=interview_type,
+            scheduled_date=scheduled_datetime,
+            duration=int(duration),
+            location=location,
+            meeting_link=meeting_link,
+            notes=notes,
+            status='scheduled'
+        )
+        
+        # Email será enviado automaticamente via signal
+        return JsonResponse({
+            'success': True,
+            'message': 'Entrevista agendada com sucesso! Email será enviado automaticamente.',
+            'interview_id': interview.id
+        })
+        
+    except Exception as e:
+        logger.error(f"Erro ao agendar entrevista: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Erro ao agendar entrevista: {str(e)}'
+        })
+
+# Nova view para obter dados da entrevista via API
+@login_required
+def get_interview_data(request, interview_id):
+    """
+    API para obter dados de uma entrevista específica para edição.
+    """
+    if not request.user.is_authenticated or request.user.role not in ['recruiter', 'admin']:
+        return JsonResponse({'success': False, 'message': 'Acesso negado'})
+    
+    try:
+        interview = get_object_or_404(Interview, pk=interview_id)
+        
+        # Verificar permissão
+        if request.user.role == 'recruiter':
+            if interview.application.vacancy.recruiter != request.user:
+                return JsonResponse({'success': False, 'message': 'Sem permissão para esta entrevista'})
+        
+        # Formatar data para o input datetime-local
+        scheduled_date = interview.scheduled_date.strftime('%Y-%m-%dT%H:%M')
+        
+        data = {
+            'success': True,
+            'candidate_name': interview.application.candidate.user.get_full_name(),
+            'candidate_email': interview.application.candidate.user.email,
+            'vacancy_title': interview.application.vacancy.title,
+            'type': interview.type,
+            'scheduled_date': scheduled_date,
+            'duration': interview.duration,
+            'location': interview.location or '',
+            'meeting_link': interview.meeting_link or '',
+            'notes': interview.notes or '',
+            'status': interview.status
+        }
+        
+        return JsonResponse(data)
+        
+    except Exception as e:
+        logger.error(f"Erro ao obter dados da entrevista: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Erro ao obter dados da entrevista: {str(e)}'
+        })
+
+# Nova view para editar entrevista
+@login_required
+def edit_interview(request, interview_id):
+    """
+    View para editar uma entrevista existente.
+    """
+    if not request.user.is_authenticated or request.user.role not in ['recruiter', 'admin']:
+        return JsonResponse({'success': False, 'message': 'Acesso negado'})
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Método não permitido'})
+    
+    try:
+        interview = get_object_or_404(Interview, pk=interview_id)
+        
+        # Verificar permissão
+        if request.user.role == 'recruiter':
+            if interview.application.vacancy.recruiter != request.user:
+                return JsonResponse({'success': False, 'message': 'Sem permissão para esta entrevista'})
+        
+        # Obter dados do formulário
+        interview_type = request.POST.get('type')
+        scheduled_date = request.POST.get('scheduled_date')
+        duration = request.POST.get('duration', 60)
+        location = request.POST.get('location', '')
+        meeting_link = request.POST.get('meeting_link', '')
+        notes = request.POST.get('notes', '')
+        status = request.POST.get('status', 'scheduled')
+        
+        if not all([interview_type, scheduled_date]):
+            return JsonResponse({'success': False, 'message': 'Dados obrigatórios não fornecidos'})
+        
+        from django.utils.dateparse import parse_datetime
+        
+        scheduled_datetime = parse_datetime(scheduled_date)
+        if not scheduled_datetime:
+            return JsonResponse({'success': False, 'message': 'Data/hora inválida'})
+        
+        if scheduled_datetime.tzinfo is None:
+            scheduled_datetime = timezone.make_aware(scheduled_datetime)
+        
+        # Atualizar entrevista
+        interview.type = interview_type
+        interview.scheduled_date = scheduled_datetime
+        interview.duration = int(duration)
+        interview.location = location
+        interview.meeting_link = meeting_link
+        interview.notes = notes
+        interview.status = status
+        interview.save()
+        
+        # Disparar email de atualização
+        try:
+            candidate_profile = interview.application.candidate
+            candidate_user = candidate_profile.user
+            vacancy = interview.application.vacancy
+            
+            context_data = {
+                'user_name': candidate_user.get_full_name() or candidate_user.first_name or candidate_user.email,
+                'user_email': candidate_user.email,
+                'user_first_name': candidate_user.first_name,
+                'user_last_name': candidate_user.last_name,
+                'vacancy_title': vacancy.title,
+                'vacancy_department': vacancy.department.name if vacancy.department else '',
+                'vacancy_location': vacancy.location,
+                'interview_date': interview.scheduled_date.strftime('%d/%m/%Y'),
+                'interview_time': interview.scheduled_date.strftime('%H:%M'),
+                'interview_type': interview.get_type_display(),
+                'interview_location': interview.location or 'A definir',
+                'interview_notes': interview.notes or 'Nenhuma observação.',
+                'interview_id': interview.id,
+                'interview_status': interview.get_status_display(),
+                'site_name': 'RH Acqua',
+                'site_url': 'https://rh.institutoacqua.org.br',
+            }
+            
+            from email_system.services import EmailTriggerService
+            EmailTriggerService.trigger_email(
+                trigger_type='interview_updated',
+                to_email=candidate_user.email,
+                context_data=context_data,
+                to_name=candidate_user.get_full_name() or candidate_user.first_name,
+                priority=3  # Prioridade alta
+            )
+            
+            logger.info(f"Email de entrevista atualizada disparado para: {candidate_user.email}")
+            
+        except Exception as e:
+            logger.error(f"Erro ao disparar email de entrevista atualizada: {e}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Entrevista atualizada com sucesso! Email enviado ao candidato.',
+            'interview_id': interview.id
+        })
+        
+    except Exception as e:
+        logger.error(f"Erro ao editar entrevista: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Erro ao editar entrevista: {str(e)}'
+        })
+
+# Nova view para cancelar entrevista
+@login_required
+def cancel_interview(request, interview_id):
+    """
+    View para cancelar uma entrevista.
+    """
+    if not request.user.is_authenticated or request.user.role not in ['recruiter', 'admin']:
+        return JsonResponse({'success': False, 'message': 'Acesso negado'})
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Método não permitido'})
+    
+    try:
+        interview = get_object_or_404(Interview, pk=interview_id)
+        
+        # Verificar permissão
+        if request.user.role == 'recruiter':
+            if interview.application.vacancy.recruiter != request.user:
+                return JsonResponse({'success': False, 'message': 'Sem permissão para esta entrevista'})
+        
+        # Cancelar entrevista
+        interview.status = 'canceled'
+        interview.save()
+        
+        # Disparar email de cancelamento
+        try:
+            candidate_profile = interview.application.candidate
+            candidate_user = candidate_profile.user
+            vacancy = interview.application.vacancy
+            
+            context_data = {
+                'user_name': candidate_user.get_full_name() or candidate_user.first_name or candidate_user.email,
+                'user_email': candidate_user.email,
+                'user_first_name': candidate_user.first_name,
+                'user_last_name': candidate_user.last_name,
+                'vacancy_title': vacancy.title,
+                'vacancy_department': vacancy.department.name if vacancy.department else '',
+                'vacancy_location': vacancy.location,
+                'interview_date': interview.scheduled_date.strftime('%d/%m/%Y'),
+                'interview_time': interview.scheduled_date.strftime('%H:%M'),
+                'interview_type': interview.get_type_display(),
+                'interview_location': interview.location or 'A definir',
+                'interview_notes': interview.notes or 'Nenhuma observação.',
+                'interview_id': interview.id,
+                'site_name': 'RH Acqua',
+                'site_url': 'https://rh.institutoacqua.org.br',
+            }
+            
+            from email_system.services import EmailTriggerService
+            EmailTriggerService.trigger_email(
+                trigger_type='interview_canceled',
+                to_email=candidate_user.email,
+                context_data=context_data,
+                to_name=candidate_user.get_full_name() or candidate_user.first_name,
+                priority=3  # Prioridade alta
+            )
+            
+            logger.info(f"Email de entrevista cancelada disparado para: {candidate_user.email}")
+            
+        except Exception as e:
+            logger.error(f"Erro ao disparar email de entrevista cancelada: {e}")
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Entrevista cancelada com sucesso! Email enviado ao candidato.',
+            'interview_id': interview.id
+        })
+        
+    except Exception as e:
+        logger.error(f"Erro ao cancelar entrevista: {e}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Erro ao cancelar entrevista: {str(e)}'
+        })

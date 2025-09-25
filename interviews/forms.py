@@ -33,9 +33,10 @@ class InterviewForm(forms.ModelForm):
                 field.widget.attrs.update({'class': 'form-control'})
         
         # Se o usuário for um recrutador, filtra as aplicações disponíveis
-        if self.user and hasattr(self.user, 'profile') and self.user.profile.role == 'recruiter':
+        if self.user and self.user.role == 'recruiter':
+            # Filtrar por vagas onde o recruiter é o próprio usuário (User model)
             self.fields['application'].queryset = self.fields['application'].queryset.filter(
-                vacancy__recruiter=self.user.profile
+                vacancy__recruiter=self.user
             )
     
     def clean_scheduled_date(self):

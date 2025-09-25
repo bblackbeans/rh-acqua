@@ -1,0 +1,608 @@
+<!-- Modal para Agendar Entrevista -->
+<div class="modal fade" id="scheduleInterviewModal" tabindex="-1" aria-labelledby="scheduleInterviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="scheduleInterviewModalLabel">
+          <i class="bi bi-calendar-plus me-2"></i>Nova Entrevista
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="scheduleInterviewForm" method="post" action="{% url 'interviews:schedule_interview_ajax' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <!-- Filtros para Candidatura -->
+            <div class="col-12 mb-3">
+              <label class="form-label">
+                <i class="bi bi-funnel me-1"></i>Filtrar Candidaturas
+              </label>
+              <div class="row">
+                <div class="col-md-6 mb-2">
+                  <input type="text" class="form-control" id="candidateFilter" placeholder="Buscar por nome do candidato...">
+                </div>
+                <div class="col-md-6 mb-2">
+                  <select class="form-select" id="vacancyFilter">
+                    <option value="">Todas as vagas</option>
+                    <!-- Options preenchidas via JavaScript -->
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Candidatura -->
+            <div class="col-12 mb-3">
+              <label for="id_application" class="form-label">
+                <i class="bi bi-person me-1"></i>Candidatura *
+              </label>
+              <select class="form-select" id="id_application" name="application" required>
+                <option value="">Selecione uma candidatura...</option>
+                <!-- Options preenchidas via JavaScript -->
+              </select>
+              <div class="form-text">Escolha a candidatura para a qual deseja agendar a entrevista</div>
+            </div>
+
+            <!-- Tipo e Data/Hora -->
+            <div class="col-md-6 mb-3">
+              <label for="id_type" class="form-label">
+                <i class="bi bi-gear me-1"></i>Tipo de Entrevista *
+              </label>
+              <select class="form-select" id="id_type" name="type" required>
+                <option value="presential">Presencial</option>
+                <option value="video">Vídeo</option>
+                <option value="phone">Telefone</option>
+                <option value="group">Dinâmica em Grupo</option>
+                <option value="technical">Técnica</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_scheduled_date" class="form-label">
+                <i class="bi bi-calendar-event me-1"></i>Data e Hora *
+              </label>
+              <input type="datetime-local" class="form-control" id="id_scheduled_date" name="scheduled_date" required>
+            </div>
+
+            <!-- Duração e Local -->
+            <div class="col-md-6 mb-3">
+              <label for="id_duration" class="form-label">
+                <i class="bi bi-clock me-1"></i>Duração (minutos)
+              </label>
+              <input type="number" class="form-control" id="id_duration" name="duration" value="60" min="15" max="240">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="id_location" class="form-label">
+                <i class="bi bi-geo-alt me-1"></i>Local
+              </label>
+              <input type="text" class="form-control" id="id_location" name="location" placeholder="Ex: Sala de Reuniões A, Endereço completo...">
+            </div>
+
+            <!-- Link da Reunião -->
+            <div class="col-12 mb-3">
+              <label for="id_meeting_link" class="form-label">
+                <i class="bi bi-camera-video me-1"></i>Link da Reunião (se aplicável)
+              </label>
+              <input type="url" class="form-control" id="id_meeting_link" name="meeting_link" placeholder="https://...">
+              <div class="form-text">Para entrevistas por vídeo, informe o link da reunião</div>
+            </div>
+
+            <!-- Observações -->
+            <div class="col-12 mb-3">
+              <label for="id_notes" class="form-label">
+                <i class="bi bi-file-text me-1"></i>Observações
+              </label>
+              <textarea class="form-control" id="id_notes" name="notes" rows="3" placeholder="Instruções especiais, documentos necessários, etc."></textarea>
+            </div>
+
+            <!-- Entrevistador (hidden - será preenchido automaticamente) -->
+            <input type="hidden" id="id_interviewer" name="interviewer" value="{{ user.profile.id }}">
+
+            <!-- Alerta de email -->
+            <div class="col-12">
+              <div class="alert alert-info d-flex align-items-center">
+                <i class="bi bi-envelope me-2"></i>
+                <div>
+                  <strong>Notificação automática:</strong> Um email será enviado automaticamente ao candidato com os detalhes da entrevista.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i>Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            <i class="bi bi-calendar-plus me-1"></i>Agendar Entrevista
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Editar Entrevista -->
+<div class="modal fade" id="editInterviewModal" tabindex="-1" aria-labelledby="editInterviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editInterviewModalLabel">
+          <i class="bi bi-pencil-square me-2"></i>Editar Entrevista
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editInterviewForm" method="post">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="row">
+            <!-- Candidato (readonly) -->
+            <div class="col-12 mb-3">
+              <label class="form-label">
+                <i class="bi bi-person me-1"></i>Candidato
+              </label>
+              <input type="text" class="form-control" id="edit_candidate_name" readonly>
+            </div>
+
+            <!-- Vaga (readonly) -->
+            <div class="col-12 mb-3">
+              <label class="form-label">
+                <i class="bi bi-briefcase me-1"></i>Vaga
+              </label>
+              <input type="text" class="form-control" id="edit_vacancy_title" readonly>
+            </div>
+
+            <!-- Tipo e Data/Hora -->
+            <div class="col-md-6 mb-3">
+              <label for="edit_type" class="form-label">
+                <i class="bi bi-gear me-1"></i>Tipo de Entrevista *
+              </label>
+              <select class="form-select" id="edit_type" name="type" required>
+                <option value="presential">Presencial</option>
+                <option value="video">Vídeo</option>
+                <option value="phone">Telefone</option>
+                <option value="group">Dinâmica em Grupo</option>
+                <option value="technical">Técnica</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="edit_scheduled_date" class="form-label">
+                <i class="bi bi-calendar-event me-1"></i>Data e Hora *
+              </label>
+              <input type="datetime-local" class="form-control" id="edit_scheduled_date" name="scheduled_date" required>
+            </div>
+
+            <!-- Duração e Local -->
+            <div class="col-md-6 mb-3">
+              <label for="edit_duration" class="form-label">
+                <i class="bi bi-clock me-1"></i>Duração (minutos)
+              </label>
+              <input type="number" class="form-control" id="edit_duration" name="duration" min="15" max="240">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="edit_location" class="form-label">
+                <i class="bi bi-geo-alt me-1"></i>Local
+              </label>
+              <input type="text" class="form-control" id="edit_location" name="location" placeholder="Ex: Sala de Reuniões A, Endereço completo...">
+            </div>
+
+            <!-- Link da Reunião -->
+            <div class="col-12 mb-3">
+              <label for="edit_meeting_link" class="form-label">
+                <i class="bi bi-camera-video me-1"></i>Link da Reunião (se aplicável)
+              </label>
+              <input type="url" class="form-control" id="edit_meeting_link" name="meeting_link" placeholder="https://...">
+              <div class="form-text">Para entrevistas por vídeo, informe o link da reunião</div>
+            </div>
+
+            <!-- Observações -->
+            <div class="col-12 mb-3">
+              <label for="edit_notes" class="form-label">
+                <i class="bi bi-file-text me-1"></i>Observações
+              </label>
+              <textarea class="form-control" id="edit_notes" name="notes" rows="3" placeholder="Instruções especiais, documentos necessários, etc."></textarea>
+            </div>
+
+            <!-- Status -->
+            <div class="col-12 mb-3">
+              <label for="edit_status" class="form-label">
+                <i class="bi bi-flag me-1"></i>Status
+              </label>
+              <select class="form-select" id="edit_status" name="status" required>
+                <option value="scheduled">Agendada</option>
+                <option value="confirmed">Confirmada</option>
+                <option value="completed">Realizada</option>
+                <option value="canceled">Cancelada</option>
+                <option value="rescheduled">Reagendada</option>
+                <option value="no_show">Não Compareceu</option>
+              </select>
+            </div>
+
+            <!-- Alerta de email -->
+            <div class="col-12">
+              <div class="alert alert-warning d-flex align-items-center">
+                <i class="bi bi-envelope me-2"></i>
+                <div>
+                  <strong>Notificação automática:</strong> Um email será enviado automaticamente ao candidato com as alterações da entrevista.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i>Cancelar
+          </button>
+          <button type="submit" class="btn btn-warning" id="editSubmitBtn">
+            <i class="bi bi-save me-1"></i>Salvar Alterações
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// JavaScript para manipular os modais
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Script dos modais carregado!');
+    
+    // Elementos do modal de nova entrevista
+    const scheduleModal = document.getElementById('scheduleInterviewModal');
+    const scheduleForm = document.getElementById('scheduleInterviewForm');
+    const applicationSelect = document.getElementById('id_application');
+    const typeSelect = document.getElementById('id_type');
+    const locationField = document.getElementById('id_location');
+    const meetingLinkField = document.getElementById('id_meeting_link');
+    const candidateFilter = document.getElementById('candidateFilter');
+    const vacancyFilter = document.getElementById('vacancyFilter');
+    
+    // Elementos do modal de edição
+    const editModal = document.getElementById('editInterviewModal');
+    const editForm = document.getElementById('editInterviewForm');
+    
+    let allApplications = []; // Armazenar todas as candidaturas
+    
+    // Carregar candidaturas quando o modal de nova entrevista for aberto
+    scheduleModal.addEventListener('show.bs.modal', function() {
+        console.log('🔍 Modal de nova entrevista aberto - iniciando carregamento...');
+        loadApplications();
+        setMinDateTime();
+    });
+    
+    // Filtros em tempo real
+    candidateFilter.addEventListener('input', filterApplications);
+    vacancyFilter.addEventListener('change', filterApplications);
+    
+    // Gerenciar campos baseados no tipo de entrevista
+    typeSelect.addEventListener('change', function() {
+        const type = this.value;
+        
+        if (type === 'video') {
+            meetingLinkField.parentElement.style.display = 'block';
+            meetingLinkField.setAttribute('required', 'required');
+            locationField.removeAttribute('required');
+            locationField.value = '';
+        } else if (type === 'presential' || type === 'group') {
+            locationField.parentElement.style.display = 'block';
+            locationField.setAttribute('required', 'required');
+            meetingLinkField.removeAttribute('required');
+            if (type === 'video') {
+                meetingLinkField.value = '';
+            }
+        } else {
+            locationField.removeAttribute('required');
+            meetingLinkField.removeAttribute('required');
+        }
+    });
+    
+    // Submissão do formulário de nova entrevista
+    scheduleForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitInterviewForm();
+    });
+    
+    // Submissão do formulário de edição
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitEditForm();
+    });
+    
+    function loadApplications() {
+        console.log('📡 Iniciando carregamento de candidaturas...');
+        
+        // Fazer requisição AJAX para carregar candidaturas disponíveis
+        const timestamp = new Date().getTime();
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        console.log('📡 Fazendo requisição para:', `/applications/api/available-for-interview/?_=${timestamp}`);
+        
+        fetch(`/applications/api/available-for-interview/?_=${timestamp}`, {
+            method: 'GET',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => {
+                console.log('📡 Resposta recebida:', response.status, response.statusText);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ Dados recebidos com sucesso:', data.length, 'candidaturas');
+                console.log('📋 Primeira candidatura:', data[0]);
+                
+                allApplications = data; // Armazenar todas as candidaturas
+                
+                // Carregar vagas APÓS carregar candidaturas
+                loadVacancies();
+                updateApplicationSelect(data);
+            })
+            .catch(error => {
+                console.error('❌ Erro ao carregar candidaturas:', error);
+                showMessage('Erro ao carregar candidaturas: ' + error.message, 'error');
+            });
+    }
+    
+    function loadVacancies() {
+        console.log('🏢 Iniciando carregamento de vagas...');
+        console.log('📊 Total de candidaturas disponíveis:', allApplications.length);
+        
+        // Extrair vagas únicas das candidaturas
+        const vacancies = [...new Set(allApplications.map(app => app.vacancy_title))];
+        
+        console.log('✅ Vagas únicas encontradas:', vacancies.length);
+        console.log('📋 Lista de vagas:', vacancies);
+        
+        // Limpar dropdown
+        vacancyFilter.innerHTML = '<option value="">Todas as vagas</option>';
+        
+        // Adicionar vagas ao dropdown
+        vacancies.forEach((vacancy, index) => {
+            const option = document.createElement('option');
+            option.value = vacancy;
+            option.textContent = vacancy;
+            vacancyFilter.appendChild(option);
+            console.log(`➕ Adicionando vaga ${index + 1}: ${vacancy}`);
+        });
+        
+        console.log(`✅ ${vacancies.length} vagas carregadas no dropdown`);
+        console.log('🔍 Dropdown final:', vacancyFilter.innerHTML);
+        
+        // Forçar atualização visual
+        vacancyFilter.dispatchEvent(new Event('change'));
+    }
+    
+    function filterApplications() {
+        const candidateSearch = candidateFilter.value.toLowerCase();
+        const vacancySearch = vacancyFilter.value;
+        
+        console.log('🔍 Aplicando filtros:', { candidateSearch, vacancySearch });
+        
+        let filtered = allApplications;
+        
+        // Filtrar por nome do candidato
+        if (candidateSearch) {
+            filtered = filtered.filter(app => 
+                app.candidate_name.toLowerCase().includes(candidateSearch)
+            );
+        }
+        
+        // Filtrar por vaga
+        if (vacancySearch) {
+            filtered = filtered.filter(app => 
+                app.vacancy_title === vacancySearch
+            );
+        }
+        
+        console.log('📊 Candidaturas filtradas:', filtered.length);
+        updateApplicationSelect(filtered);
+    }
+    
+    function updateApplicationSelect(applications) {
+        applicationSelect.innerHTML = '<option value="">Selecione uma candidatura...</option>';
+        
+        if (applications.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nenhuma candidatura encontrada';
+            option.disabled = true;
+            applicationSelect.appendChild(option);
+        } else {
+            applications.forEach(app => {
+                const option = document.createElement('option');
+                option.value = app.id;
+                option.textContent = `${app.candidate_name} - ${app.vacancy_title}`;
+                applicationSelect.appendChild(option);
+            });
+        }
+        
+        console.log(`✅ ${applications.length} candidaturas carregadas no dropdown de candidaturas`);
+    }
+    
+    function setMinDateTime() {
+        // Definir data/hora mínima como agora + 1 hora
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+        const minDateTime = now.toISOString().slice(0, 16);
+        document.getElementById('id_scheduled_date').min = minDateTime;
+    }
+    
+    function submitInterviewForm() {
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Desabilitar botão e mostrar loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Agendando...';
+        
+        const formData = new FormData(scheduleForm);
+        
+        fetch(scheduleForm.action, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showMessage('Entrevista agendada com sucesso! Email enviado ao candidato.', 'success');
+                bootstrap.Modal.getInstance(scheduleModal).hide();
+                // Recarregar a lista de entrevistas
+                if (typeof reloadInterviewsList === 'function') {
+                    reloadInterviewsList();
+                } else {
+                    location.reload();
+                }
+            } else {
+                showMessage(data.message || 'Erro ao agendar entrevista', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('Erro ao agendar entrevista', 'error');
+        })
+        .finally(() => {
+            // Reabilitar botão
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    }
+    
+    function submitEditForm() {
+        const submitBtn = document.getElementById('editSubmitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Desabilitar botão e mostrar loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Salvando...';
+        
+        const formData = new FormData(editForm);
+        
+        fetch(editForm.action, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showMessage('Entrevista atualizada com sucesso! Email enviado ao candidato.', 'success');
+                bootstrap.Modal.getInstance(editModal).hide();
+                // Recarregar a lista de entrevistas
+                if (typeof reloadInterviewsList === 'function') {
+                    reloadInterviewsList();
+                } else {
+                    location.reload();
+                }
+            } else {
+                showMessage(data.message || 'Erro ao atualizar entrevista', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showMessage('Erro ao atualizar entrevista', 'error');
+        })
+        .finally(() => {
+            // Reabilitar botão
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        });
+    }
+    
+    function showMessage(message, type) {
+        // Criar e mostrar alerta
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alert = document.createElement('div');
+        alert.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        
+        // Remover após 5 segundos
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 5000);
+    }
+    
+    // Função global para abrir modal de edição
+    window.editInterview = function(interviewId) {
+        console.log('🔧 Abrindo modal de edição para entrevista:', interviewId);
+        
+        // Fazer requisição para obter dados da entrevista
+        fetch(`/interviews/api/interview/${interviewId}/`, {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('✅ Dados da entrevista carregados:', data);
+            
+            // Preencher formulário
+            document.getElementById('edit_candidate_name').value = data.candidate_name;
+            document.getElementById('edit_vacancy_title').value = data.vacancy_title;
+            document.getElementById('edit_type').value = data.type;
+            document.getElementById('edit_scheduled_date').value = data.scheduled_date;
+            document.getElementById('edit_duration').value = data.duration;
+            document.getElementById('edit_location').value = data.location || '';
+            document.getElementById('edit_meeting_link').value = data.meeting_link || '';
+            document.getElementById('edit_notes').value = data.notes || '';
+            document.getElementById('edit_status').value = data.status;
+            
+            // Definir action do formulário
+            editForm.action = `/interviews/edit/${interviewId}/`;
+            
+            // Abrir modal
+            const modal = new bootstrap.Modal(editModal);
+            modal.show();
+        })
+        .catch(error => {
+            console.error('❌ Erro ao carregar dados da entrevista:', error);
+            showMessage('Erro ao carregar dados da entrevista', 'error');
+        });
+    };
+});
+</script>

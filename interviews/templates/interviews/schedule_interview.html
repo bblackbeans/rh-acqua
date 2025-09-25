@@ -1,0 +1,78 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Agendar Entrevista - RH Acqua{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Agendar Entrevista</h1>
+    <a href="{% url 'interviews:entrevistas' %}" class="btn btn-secondary">
+      <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Informações da Entrevista</h6>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.application.id_for_label }}" class="form-label">Candidatura</label>
+                {{ form.application }}
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.type.id_for_label }}" class="form-label">Tipo de Entrevista</label>
+                {{ form.type }}
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.scheduled_date.id_for_label }}" class="form-label">Data e Hora</label>
+                {{ form.scheduled_date }}
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.duration.id_for_label }}" class="form-label">Duração (minutos)</label>
+                {{ form.duration }}
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.location.id_for_label }}" class="form-label">Local</label>
+                {{ form.location }}
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label for="{{ form.meeting_link.id_for_label }}" class="form-label">Link da Reunião</label>
+                {{ form.meeting_link }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.notes.id_for_label }}" class="form-label">Observações</label>
+              {{ form.notes }}
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <a href="{% url 'interviews:entrevistas' %}" class="btn btn-secondary me-2">Cancelar</a>
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-calendar-plus"></i> Agendar Entrevista
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 
