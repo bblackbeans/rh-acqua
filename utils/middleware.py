@@ -232,3 +232,37 @@ class LanguageMiddleware(MiddlewareMixin):
         translation.activate(user_language)
         
         return None
+
+
+class AuthenticationRedirectMiddleware(MiddlewareMixin):
+    """
+    Middleware para garantir redirecionamento correto para login quando usuário não está autenticado.
+    """
+    
+    def process_request(self, request):
+        # Lista de URLs que requerem autenticação
+        protected_urls = [
+            '/vacancies/vagas-disponiveis/',
+            '/vacancies/recruiter/',
+            '/administration/',
+            '/users/profile/',
+        ]
+        
+        # Verifica se a URL atual requer autenticação
+        requires_auth = any(request.path.startswith(url) for url in protected_urls)
+        
+        if requires_auth and not request.user.is_authenticated:
+            # Se for uma requisição AJAX, retorna erro JSON
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'error': 'Authentication required',
+                    'redirect': settings.LOGIN_URL
+                }, status=401)
+            
+            # Redireciona para a página de login com o parâmetro next
+            from django.urls import reverse
+            login_url = reverse('users:login')
+            next_url = request.get_full_path()
+            return HttpResponseRedirect(f"{login_url}?next={next_url}")
+        
+        return None

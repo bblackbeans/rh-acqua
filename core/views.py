@@ -43,23 +43,55 @@ from .permissions import (
 @login_required
 def home(request):
     """
-    Página inicial que redireciona para o dashboard apropriado baseado no tipo de usuário.
+    Página inicial que redireciona para as páginas apropriadas baseado no tipo de usuário.
     """
-    user = request.user
+    import time
+    print(f"--- VIEW HOME INICIADA: {time.strftime('%H:%M:%S')} ---")
     
-    # Verifica se é um superusuário ou admin
-    if user.is_superuser or user.is_admin:
+    user = request.user
+    print(f"--- USUÁRIO IDENTIFICADO: {user.username} - {time.strftime('%H:%M:%S')} ---")
+    
+    # Verifica se é um superusuário ou admin (mas não é recrutador ou candidato)
+    if (user.is_superuser or user.is_admin) and not (user.is_recruiter or user.is_candidate):
+        print(f"--- USUÁRIO É ADMIN - INICIANDO CONSULTAS DB: {time.strftime('%H:%M:%S')} ---")
+        
+        # Dados reais do sistema
+        from django.contrib.auth import get_user_model
+        from vacancies.models import Hospital, Vacancy
+        
+        User = get_user_model()
+        
+        print(f"--- PRESTES A CONTAR USUÁRIOS: {time.strftime('%H:%M:%S')} ---")
+        total_users = User.objects.count()
+        print(f"--- USUÁRIOS CONTADOS: {total_users} - {time.strftime('%H:%M:%S')} ---")
+        
+        print(f"--- PRESTES A CONTAR HOSPITAIS: {time.strftime('%H:%M:%S')} ---")
+        total_hospitals = Hospital.objects.filter(is_active=True).count()
+        print(f"--- HOSPITAIS CONTADOS: {total_hospitals} - {time.strftime('%H:%M:%S')} ---")
+        
+        print(f"--- PRESTES A CONTAR VAGAS: {time.strftime('%H:%M:%S')} ---")
+        total_vacancies = Vacancy.objects.filter(status=Vacancy.PUBLISHED).count()
+        print(f"--- VAGAS CONTADAS: {total_vacancies} - {time.strftime('%H:%M:%S')} ---")
+        
         context = {
+            "total_users": total_users,
+            "total_hospitals": total_hospitals,
+            "total_vacancies": total_vacancies,
             'breadcrumb': [
                 {'name': 'Dashboard', 'url': '#'}
             ]
         }
+        
+        print(f"--- PRESTES A RENDERIZAR TEMPLATE ADMIN: {time.strftime('%H:%M:%S')} ---")
         return render(request, 'dashboard/admin_dashboard.html', context)
     elif user.is_recruiter:
-        return render(request, 'dashboard/recruiter_dashboard.html')
+        print(f"--- USUÁRIO É RECRUTADOR - REDIRECIONANDO PARA GESTÃO DE VAGAS: {time.strftime('%H:%M:%S')} ---")
+        return redirect('vacancies:gestao_vagas')
     elif user.is_candidate:
-        return render(request, 'dashboard/candidate_dashboard.html')
+        print(f"--- USUÁRIO É CANDIDATO - REDIRECIONANDO PARA MINHAS CANDIDATURAS: {time.strftime('%H:%M:%S')} ---")
+        return redirect('applications:minhas_candidaturas')
     else:
+        print(f"--- USUÁRIO PADRÃO - RENDERIZANDO HOME: {time.strftime('%H:%M:%S')} ---")
         # Fallback para a página home padrão
         return render(request, 'core/home.html')
 
@@ -126,6 +158,7 @@ def dashboard(request):
         pass
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'dashboard': user_dashboard,
         'widgets': widgets,
         'announcements': filtered_announcements[:5],  # Limita a 5 anúncios
@@ -155,6 +188,7 @@ def dashboard_list(request):
     ).order_by('-is_default', '-created_at')
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'dashboards': dashboards,
         'page_title': _('Meus Dashboards'),
     }
@@ -180,6 +214,7 @@ def dashboard_detail(request, pk):
     widgets = Widget.objects.filter(dashboard=dashboard).order_by('position_y', 'position_x')
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'dashboard': dashboard,
         'widgets': widgets,
         'page_title': dashboard.title,
@@ -205,6 +240,7 @@ def dashboard_create(request):
         form = DashboardForm(user=request.user)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'form': form,
         'page_title': _('Criar Dashboard'),
     }
@@ -232,6 +268,7 @@ def dashboard_edit(request, pk):
         form = DashboardForm(instance=dashboard, user=request.user)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'form': form,
         'dashboard': dashboard,
         'page_title': _('Editar Dashboard'),
@@ -256,6 +293,7 @@ def dashboard_delete(request, pk):
         return redirect('dashboard_list')
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'dashboard': dashboard,
         'page_title': _('Excluir Dashboard'),
     }
@@ -283,6 +321,7 @@ def widget_create(request, dashboard_pk):
         form = WidgetForm(user=request.user, dashboard=dashboard)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'form': form,
         'dashboard': dashboard,
         'page_title': _('Adicionar Widget'),
@@ -311,6 +350,7 @@ def widget_edit(request, pk):
         form = WidgetForm(instance=widget, user=request.user, dashboard=widget.dashboard)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'form': form,
         'widget': widget,
         'dashboard': widget.dashboard,
@@ -337,6 +377,7 @@ def widget_delete(request, pk):
         return redirect('dashboard_detail', pk=dashboard.pk)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'widget': widget,
         'dashboard': dashboard,
         'page_title': _('Excluir Widget'),
@@ -371,6 +412,7 @@ def faq_list(request):
         ).distinct()
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'faqs': faqs,
         'categories': categories,
         'category_filter': category_filter,
@@ -398,6 +440,7 @@ def feedback_create(request):
         form = FeedbackForm(user=request.user)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'form': form,
         'page_title': _('Enviar Feedback'),
     }
@@ -431,6 +474,7 @@ def feedback_list(request):
         feedbacks = feedbacks.filter(status=status_filter)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'feedbacks': feedbacks,
         'type_filter': type_filter,
         'status_filter': status_filter,
@@ -458,6 +502,7 @@ def feedback_detail(request, pk):
         feedback = get_object_or_404(Feedback, pk=pk, user=user_profile)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'feedback': feedback,
         'page_title': feedback.title,
     }
@@ -490,6 +535,7 @@ def feedback_respond(request, pk):
         form = FeedbackResponseForm(instance=feedback, user=request.user)
     
     context = {
+    # Dados reais do sistema\    from django.contrib.auth import get_user_model\    from vacancies.models import Hospital, Vacancy\    \    User = get_user_model()\    context.update({\        "total_users": User.objects.count(),\        "total_hospitals": Hospital.objects.filter(is_active=True).count(),\        "total_vacancies": Vacancy.objects.filter(is_active=True).count(),\    })
         'form': form,
         'feedback': feedback,
         'page_title': _('Responder Feedback'),
