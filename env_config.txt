@@ -1,0 +1,28 @@
+# Django Settings
+DEBUG=True
+SECRET_KEY=django-insecure-q7bz=a0alipp(olr^#8en!13(va!mt%!4=)-a3$=25ha=#f-bv
+ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,158.220.108.114,vmi2744085.contaboserver.net,rh.institutoacqua.org.br
+
+# Database Settings
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=rh_acqua_db
+DB_USER=rh_acqua_user
+DB_PASSWORD=rh_acqua_password
+DB_HOST=db
+DB_PORT=5432
+
+# Redis Settings
+REDIS_URL=redis://redis:6379/0
+
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000,http://158.220.108.114:8000,https://158.220.108.114:8000,http://rh.institutoacqua.org.br,https://rh.institutoacqua.org.br
+CSRF_COOKIE_SECURE=False
+SESSION_COOKIE_SECURE=False
+
+# Email Settings (opcional)
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_HOST=localhost
+EMAIL_PORT=587
+EMAIL_USE_TLS=False
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD= 

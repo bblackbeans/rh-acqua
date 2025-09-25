@@ -1,0 +1,368 @@
+RELATÓRIO DE EMAILS - 24/09/2025 15:48:03
+============================================================
+
+EMAILS FALHADOS (últimos 7 dias):
+----------------------------------------
+ID: 4289
+Para: elizanemaria2022@hotmail.com
+Assunto: Candidatura confirmada - TECNICO EM RADIOLOGIA E IMAGENOLOGIA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:45:57.202003+00:00
+--------------------
+ID: 4288
+Para: rose2riel@hotmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Rosemere Teixeira da Silva!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:45:25.486789+00:00
+--------------------
+ID: 4287
+Para: robertarezendee84@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Roberta Rezende da silva!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:45:06.739830+00:00
+--------------------
+ID: 4286
+Para: elianapazenf15@gmail.com
+Assunto: Candidatura confirmada - TECNICO EM RADIOLOGIA E IMAGENOLOGIA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:44:23.991044+00:00
+--------------------
+ID: 4285
+Para: rlpvit@hotmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Rodrigo Lima Pires!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:43:48.599989+00:00
+--------------------
+ID: 4284
+Para: salomaojosene@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Josene Teixeira Salomão Salomão!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:43:29.241249+00:00
+--------------------
+ID: 4283
+Para: rafaelanicodemos@yahoo.com.br
+Assunto: Candidatura confirmada - ASSITENTE DE INFORMÁTICA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:43:23.149731+00:00
+--------------------
+ID: 4282
+Para: sandrabarbosa2011@live.com
+Assunto: Candidatura confirmada - ENFERMEIRO
+Erro: Falha no envio do email
+Data: 2025-09-24 18:42:45.486863+00:00
+--------------------
+ID: 4281
+Para: patriciajesus1808@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Patrícia Jesus de Assis Muniz!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:40:43.801273+00:00
+--------------------
+ID: 4280
+Para: regianemonjardim@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, REGIANE MONJARDIM DA SILVA!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:38:23.894361+00:00
+--------------------
+ID: 4279
+Para: wellingtonfrnunes@gmail.com
+Assunto: Candidatura confirmada - ASSITENTE DE INFORMÁTICA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:35:56.092783+00:00
+--------------------
+ID: 4278
+Para: moraes.edina@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, EDINA PIMENTEL MORAES PIANASSOLA!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:35:08.436831+00:00
+--------------------
+ID: 4277
+Para: dani32bastos@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Daniele Santos Bastos!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:34:26.099696+00:00
+--------------------
+ID: 4276
+Para: polianafrancelinasilva@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, POLIANA DA SILVA!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:33:00.676452+00:00
+--------------------
+ID: 4275
+Para: amandaesperendeussantos@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, AMANDA ESPERENDEUS SANTOS!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:32:17.325437+00:00
+--------------------
+ID: 4274
+Para: castroalessandra1982@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, ALESSANDRA SOUZA!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:32:01.038723+00:00
+--------------------
+ID: 4273
+Para: yasminnicodemos5@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Yasmin Nicodemos Silva!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:31:38.762898+00:00
+--------------------
+ID: 4272
+Para: cintia.meury@hotmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Cintia Meure Santos de Souza!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:31:17.791131+00:00
+--------------------
+ID: 4271
+Para: debora32assis@gmail.com
+Assunto: Candidatura confirmada - TECNICO DE ENFERMAGEM
+Erro: Falha no envio do email
+Data: 2025-09-24 18:31:09.979967+00:00
+--------------------
+ID: 4270
+Para: santoslidiane518@gmail.com
+Assunto: Candidatura confirmada - TECNICO DE ENFERMAGEM
+Erro: Falha no envio do email
+Data: 2025-09-24 18:30:18.965152+00:00
+--------------------
+ID: 4269
+Para: paulapbbastos@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Paula Bastos!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:29:56.213253+00:00
+--------------------
+ID: 4268
+Para: rafaelanicodemos@yahoo.com.br
+Assunto: Bem-vindo(a) ao RH Acqua, Rafaela Nicodemos!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:29:24.698804+00:00
+--------------------
+ID: 4267
+Para: edirdiniz10@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Edir Diniz!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:29:18.419419+00:00
+--------------------
+ID: 4266
+Para: elianasaibel@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Eliana Saibel!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:29:08.496586+00:00
+--------------------
+ID: 4265
+Para: rhonisie2010@hotmail.com
+Assunto: Candidatura confirmada - TECNICO DE ENFERMAGEM
+Erro: Falha no envio do email
+Data: 2025-09-24 18:28:34.828735+00:00
+--------------------
+ID: 4264
+Para: maiquiele16@hotmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Maiquiele Sedano Manhães!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:27:51.007601+00:00
+--------------------
+ID: 4263
+Para: juniin.fla@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, WESLLEY De deus MAYER!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:27:38.833122+00:00
+--------------------
+ID: 4262
+Para: keythlorrani@hotmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Keyth Lorrani de Deus Souza!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:25:36.808987+00:00
+--------------------
+ID: 4261
+Para: nubia.white1970@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Núbia Cristina White!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:25:09.613474+00:00
+--------------------
+ID: 4260
+Para: juliafreitas981504@gmail.com
+Assunto: Candidatura confirmada - RECEPCIONISTA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:24:47.804595+00:00
+--------------------
+ID: 4259
+Para: gmilapersonalizados@hotmail.com
+Assunto: Candidatura confirmada - ENFERMEIRO
+Erro: Falha no envio do email
+Data: 2025-09-24 18:23:55.696823+00:00
+--------------------
+ID: 4258
+Para: rsnicodemos@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, madalena GOMES DA SILVA,!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:23:49.237880+00:00
+--------------------
+ID: 4257
+Para: juliafreitas981504@gmail.com
+Assunto: Candidatura confirmada - AUXILIAR ADMINISTRATIVO
+Erro: Falha no envio do email
+Data: 2025-09-24 18:23:03.731587+00:00
+--------------------
+ID: 4256
+Para: douglasilvads81@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, DOUGLAS DA SILVA!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:22:43.479693+00:00
+--------------------
+ID: 4255
+Para: michellegomesbastos5@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, MICHELLE GOMES BASTOS!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:22:41.930983+00:00
+--------------------
+ID: 4254
+Para: moreiraludyara@gmail.com
+Assunto: Candidatura confirmada - TECNICO DE ENFERMAGEM
+Erro: Falha no envio do email
+Data: 2025-09-24 18:22:38.688570+00:00
+--------------------
+ID: 4253
+Para: wandersom.tr@gmail.com
+Assunto: Candidatura confirmada - ASSISTENTE SOCIAL
+Erro: Falha no envio do email
+Data: 2025-09-24 18:22:16.960338+00:00
+--------------------
+ID: 4252
+Para: faguiartr@gmail.com
+Assunto: Candidatura confirmada - TECNICO EM RADIOLOGIA E IMAGENOLOGIA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:22:13.401499+00:00
+--------------------
+ID: 4251
+Para: leydianej@gmail.com
+Assunto: Candidatura confirmada - LACTARISTA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:21:52.883915+00:00
+--------------------
+ID: 4250
+Para: izabelamendesg@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, IZABELA MENDES GOMES!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:20:40.677868+00:00
+--------------------
+ID: 4249
+Para: rosalemfelipe@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Felipe Rosalem da Silva!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:20:28.947099+00:00
+--------------------
+ID: 4248
+Para: crislaine_s.f@hotmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Crislaine Freire!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:20:14.234561+00:00
+--------------------
+ID: 4247
+Para: profiro.santos@gmail.com
+Assunto: Candidatura confirmada - ENFERMEIRO
+Erro: Falha no envio do email
+Data: 2025-09-24 18:18:34.038399+00:00
+--------------------
+ID: 4246
+Para: wellingtonfrnunes@gmail.com
+Assunto: Candidatura confirmada - TECNICO (A) DE INFORMATICA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:18:25.684015+00:00
+--------------------
+ID: 4245
+Para: giselitavarescupertino@hotmail.com
+Assunto: Candidatura confirmada - ENFERMEIRO
+Erro: Falha no envio do email
+Data: 2025-09-24 18:15:54.143012+00:00
+--------------------
+ID: 4244
+Para: alinejesussilva@outlook.com
+Assunto: Bem-vindo(a) ao RH Acqua, ALINE SILVA!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:14:54.531853+00:00
+--------------------
+ID: 4243
+Para: lucimarcastro87@hotmail.com
+Assunto: Candidatura confirmada - TECNICO DE ENFERMAGEM
+Erro: Falha no envio do email
+Data: 2025-09-24 18:14:07.378219+00:00
+--------------------
+ID: 4242
+Para: dinamica.es.br@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, OSIAS JUNIOR!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:12:51.453856+00:00
+--------------------
+ID: 4241
+Para: ellianares123@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, ELIANA DE JESUS!
+Erro: Falha no envio do email
+Data: 2025-09-24 18:12:10.250677+00:00
+--------------------
+ID: 4240
+Para: ruthqueiroz7082@gmail.com
+Assunto: Candidatura confirmada - LACTARISTA
+Erro: Falha no envio do email
+Data: 2025-09-24 18:11:02.054455+00:00
+--------------------
+
+EMAILS PENDENTES:
+----------------------------------------
+ID: 4290
+Para: fe.mgama@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Fernanda de Moraes Gama!
+Agendado: 2025-09-24 18:46:05.794653+00:00
+--------------------
+ID: 4291
+Para: dnvitoria@gmail.com
+Assunto: Candidatura confirmada - TECNICO DE ENFERMAGEM
+Agendado: 2025-09-24 18:46:26.157339+00:00
+--------------------
+ID: 4292
+Para: souzajossilenesouza@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Jossilene Souza da Silva santos Santos!
+Agendado: 2025-09-24 18:46:42.085763+00:00
+--------------------
+ID: 4293
+Para: feagn@hotmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Fernanda De Aquino Gomes Lopes!
+Agendado: 2025-09-24 18:46:45.601638+00:00
+--------------------
+ID: 3815
+Para: patriciaalmeida6478@gmail.com
+Assunto: Candidatura confirmada - TECNICO DE ENFERMAGEM
+Agendado: 2025-09-24 18:46:56.202128+00:00
+--------------------
+ID: 3816
+Para: carlos.lacerda447@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Carlos Lacerda Rocha!
+Agendado: 2025-09-24 18:46:56.208156+00:00
+--------------------
+ID: 3839
+Para: dailane-oliveira@outlook.com
+Assunto: Candidatura confirmada - ENFERMEIRO
+Agendado: 2025-09-24 18:46:56.213432+00:00
+--------------------
+ID: 3840
+Para: valneidavila00@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, VALNEI DAVILA APOLONIO!
+Agendado: 2025-09-24 18:46:56.217998+00:00
+--------------------
+ID: 3841
+Para: Souzadulcilene789@gmail.com
+Assunto: Candidatura confirmada - LACTARISTA
+Agendado: 2025-09-24 18:46:56.223456+00:00
+--------------------
+ID: 4294
+Para: suyanemagalhaes2015@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Suyane Magalhaes!
+Agendado: 2025-09-24 18:47:14.879295+00:00
+--------------------
+ID: 4295
+Para: anacristina190666@gmail.com
+Assunto: Candidatura confirmada - ENFERMEIRO
+Agendado: 2025-09-24 18:47:57.364230+00:00
+--------------------
+ID: 4296
+Para: da29ni06@gmail.com
+Assunto: Bem-vindo(a) ao RH Acqua, Daniele Dias da Silva!
+Agendado: 2025-09-24 18:47:59.071684+00:00
+--------------------

@@ -1,0 +1,18 @@
+[0;1;32m●[0m nginx.service - nginx - high performance web server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: [0;1;32mactive (running)[0m since Tue 2025-09-09 15:34:19 CEST; 13min ago
+       Docs: http://nginx.org/en/docs/
+    Process: 842 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf (code=exited, status=0/SUCCESS)
+    Process: 1858 ExecReload=/bin/kill -s HUP $MAINPID (code=exited, status=0/SUCCESS)
+   Main PID: 933 (nginx)
+      Tasks: 7 (limit: 57731)
+     Memory: 19.6M
+        CPU: 3.274s
+     CGroup: /system.slice/nginx.service
+             ├─ 933 "nginx: master process /usr/sbin/nginx -c /etc/nginx/nginx.conf"
+             ├─1869 "nginx: logger process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             ├─1870 /usr/local/cpanel/bin/splitlogs --dir=/var/log/nginx/domains --main=vmi2744085.contaboserver.net --suffix=-bytes_log
+             ├─1871 /usr/local/cpanel/bin/splitlogs --dir=/var/log/nginx/domains --main=vmi2744085.contaboserver.net --mainout=/var/log/nginx/access.log
+             ├─1872 /usr/local/cpanel/bin/splitlogs --main=nginx-traffic.log --mainout=/var/log/cpanel-server-traffic/web/traffic-nginx.log
+             ├─1873 "nginx: worker process" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" ""
+             └─1874 "nginx: cache manager process" "" "" "" "" "" "" "" "" "" "" "" ""

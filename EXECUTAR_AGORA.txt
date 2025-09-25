@@ -1,0 +1,18 @@
+INSTRUÇÕES SIMPLES - EXECUTE AGORA:
+
+1. Abra terminal como ROOT
+2. Execute estes comandos:
+
+cd /home/institutoacquaor/public_html/rh-acqua
+sudo bash configurar_via_whm.sh
+
+3. O script vai:
+   ✅ Configurar nginx automaticamente
+   ✅ Usar métodos oficiais do WHM
+   ✅ Testar e ativar as configurações
+   ✅ Fazer o domínio funcionar
+
+4. Após executar, teste:
+   http://rh.institutoacqua.org.br/
+
+ISSO É TUDO! 🎉

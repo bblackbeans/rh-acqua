@@ -1,0 +1,34 @@
+COMANDOS DE DIAGNÓSTICO PARA EXECUTAR COM SUDO
+==============================================
+
+1. VERIFICAR LOGS DO CONTAINER WEB (últimas 50 linhas):
+sudo docker logs rh-acqua-web-1 --tail 50
+
+2. VERIFICAR STATUS DOS CONTAINERS:
+sudo docker ps --filter "name=rh-acqua"
+
+3. VERIFICAR LOGS DE ERRO DO NGINX:
+sudo tail -50 /var/log/nginx/error.log
+
+4. TESTAR CONECTIVIDADE COM O SITE:
+curl -I https://rh.institutoacqua.org.br/
+
+5. VERIFICAR SE O FORMULÁRIO ESTÁ ACESSÍVEL:
+curl -I https://rh.institutoacqua.org.br/vacancies/create/
+
+6. TESTAR CSRF TOKEN NO FORMULÁRIO:
+curl -s https://rh.institutoacqua.org.br/vacancies/create/ | grep -o 'name="csrfmiddlewaretoken" value="[^"]*"'
+
+7. VERIFICAR CONFIGURAÇÕES DO .env:
+cat .env | grep -E "CSRF_TRUSTED_ORIGINS|CSRF_COOKIE_SECURE|SESSION_COOKIE_SECURE|DEBUG"
+
+8. VERIFICAR SE O BANCO DE DADOS ESTÁ FUNCIONANDO:
+sudo docker exec rh-acqua-db-1 psql -U rh_acqua_user -d rh_acqua_db -c "SELECT COUNT(*) FROM vacancies_vacancy;"
+
+9. VERIFICAR LOGS DO CELERY (pode ter erros de processamento):
+sudo docker logs rh-acqua-celery-1 --tail 30
+
+10. VERIFICAR SE HÁ ERROS NO SISTEMA:
+sudo journalctl -u docker --tail 20
+
+EXECUTE ESTES COMANDOS E ME PASSE OS RESULTADOS PARA ANALISAR O PROBLEMA.
