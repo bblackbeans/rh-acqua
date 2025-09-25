@@ -2,17 +2,24 @@
 <div class="card vacancy-card h-100">
     <div class="card-header">
         <h5 class="card-title mb-0">{{ vacancy.title }}</h5>
-        <span class="badge bg-{{ vacancy.get_status_color }}">{{ vacancy.get_status_display }}</span>
+        <span class="badge {% if vacancy.status == 'published' %}bg-success{% elif vacancy.status == 'draft' %}bg-warning text-dark{% elif vacancy.status == 'closed' %}bg-secondary{% elif vacancy.status == 'filled' %}bg-info{% else %}bg-secondary{% endif %}">{{ vacancy.get_status_display }}</span>
     </div>
     <div class="card-body">
         <div class="vacancy-info mb-3">
             <p><i class="fas fa-building me-2"></i> {{ vacancy.department.hospital.name }}</p>
-            <p><i class="fas fa-sitemap me-2"></i> {{ vacancy.department.name }}</p>
+            {% if vacancy.department %}
+                <p><i class="fas fa-sitemap me-2"></i> {{ vacancy.department.name }}</p>
+            {% endif %}
+            {% if vacancy.category %}
+                <p><i class="fas fa-tag me-2"></i> {{ vacancy.category.name }}</p>
+            {% endif %}
             <p><i class="fas fa-map-marker-alt me-2"></i> {{ vacancy.location }}</p>
             <p><i class="fas fa-clock me-2"></i> {{ vacancy.get_work_schedule_display }}</p>
-            <p><i class="fas fa-money-bill-wave me-2"></i> {{ vacancy.salary_range }}</p>
+            <p><i class="fas fa-money-bill-wave me-2"></i> {{ vacancy.formatted_salary_range }}</p>
         </div>
-        <p class="card-text">{{ vacancy.short_description|truncatewords:30 }}</p>
+        {% if vacancy.description %}
+            <p class="card-text">{{ vacancy.description|truncatewords:30 }}</p>
+        {% endif %}
     </div>
     <div class="card-footer d-flex justify-content-between align-items-center">
         <small class="text-muted">Publicada em {{ vacancy.published_date|date:"d/m/Y" }}</small>

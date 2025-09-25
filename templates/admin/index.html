@@ -1,0 +1,77 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .email-system-links {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .email-system-links h2 {
+            color: #2c5aa0;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .email-system-links .link-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .email-system-links .link-item:last-child {
+            border-bottom: none;
+        }
+        .email-system-links .link-item a {
+            color: #2c5aa0;
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        .email-system-links .link-item a:hover {
+            text-decoration: underline;
+        }
+        .email-system-links .link-description {
+            color: #6c757d;
+            font-size: 12px;
+            margin-left: auto;
+        }
+        .email-system-links .link-icon {
+            margin-right: 8px;
+            color: #2c5aa0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    
+    {% if email_system_links %}
+    <div class="email-system-links">
+        <h2>📧 Sistema de Email</h2>
+        <p>Gerencie o sistema de comunicação por email do RH Acqua:</p>
+        
+        {% for link in email_system_links %}
+        <div class="link-item">
+            <span class="link-icon">
+                {% if 'Dashboard' in link.name %}
+                    📊
+                {% elif 'Fila' in link.name %}
+                    📋
+                {% elif 'Logs' in link.name %}
+                    📝
+                {% else %}
+                    ⚙️
+                {% endif %}
+            </span>
+            <a href="{{ link.url }}">{{ link.name }}</a>
+            <span class="link-description">{{ link.description }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}

@@ -2,7 +2,7 @@
 <div class="card interview-card h-100">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">{{ interview.title }}</h5>
-        <span class="badge bg-{{ interview.get_status_color }}">{{ interview.get_status_display }}</span>
+        <span class="badge {% if interview.status == 'scheduled' %}bg-primary{% elif interview.status == 'completed' %}bg-success{% elif interview.status == 'cancelled' %}bg-danger{% elif interview.status == 'rescheduled' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ interview.get_status_display }}</span>
     </div>
     <div class="card-body">
         <div class="interview-info mb-3">

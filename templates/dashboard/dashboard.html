@@ -215,7 +215,7 @@
                 )}</small>
             </div>
             <div class="application-status">
-                <span class="badge bg-${app.status_color}">${app.status}</span>
+                <span class="badge ${app.status === 'pending' ? 'bg-warning text-dark' : app.status === 'under_review' ? 'bg-info' : app.status === 'interview' ? 'bg-primary' : app.status === 'approved' ? 'bg-success' : app.status === 'rejected' ? 'bg-danger' : 'bg-secondary'}">${app.status}</span>
             </div>
         </div>
     `

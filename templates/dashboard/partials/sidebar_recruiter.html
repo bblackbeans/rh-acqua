@@ -54,13 +54,12 @@
       </a>
     </li>
     <li class="mb-1">
-      <span
-        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none opacity-50"
-        style="cursor: not-allowed;"
-        title="Funcionalidade não disponível no pré-MVP"
+      <a
+        href="{% url 'interviews:entrevistas' %}"
+        class="d-flex align-items-center px-3 py-2 text-white text-decoration-none {% if request.resolver_match.url_name == 'entrevistas' %}bg-white bg-opacity-25 border-start border-white border-3{% endif %}"
       >
         <i class="bi bi-calendar-event me-3"></i> Entrevistas
-      </span>
+      </a>
     </li>
     <li class="mb-1">
       <span
@@ -99,7 +98,7 @@
       </div>
     </div>
     <div>
-      <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm w-100">
+              <a href="{% url 'users:logout' %}" class="btn btn-outline-light btn-sm w-100">
         <i class="bi bi-box-arrow-right me-2"></i> Sair
       </a>
     </div>

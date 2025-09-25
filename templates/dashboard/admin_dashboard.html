@@ -34,7 +34,7 @@ breadcrumb %}
             >
               Total de Usuários
             </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">125</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
           </div>
           <div class="col-auto">
             <i class="bi bi-people fa-2x text-gray-300"></i>
@@ -54,7 +54,7 @@ breadcrumb %}
             >
               Unidades Ativas
             </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">8</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_hospitals }}</div>
           </div>
           <div class="col-auto">
             <i class="bi bi-building fa-2x text-gray-300"></i>
@@ -72,7 +72,7 @@ breadcrumb %}
             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
               Vagas Ativas
             </div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800">42</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_vacancies }}</div>
           </div>
           <div class="col-auto">
             <i class="bi bi-briefcase fa-2x text-gray-300"></i>
@@ -141,52 +141,7 @@ breadcrumb %}
                 <th>Ações</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Ana Oliveira</td>
-                <td>Recrutador</td>
-                <td>01/06/2025</td>
-                <td>
-                  <span class="status-badge approved">Ativo</span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-primary">Editar</button>
-                </td>
-              </tr>
-              <tr>
-                <td>João Silva</td>
-                <td>Candidato</td>
-                <td>02/06/2025</td>
-                <td>
-                  <span class="status-badge approved">Ativo</span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-primary">Editar</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Maria Santos</td>
-                <td>Candidato</td>
-                <td>03/06/2025</td>
-                <td>
-                  <span class="status-badge approved">Ativo</span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-primary">Editar</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Roberto Alves</td>
-                <td>Recrutador</td>
-                <td>04/06/2025</td>
-                <td>
-                  <span class="status-badge pending">Pendente</span>
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-primary">Editar</button>
-                </td>
-              </tr>
-            </tbody>
+            <tbody>\              <tr>\                <td colspan="5" class="text-center text-muted">\                  <i class="bi bi-people fs-1 d-block mb-2"></i>\                  Nenhum usuário cadastrado ainda\                </td>\              </tr>\            </tbody>
           </table>
         </div>
       </div>
@@ -203,12 +158,7 @@ breadcrumb %}
         <a href="#" class="btn btn-sm btn-primary">Ver Todas</a>
       </div>
       <div class="card-body">
-        <div class="list-group">
-          <a href="#" class="list-group-item list-group-item-action">
-            <div class="d-flex w-100 justify-content-between">
-              <h6 class="mb-1">Backup automático concluído</h6>
-              <small class="text-muted">Hoje, 08:30</small>
-            </div>
+        <div class="list-group">\          <div class="list-group-item text-center text-muted">\            <i class="bi bi-activity fs-1 d-block mb-2"></i>\            Nenhuma atividade recente\          </div>\        </div>
             <p class="mb-1">
               O backup diário do sistema foi concluído com sucesso.
             </p>
@@ -262,12 +212,7 @@ breadcrumb %}
               style="position: relative; height: 300px; width: 100%"
             >
               <!-- Aqui entraria um gráfico de pizza -->
-              <div class="text-center py-5">
-                <p class="text-muted">Gráfico de distribuição de usuários</p>
-                <p>Candidatos: 65%</p>
-                <p>Recrutadores: 30%</p>
-                <p>Administradores: 5%</p>
-              </div>
+              <div class="text-center py-5">\                <p class="text-muted">Nenhum dado disponível ainda</p>\              </div>
             </div>
           </div>
           <div class="col-md-6">
@@ -277,13 +222,7 @@ breadcrumb %}
               style="position: relative; height: 300px; width: 100%"
             >
               <!-- Aqui entraria um gráfico de barras -->
-              <div class="text-center py-5">
-                <p class="text-muted">Gráfico de vagas por unidade</p>
-                <p>Hospital Santa Clara - SP: 15 vagas</p>
-                <p>Hospital São Lucas - RJ: 12 vagas</p>
-                <p>Hospital Central - MG: 8 vagas</p>
-                <p>Outras unidades: 7 vagas</p>
-              </div>
+              <div class="text-center py-5">\                <p class="text-muted">Nenhum dado disponível ainda</p>\              </div>
             </div>
           </div>
         </div>
