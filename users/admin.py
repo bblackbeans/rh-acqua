@@ -1,8 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
 
 from .models import User, CandidateProfile, RecruiterProfile, UserProfile, Education, Experience, TechnicalSkill, SoftSkill, Certification, Language
+
+User = get_user_model()
 
 # Registros existentes...
 
@@ -45,6 +48,12 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2', 'first_name', 'last_name', 'role'),
         }),
     )
+    
+    def save_model(self, request, obj, form, change):
+        """Override para evitar problemas de logging."""
+        if not change:  # Se é um novo usuário
+            obj.set_password(obj.password)
+        obj.save()
 
 
 @admin.register(CandidateProfile)
@@ -72,8 +81,16 @@ class EducationAdmin(admin.ModelAdmin):
     """Admin para formação acadêmica."""
     list_display = ('user', 'curso', 'instituicao', 'nivel', 'inicio', 'fim', 'em_andamento')
     list_filter = ('nivel', 'em_andamento', 'created_at')
-    search_fields = ('user__email', 'curso', 'instituicao')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'curso', 'instituicao')
     date_hierarchy = 'inicio'
+    autocomplete_fields = ('user',)
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if 'user' in form.base_fields:
+            form.base_fields['user'].queryset = User.objects.filter(is_active=True)
+            form.base_fields['user'].required = True
+        return form
 
 
 @admin.register(Experience)
@@ -81,8 +98,16 @@ class ExperienceAdmin(admin.ModelAdmin):
     """Admin para experiência profissional."""
     list_display = ('user', 'cargo', 'empresa', 'inicio', 'fim', 'atual')
     list_filter = ('atual', 'created_at')
-    search_fields = ('user__email', 'cargo', 'empresa')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'cargo', 'empresa')
     date_hierarchy = 'inicio'
+    autocomplete_fields = ('user',)
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if 'user' in form.base_fields:
+            form.base_fields['user'].queryset = User.objects.filter(is_active=True)
+            form.base_fields['user'].required = True
+        return form
 
 
 @admin.register(TechnicalSkill)
@@ -90,7 +115,8 @@ class TechnicalSkillAdmin(admin.ModelAdmin):
     """Admin para habilidades técnicas."""
     list_display = ('user', 'nome', 'nivel')
     list_filter = ('nivel', 'created_at')
-    search_fields = ('user__email', 'nome')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'nome')
+    autocomplete_fields = ('user',)
 
 
 @admin.register(SoftSkill)
@@ -98,7 +124,8 @@ class SoftSkillAdmin(admin.ModelAdmin):
     """Admin para habilidades emocionais."""
     list_display = ('user', 'nome')
     list_filter = ('created_at',)
-    search_fields = ('user__email', 'nome')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'nome')
+    autocomplete_fields = ('user',)
 
 
 @admin.register(Certification)
@@ -106,8 +133,9 @@ class CertificationAdmin(admin.ModelAdmin):
     """Admin para certificações."""
     list_display = ('user', 'titulo', 'orgao', 'emissao', 'validade', 'sem_validade')
     list_filter = ('sem_validade', 'created_at')
-    search_fields = ('user__email', 'titulo', 'orgao')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'titulo', 'orgao')
     date_hierarchy = 'emissao'
+    autocomplete_fields = ('user',)
 
 
 @admin.register(Language)
@@ -115,7 +143,8 @@ class LanguageAdmin(admin.ModelAdmin):
     """Admin para idiomas."""
     list_display = ('user', 'idioma', 'idioma_outro', 'nivel')
     list_filter = ('idioma', 'nivel', 'created_at')
-    search_fields = ('user__email', 'idioma', 'idioma_outro')
+    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'idioma', 'idioma_outro')
+    autocomplete_fields = ('user',)
 
 
 @admin.register(RecruiterProfile)

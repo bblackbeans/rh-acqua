@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.conf import settings
 
 
 
@@ -263,7 +264,7 @@ class Education(models.Model):
         ('doutorado', 'Doutorado'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='educations')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='educations')
     instituicao = models.CharField(_('instituição'), max_length=200)
     curso = models.CharField(_('curso'), max_length=200)
     nivel = models.CharField(_('nível'), max_length=50, choices=NIVEL_CHOICES)
@@ -286,7 +287,7 @@ class Education(models.Model):
 class Experience(models.Model):
     """Experiência Profissional"""
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiences')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='experiences')
     empresa = models.CharField(_('empresa'), max_length=200)
     cargo = models.CharField(_('cargo'), max_length=200)
     inicio = models.DateField(_('data de início'))
@@ -316,7 +317,7 @@ class TechnicalSkill(models.Model):
         ('expert', 'Expert'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='technical_skills')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='technical_skills')
     nome = models.CharField(_('nome da habilidade'), max_length=100)
     nivel = models.CharField(_('nível'), max_length=20, choices=NIVEL_CHOICES)
     
@@ -336,7 +337,7 @@ class TechnicalSkill(models.Model):
 class SoftSkill(models.Model):
     """Habilidades Emocionais"""
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='soft_skills')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='soft_skills')
     nome = models.CharField(_('nome da habilidade'), max_length=100)
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -355,7 +356,7 @@ class SoftSkill(models.Model):
 class Certification(models.Model):
     """Certificações"""
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certifications')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='certifications')
     titulo = models.CharField(_('título'), max_length=200)
     orgao = models.CharField(_('órgão emissor'), max_length=200, blank=True)
     emissao = models.DateField(_('data de emissão'), blank=True, null=True)
@@ -401,7 +402,7 @@ class Language(models.Model):
         ('nativo', 'Nativo'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='languages')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='languages')
     idioma = models.CharField(_('idioma'), max_length=50, choices=IDIOMA_CHOICES)
     idioma_outro = models.CharField(_('outro idioma'), max_length=100, blank=True, null=True)
     nivel = models.CharField(_('nível'), max_length=20, choices=NIVEL_CHOICES)

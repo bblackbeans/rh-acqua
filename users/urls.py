@@ -57,7 +57,10 @@ urlpatterns = [
     path('api/', include(router.urls)),
     
     # URLs para CRUD do currículo
-    path('meu-curriculo/education/create/', views.education_create, name='education_create'),
+    # JSON API endpoints
+    path('meu-curriculo/education/create/', views.create_education, name='education-create'),
+    # HTML form endpoints  
+    path('meu-curriculo/education/form/', views.education_create, name='education_create'),
     path('meu-curriculo/education/<int:pk>/edit/', views.education_edit, name='education_edit'),
     path('meu-curriculo/education/<int:pk>/delete/', views.education_delete, name='education_delete'),
 

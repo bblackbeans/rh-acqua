@@ -12,6 +12,9 @@ from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.db.models import Q
 from django.template.loader import render_to_string
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
+import json
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -33,7 +36,7 @@ class RegisterView(CreateView):
     """
     template_name = 'users/register.html'
     form_class = UserRegistrationForm
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('users:login')
     
     def form_valid(self, form):
         # Força o papel de candidato para todos os registros
@@ -46,37 +49,30 @@ class RegisterView(CreateView):
 
 
 class LoginView(FormView):
-    template_name = 'users/login.html'  # Define o template a ser usado
-    form_class = CustomAuthenticationForm  # Usa seu form personalizado
-    success_url = reverse_lazy('core:home')  # Backup se o redirect condicional falhar
+    template_name = 'users/login.html'
+    form_class = CustomAuthenticationForm
+    success_url = reverse_lazy('core:home')
+    
     def form_valid(self, form):
-        email = form.cleaned_data.get('username')  # Este campo é o email, mesmo que o nome seja username no formulário
+        # Usar o form para autenticação automática
+        email = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         
-        try:
-            user_obj = User.objects.get(email=email)
-            # Como o modelo não tem username, usamos o email diretamente
-            user = authenticate(self.request, username=email, password=password)
-        except User.DoesNotExist:
-            user = None
-
-        if user is not None:
-            # Limpa mensagens antigas antes de fazer login
-            from django.contrib import messages
-            storage = messages.get_messages(self.request)
-            storage.used = True  # Marca todas as mensagens como usadas
-            
+        # Autenticar usando o método padrão do Django
+        user = authenticate(self.request, username=email, password=password)
+        
+        if user is not None and user.is_active:
             login(self.request, user)
             messages.success(self.request, _('Login realizado com sucesso!'))
-
-            # Redireciona baseado no role do usuário
+            
+            # Redirecionar baseado no role do usuário
             if hasattr(user, 'role'):
                 if user.role == 'recruiter':
                     return redirect('vacancies:gestao_vagas')
                 elif user.role == 'candidate':
-                    return redirect('vacancies:vagas_disponiveis')
+                    return redirect('applications:minhas_candidaturas')
                 elif user.role == 'admin':
-                    return redirect('core:home')
+                    return redirect('administration:admin_dashboard')
             
             # Fallback para a página inicial
             return redirect('/')
@@ -727,6 +723,35 @@ def download_curriculo_pdf(request):
 
 
 # Views para CRUD do currículo
+
+@require_POST
+@csrf_protect
+def create_education(request):
+    """Criar nova formação acadêmica via JSON API."""
+    if not request.user.is_authenticated:
+        return JsonResponse({"ok": False, "error": "auth required"}, status=401)
+    
+    if request.user.role != 'candidate':
+        return JsonResponse({"ok": False, "error": "Apenas candidatos podem criar formações acadêmicas"}, status=403)
+    
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        obj = Education.objects.create(
+            user=request.user,
+            instituicao=data["instituicao"],
+            curso=data["curso"],
+            nivel=data["nivel"],
+            inicio=data["inicio"],
+            fim=data.get("fim"),
+            em_andamento=data.get("em_andamento", False),
+        )
+        return JsonResponse({"ok": True, "id": obj.id}, status=201)
+    except KeyError as e:
+        return JsonResponse({"ok": False, "error": f"Campo obrigatório: {e}"}, status=400)
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)}, status=500)
+
+
 @login_required
 def education_create(request):
     """Criar nova formação acadêmica."""
