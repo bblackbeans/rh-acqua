@@ -15,6 +15,10 @@ RUN apt-get update \
         build-essential \
         libpq-dev \
         gettext \
+        # WeasyPrint dependencies
+        libcairo2 \
+        libpango-1.0-0 \
+        libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies

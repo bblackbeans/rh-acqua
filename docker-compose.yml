@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   db:
+    restart: unless-stopped 
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -18,6 +19,7 @@ services:
       retries: 5
 
   redis:
+    restart: unless-stopped
     image: redis:7-alpine
     ports:
       - "6379:6379"
@@ -28,11 +30,9 @@ services:
       retries: 5
 
   web:
+    restart: unless-stopped
     build: .
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
-             gunicorn --bind 0.0.0.0:8000 hr_system.wsgi:application"
+    command: sh -c "python manage.py collectstatic --noinput && sleep 5 && gunicorn --bind 0.0.0.0:8000 hr_system.wsgi:application"   
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -40,32 +40,38 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
-      - DB_ENGINE=django.db.backends.postgresql
-      - DB_NAME=rh_acqua_db
-      - DB_USER=rh_acqua_user
-      - DB_PASSWORD=rh_acqua_password
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_URL=redis://redis:6379/0
+        # --- ALTERAÇÃO 2: DEBUG=False ---
+        - DEBUG=False
+        # --- ALTERAÇÃO 3: ALLOWED_HOSTS LIMPO ---
+        - ALLOWED_HOSTS=rh.institutoacqua.org.br,www.rh.institutoacqua.org.br
+        - DJANGO_SETTINGS_MODULE=hr_system.settings
+        - DB_ENGINE=django.db.backends.postgresql
+        - DB_NAME=rh_acqua_db
+        - DB_USER=rh_acqua_user
+        - DB_PASSWORD=rh_acqua_password
+        - DB_HOST=db
+        - DB_PORT=5432
+        - REDIS_URL=redis://redis:6379/0
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    #healthcheck:
+      #test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      #interval: 30s
+      #timeout: 10s
+      #retries: 3
 
   celery:
+    restart: unless-stopped
     build: .
-    command: celery -A hr_system worker -l info
+    command: celery -A hr_system worker -l warning
     volumes:
       - .:/app
     environment:
-      - DEBUG=True
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,158.220.108.114,vmi2744085.contaboserver.net,rh.institutoacqua.org.br
       - DB_ENGINE=django.db.backends.postgresql
       - DB_NAME=rh_acqua_db
       - DB_USER=rh_acqua_user
@@ -78,12 +84,14 @@ services:
       - redis
 
   celery-beat:
+    restart: unless-stopped
     build: .
-    command: celery -A hr_system beat -l info
+    command: celery -A hr_system beat -l warning
     volumes:
       - .:/app
     environment:
-      - DEBUG=True
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0,158.220.108.114,vmi2744085.contaboserver.net,rh.institutoacqua.org.br
       - DB_ENGINE=django.db.backends.postgresql
       - DB_NAME=rh_acqua_db
       - DB_USER=rh_acqua_user
