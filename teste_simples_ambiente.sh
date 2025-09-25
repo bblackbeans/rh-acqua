@@ -1,0 +1,95 @@
+#!/bin/bash
+
+echo "🔍 TESTE SIMPLES DE AMBIENTE ONLINE"
+echo "=================================="
+
+echo ""
+echo "1️⃣ VERIFICANDO CONFIGURAÇÕES BÁSICAS"
+echo "==================================="
+
+echo "📋 DEBUG: $(grep DEBUG .env)"
+echo "📋 ALLOWED_HOSTS: $(grep ALLOWED_HOSTS .env)"
+echo "📋 CSRF_TRUSTED_ORIGINS: $(grep CSRF_TRUSTED_ORIGINS .env)"
+
+echo ""
+echo "2️⃣ TESTANDO CONECTIVIDADE"
+echo "========================"
+
+echo "📋 Testando acesso ao site:"
+curl -s -o /dev/null -w "Status: %{http_code}, Tempo: %{time_total}s\n" https://rh.institutoacqua.org.br/
+
+echo "📋 Testando formulário de vaga:"
+curl -s -o /dev/null -w "Status: %{http_code}, Tempo: %{time_total}s\n" https://rh.institutoacqua.org.br/vacancies/vacancy/create/
+
+echo ""
+echo "3️⃣ VERIFICANDO CONTAINER"
+echo "======================="
+
+echo "📋 Status do container:"
+docker ps --filter 'name=rh-acqua-web-1' --format "{{.Names}}: {{.Status}}"
+
+echo ""
+echo "4️⃣ POSSÍVEIS CAUSAS DO PROBLEMA"
+echo "=============================="
+
+echo "🔍 Como o código funciona no local mas não online:"
+echo ""
+echo "1. ❌ PROBLEMA DE TIMEOUT"
+echo "   - Requisição muito lenta no ambiente online"
+echo "   - Container com poucos recursos"
+echo "   - Banco de dados lento"
+echo ""
+echo "2. ❌ PROBLEMA DE SESSÃO/COOKIES"
+echo "   - Sessão expira muito rápido"
+echo "   - Cookies não são salvos corretamente"
+echo "   - Problema de CSRF token"
+echo ""
+echo "3. ❌ PROBLEMA DE MIDDLEWARE"
+echo "   - Middleware bloqueando requisições"
+echo "   - Problema de autenticação"
+echo "   - Problema de permissões"
+echo ""
+echo "4. ❌ PROBLEMA DE CACHE"
+echo "   - Cache do Django interferindo"
+echo "   - Cache do nginx"
+echo "   - Cache do navegador"
+echo ""
+echo "5. ❌ PROBLEMA DE BANCO DE DADOS"
+echo "   - Conexão lenta com banco"
+echo "   - Transação não commitada"
+echo "   - Lock de tabela"
+
+echo ""
+echo "5️⃣ SOLUÇÕES PARA TESTAR"
+echo "======================"
+
+echo "🎯 Teste estas soluções:"
+echo ""
+echo "1. 🔄 LIMPAR CACHE:"
+echo "   - Limpe o cache do navegador (Ctrl+F5)"
+echo "   - Teste em modo incógnito"
+echo "   - Reinicie o container: sudo docker restart rh-acqua-web-1"
+echo ""
+echo "2. ⏱️ TESTAR TIMEOUT:"
+echo "   - Aguarde mais tempo após preencher o formulário"
+echo "   - Não clique várias vezes no botão salvar"
+echo "   - Verifique se a página não está travada"
+echo ""
+echo "3. 🔐 TESTAR SESSÃO:"
+echo "   - Faça logout e login novamente"
+echo "   - Verifique se está logado como recrutador"
+echo "   - Teste em outra aba do navegador"
+echo ""
+echo "4. 🗄️ TESTAR BANCO:"
+echo "   - Verifique se o banco está respondendo"
+echo "   - Teste com dados mais simples"
+echo "   - Verifique se não há locks"
+
+echo ""
+echo "✅ Análise concluída!"
+echo ""
+echo "🎯 RECOMENDAÇÃO:"
+echo "Teste primeiro a solução 1 (limpar cache) e 2 (timeout)."
+echo "Se não funcionar, teste as outras soluções."
+
+
