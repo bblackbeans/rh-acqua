@@ -1,0 +1,37 @@
+rh.institutoacqua.org.br:8080 {
+    # Não forçar HTTPS
+    tls internal
+    
+    # Proxy para o Django
+    reverse_proxy web:8000
+    
+    # Servir arquivos estáticos
+    handle /static/* {
+        root * /app/staticfiles
+        file_server
+    }
+    
+    # Servir arquivos de mídia
+    handle /media/* {
+        root * /app/media
+        file_server
+    }
+}
+
+# Fallback para IP (desenvolvimento)
+158.220.108.114:8080 {
+    # Não forçar HTTPS
+    tls internal
+    
+    reverse_proxy web:8000
+    
+    handle /static/* {
+        root * /app/staticfiles
+        file_server
+    }
+    
+    handle /media/* {
+        root * /app/media
+        file_server
+    }
+}

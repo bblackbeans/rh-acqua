@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Se a requisição for para os arquivos estáticos ou de mídia, não faça nada.
+# O Apache (ou NGINX) deve servi-los diretamente.
+RewriteRule ^(static/|media/) - [L]
+
+# Para todas as outras requisições, envie para a aplicação Django.
+RewriteRule ^(.*)$ http://127.0.0.1:8000/$1 [P,L]
+
+# Preserva o cabeçalho Host original enviado pelo cliente.
+# Isso corrige o erro "DisallowedHost".
+ProxyPreserveHost On
