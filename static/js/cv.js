@@ -116,8 +116,10 @@ function openCreateModal(section) {
     
     modalTitle.textContent = titles[section] || 'Adicionar Item';
     
-    // Carrega o formulário via AJAX
-    const url = `/users/meu-curriculo/${section}/create/`;
+    // Carrega o formulário via AJAX - usa endpoint específico para formulários
+    const url = section === 'education' ? 
+        `/users/meu-curriculo/${section}/form/` : 
+        `/users/meu-curriculo/${section}/create/`;
     console.log('Fazendo fetch para:', url);
     
     fetch(url, {
@@ -244,41 +246,37 @@ function deleteItem(section, id) {
 }
 
 // Funções específicas para cada seção
-function addEducation() {
-    // Salva o item e fecha o modal
-    const form = document.getElementById('educationForm');
-    const formData = new FormData(form);
-    
-    fetch('/users/meu-curriculo/education/create/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.ok) {
-            // Atualiza a lista
-            document.querySelector('[data-section-container="education"]').innerHTML = data.html;
-            // Fecha o modal
-            bootstrap.Modal.getInstance(document.getElementById('cvModal')).hide();
-            // Mostra mensagem de sucesso discreta
-            showToast('✓ Adicionado', 'info');
-            
-            // Recarrega os event listeners para os novos botões
-            setTimeout(() => {
-                reloadEventListeners();
-            }, 100);
-        } else {
-            // Atualiza o modal com erros
-            document.getElementById('cvModal').querySelector('.modal-body').innerHTML = data.html;
-        }
-    })
-    .catch(error => {
+async function addEducation() {
+    try {
+        const form = document.getElementById('educationForm');
+        const formData = new FormData(form);
+        
+        // Converter FormData para objeto JSON
+        const payload = {
+            instituicao: formData.get('instituicao'),
+            curso: formData.get('curso'),
+            nivel: formData.get('nivel'),
+            inicio: formData.get('inicio'),
+            fim: formData.get('fim'),
+            em_andamento: formData.get('em_andamento') === 'on'
+        };
+        
+        const data = await postJSON('/users/meu-curriculo/education/create/', payload);
+        
+        // Fecha o modal
+        bootstrap.Modal.getInstance(document.getElementById('cvModal')).hide();
+        // Mostra mensagem de sucesso
+        showToast('✓ Formação acadêmica adicionada', 'success');
+        
+        // Recarrega a página ou atualiza a seção
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+        
+    } catch (error) {
         console.error('Erro:', error);
-        showToast('Erro ao adicionar formação acadêmica.', 'error');
-    });
+        showToast(`Erro ao adicionar formação acadêmica: ${error.message}`, 'error');
+    }
 }
 
 // Funções para edição
@@ -736,18 +734,36 @@ function downloadPDF() {
 
 // Função para obter cookie CSRF
 function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+}
+
+const csrftoken = getCookie('csrftoken');
+
+async function postJSON(url, payload){
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+    });
+    
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(`Esperava JSON, recebi ${res.status} ${res.statusText}\n${text.slice(0,400)}`);
     }
-    return cookieValue;
+    
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    
+    return res.json();
 }
 
 // Função para recarregar event listeners
@@ -804,7 +820,7 @@ function addMoreEducation() {
     const form = document.getElementById('educationForm');
     const formData = new FormData(form);
     
-    fetch('/users/meu-curriculo/education/create/', {
+    fetch('/users/meu-curriculo/education/form/', {
         method: 'POST',
         body: formData,
         headers: {

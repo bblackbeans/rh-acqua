@@ -123,15 +123,30 @@ function applyPhoneMask(input) {
     
     input.value = maskedValue;
     
-    // Ajustar posição do cursor
+    // Ajustar posição do cursor de forma mais precisa
     let newPos = cursorPos;
-    if (cursorPos > 2 && cursorPos <= 4) {
-        newPos = cursorPos + 1; // Ajustar para parênteses
-    } else if (cursorPos > 6 && value.length === 11) {
-        newPos = cursorPos + 1; // Ajustar para hífen
-    } else if (cursorPos > 5 && value.length === 10) {
-        newPos = cursorPos + 1; // Ajustar para hífen
+    
+    // Se estamos digitando os primeiros 2 dígitos (DDD)
+    if (cursorPos <= 2) {
+        newPos = cursorPos + 1; // +1 para o parêntese de abertura
     }
+    // Se estamos digitando após o DDD (posição 3-4)
+    else if (cursorPos <= 4) {
+        newPos = cursorPos + 2; // +2 para parêntese e espaço
+    }
+    // Se estamos digitando o resto do número
+    else {
+        // Contar quantos caracteres de formatação já foram adicionados
+        let formatChars = 0;
+        if (value.length >= 2) formatChars += 3; // (XX) 
+        if (value.length === 11 && cursorPos > 6) formatChars += 1; // hífen
+        if (value.length === 10 && cursorPos > 5) formatChars += 1; // hífen
+        
+        newPos = cursorPos + formatChars;
+    }
+    
+    // Garantir que a posição não exceda o comprimento do valor
+    newPos = Math.min(newPos, maskedValue.length);
     
     input.setSelectionRange(newPos, newPos);
     
@@ -279,16 +294,24 @@ function initMasks() {
     console.log('👁️ Observer configurado para detectar novos campos');
 }
 
-// Inicializar quando o DOM estiver pronto
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMasks);
-} else {
-    // DOM já está pronto
+// Evitar execução múltipla
+let masksInitialized = false;
+
+function initMasksOnce() {
+    if (masksInitialized) {
+        console.log('🎭 Máscaras já foram inicializadas, pulando...');
+        return;
+    }
+    masksInitialized = true;
     initMasks();
 }
 
-// Também tentar aplicar após um delay para garantir que todos os campos foram renderizados
-setTimeout(initMasks, 1000);
-setTimeout(initMasks, 2000);
+// Inicializar quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMasksOnce);
+} else {
+    // DOM já está pronto
+    initMasksOnce();
+}
 
 console.log('🎭 Sistema de máscaras progressivas configurado!'); 
