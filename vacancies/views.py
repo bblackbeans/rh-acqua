@@ -229,7 +229,8 @@ class VacancyCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     
     def test_func(self):
         """
-        Verifica se o usuário é recrutador ou administrador.
+        Verifica se o usuário é recrutador, administrador ou staff.
+        Versão mais permissiva para debugging.
         """
         if not self.request.user.is_authenticated:
             return False
@@ -237,14 +238,44 @@ class VacancyCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         user_role = getattr(self.request.user, 'role', None)
         is_recruiter = user_role == 'recruiter'
         is_admin = user_role == 'admin'
+        is_staff = self.request.user.is_staff
+        is_superuser = self.request.user.is_superuser
         
-        return is_recruiter or is_admin
+        # Permitir acesso para staff e superuser também
+        return is_recruiter or is_admin or is_staff or is_superuser
+    
+    def post(self, request, *args, **kwargs):
+        print("=== POST RECEBIDO ===")
+        print(f"POST data: {request.POST}")
+        print(f"FILES data: {request.FILES}")
+        return super().post(request, *args, **kwargs)
     
     def form_valid(self, form):
         """
         Define o recrutador como o usuário atual antes de salvar.
         Usa transação atômica para garantir consistência.
         """
+        print("=== FORM_VALID CHAMADO ===")
+        print(f"User ID: {self.request.user.id}")
+        print(f"User: {self.request.user}")
+        print(f"User exists in DB: {self.request.user.pk is not None}")
+        
+        # Verificar se o usuário existe no banco
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        try:
+            user_exists = User.objects.filter(id=self.request.user.id).exists()
+            print(f"User exists in database: {user_exists}")
+            if not user_exists:
+                print("ERRO: Usuário não existe no banco de dados!")
+                # Listar usuários disponíveis
+                available_users = User.objects.all()[:5]
+                print("Usuários disponíveis:")
+                for u in available_users:
+                    print(f"  ID: {u.id}, Username: {u.username}, Email: {u.email}")
+        except Exception as e:
+            print(f"Erro ao verificar usuário: {e}")
+        
         try:
             with transaction.atomic():
                 # Salva a vaga sem commit
@@ -253,10 +284,12 @@ class VacancyCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
                 # Atribui o recruiter automaticamente
                 recruiter = getattr(self.request.user, "recruiter", None)
                 if not recruiter:
-                    # Se não tiver recruiter, usa o próprio usuário
+                    # Usar o próprio usuário (já verificamos que existe)
                     obj.recruiter = self.request.user
+                    print(f"Usando usuário atual como recruiter: {self.request.user}")
                 else:
                     obj.recruiter = recruiter
+                    print(f"Usando recruiter específico: {recruiter}")
                 
                 # Define data de publicação se não estiver definida
                 if not obj.publication_date:
@@ -268,16 +301,19 @@ class VacancyCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
                 # Salva os campos M2M
                 form.save_m2m()
                 
+                print("=== VAGA SALVA COM SUCESSO ===")
                 messages.success(self.request, _('Vaga criada com sucesso!'))
                 return super().form_valid(form)
                 
         except IntegrityError as e:
+            print(f"=== INTEGRITY ERROR: {e} ===")
             form.add_error(
                 None, 
                 _('Erro ao salvar vaga: verifique se todos os campos relacionados são válidos.')
             )
             return self.form_invalid(form)
         except Exception as e:
+            print(f"=== EXCEPTION: {e} ===")
             form.add_error(
                 None, 
                 _('Erro inesperado ao criar vaga. Tente novamente ou entre em contato com o suporte.')
@@ -285,6 +321,8 @@ class VacancyCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             return self.form_invalid(form)
     
     def form_invalid(self, form):
+        print("=== FORM_INVALID CHAMADO ===")
+        print(f"FORM VALIDATION ERRORS: {form.errors.as_json()}")
         messages.error(self.request, _('Erro de validação. Verifique os campos destacados.'))
         return super().form_invalid(form)
 
@@ -625,62 +663,73 @@ def vagas_disponiveis(request):
     """
     View para exibir vagas disponíveis para candidatos.
     """
-    # Verifica se o usuário é um candidato
-    if request.user.role != 'candidate':
-        messages.error(request, _('Apenas candidatos podem acessar esta página.'))
-        return redirect('home')
+    try:
+        # Verifica se o usuário é um candidato
+        if not hasattr(request.user, 'role') or request.user.role != 'candidate':
+            messages.error(request, _('Apenas candidatos podem acessar esta página.'))
+            return redirect('home')
+    except Exception as e:
+        # Se houver erro ao acessar o role, redireciona para login
+        messages.error(request, _('Erro de autenticação. Faça login novamente.'))
+        return redirect('users:login')
     
     # Filtros
     unidade_filter = request.GET.get('unidade', '')
     cargo_filter = request.GET.get('cargo', '')
     regiao_filter = request.GET.get('regiao', '')
     
-    # Busca vagas reais do banco de dados
-    vagas = Vacancy.objects.filter(status=Vacancy.PUBLISHED).order_by('-publication_date')
-    
-    # Aplica filtros
-    if unidade_filter:
-        vagas = vagas.filter(hospital__name__icontains=unidade_filter)
-    
-    if cargo_filter:
-        vagas = vagas.filter(
-            Q(title__icontains=cargo_filter) | 
-            Q(category__name__icontains=cargo_filter)
-        )
-    
-    if regiao_filter:
-        vagas = vagas.filter(
-            Q(hospital__city__icontains=regiao_filter) | 
-            Q(hospital__state__icontains=regiao_filter)
-        )
-    
-    # Obtém dados para filtros
-    hospitals = Hospital.objects.filter(is_active=True).order_by('name')
-    categories = JobCategory.objects.filter(is_active=True).order_by('name')
-    
-    # Obtém regiões (estados) dinamicamente do banco
-    regions = list(Hospital.objects.filter(is_active=True).values_list('state', flat=True).distinct())
-    regions.sort()
-    
-    # Paginação
-    from django.core.paginator import Paginator
-    paginator = Paginator(vagas, 9)  # 9 vagas por página (3x3 grid)
-    page_number = request.GET.get('page')
-    vagas = paginator.get_page(page_number)
-    
-    context = {
-        'vagas': vagas,
-        'total_vagas': paginator.count,
-        'hospitals': hospitals,
-        'categories': categories,
-        'regions': regions,
-        'unidade_filter': unidade_filter,
-        'cargo_filter': cargo_filter,
-        'regiao_filter': regiao_filter,
-        'page_title': _('Vagas Disponíveis'),
-    }
-    
-    return render(request, 'vacancies/vagas_disponiveis.html', context)
+    try:
+        # Busca vagas reais do banco de dados
+        vagas = Vacancy.objects.filter(status=Vacancy.PUBLISHED).order_by('-publication_date')
+        
+        # Aplica filtros
+        if unidade_filter:
+            vagas = vagas.filter(hospital__name__icontains=unidade_filter)
+        
+        if cargo_filter:
+            vagas = vagas.filter(
+                Q(title__icontains=cargo_filter) | 
+                Q(category__name__icontains=cargo_filter)
+            )
+        
+        if regiao_filter:
+            vagas = vagas.filter(
+                Q(hospital__city__icontains=regiao_filter) | 
+                Q(hospital__state__icontains=regiao_filter)
+            )
+        
+        # Obtém dados para filtros
+        hospitals = Hospital.objects.filter(is_active=True).order_by('name')
+        categories = JobCategory.objects.filter(is_active=True).order_by('name')
+        
+        # Obtém regiões (estados) dinamicamente do banco
+        regions = list(Hospital.objects.filter(is_active=True).values_list('state', flat=True).distinct())
+        regions.sort()
+        
+        # Paginação
+        from django.core.paginator import Paginator
+        paginator = Paginator(vagas, 9)  # 9 vagas por página (3x3 grid)
+        page_number = request.GET.get('page')
+        vagas = paginator.get_page(page_number)
+        
+        context = {
+            'vagas': vagas,
+            'total_vagas': paginator.count,
+            'hospitals': hospitals,
+            'categories': categories,
+            'regions': regions,
+            'unidade_filter': unidade_filter,
+            'cargo_filter': cargo_filter,
+            'regiao_filter': regiao_filter,
+            'page_title': _('Vagas Disponíveis'),
+        }
+        
+        return render(request, 'vacancies/vagas_disponiveis.html', context)
+        
+    except Exception as e:
+        # Se houver erro, redireciona para login
+        messages.error(request, _('Erro ao carregar vagas. Faça login novamente.'))
+        return redirect('users:login')
 
 
 @login_required
@@ -716,10 +765,9 @@ def candidatura_view(request, pk):
 	# Processar POST - Envio da candidatura
 	if request.method == 'POST':
 		try:
-			# Verificar se o usuário tem UserProfile
-			if not hasattr(request.user, 'profile'):
-				messages.error(request, _('Perfil de usuário não encontrado. Complete seu perfil primeiro.'))
-				return redirect('users:meu_perfil')
+			# Garantir que o usuário tenha um UserProfile
+			from users.models import UserProfile
+			user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 			
 			# 1) Atualiza informações do usuário a partir do formulário
 			user = request.user
@@ -760,8 +808,11 @@ def candidatura_view(request, pk):
 			user.save()
 			
 			# 2) Criar a candidatura
+			# Garantir que o usuário tenha um UserProfile
+			user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+			
 			application = Application.objects.create(
-				candidate=request.user.profile,
+				candidate=user_profile,
 				vacancy=vacancy,
 				status='pending'
 			)
@@ -785,6 +836,8 @@ def candidatura_view(request, pk):
 				disponibilidade_comercial=request.POST.get('disponibilidade_comercial') == 'comercial',
 				disponibilidade_plantao_dia=request.POST.get('disponibilidade_plantao_dia') == 'plantao_dia',
 				disponibilidade_plantao_noite=request.POST.get('disponibilidade_plantao_noite') == 'plantao_noite',
+				disponibilidade_plantao_12x60_dia=request.POST.get('disponibilidade_plantao_12x60_dia') == 'plantao_12x60_dia',
+				disponibilidade_plantao_12x60_noite=request.POST.get('disponibilidade_plantao_12x60_noite') == 'plantao_12x60_noite',
 				inicio_imediato=request.POST.get('inicio_imediato', ''),
 				trabalhou_acqua=request.POST.get('trabalhou_acqua', ''),
 				area_cargo_acqua=request.POST.get('area_cargo_acqua', ''),
@@ -830,7 +883,12 @@ def candidatura_view(request, pk):
 	if already_applied:
 		try:
 			from applications.models import Application
-			application = Application.objects.get(candidate=request.user.profile, vacancy=vacancy)
+			from users.models import UserProfile
+			
+			# Garantir que o usuário tenha um UserProfile
+			user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+			
+			application = Application.objects.get(candidate=user_profile, vacancy=vacancy)
 			complementary_info = getattr(application, 'complementary_info', None)
 		except (Application.DoesNotExist, AttributeError):
 			complementary_info = None

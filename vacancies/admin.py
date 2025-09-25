@@ -40,7 +40,7 @@ class SkillAdmin(admin.ModelAdmin):
 
 @admin.register(Vacancy)
 class VacancyAdmin(admin.ModelAdmin):
-    exclude = ("recruiter", "slug", "views_count", "applications_count")
+    exclude = ("slug", "views_count", "applications_count")
     list_display = [
         'title', 'hospital', 'department', 'status', 'contract_type', 
         'experience_level', 'recruiter', 'created_at'
@@ -52,7 +52,7 @@ class VacancyAdmin(admin.ModelAdmin):
     search_fields = ['title', 'description', 'requirements', 'hospital__name', 'department__name']
     ordering = ['-created_at']
     list_editable = ['status']
-    autocomplete_fields = ['hospital', 'department', 'category', 'skills']
+    autocomplete_fields = ['hospital', 'department', 'category', 'skills', 'recruiter']
     readonly_fields = ['created_at', 'updated_at']
     
     fieldsets = (
@@ -65,8 +65,11 @@ class VacancyAdmin(admin.ModelAdmin):
         (_('Detalhes da Vaga'), {
             'fields': ('status', 'contract_type', 'experience_level', 'skills')
         }),
+        (_('Responsável'), {
+            'fields': ('recruiter',)
+        }),
         (_('Remuneração'), {
-            'fields': ('salary_range_min', 'salary_range_max', 'is_salary_visible')
+            'fields': ('salary_range_min', 'salary_range_max', 'is_salary_visible', 'monthly_hours')
         }),
         (_('Datas'), {
             'fields': ('publication_date', 'closing_date')
@@ -80,13 +83,40 @@ class VacancyAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         """
         Define automaticamente o recruiter ao criar uma nova vaga.
+        Permite que administradores editem o recruiter.
         """
-        if not obj.pk and hasattr(request.user, "recruiter"):
-            obj.recruiter = request.user.recruiter
-        elif not obj.pk:
-            obj.recruiter = request.user
+        # Se é uma nova vaga (não está sendo editada)
+        if not change:
+            if hasattr(request.user, "recruiter"):
+                obj.recruiter = request.user.recruiter
+            else:
+                obj.recruiter = request.user
+        # Se é uma edição e o usuário é administrador, permite editar o recruiter
+        elif request.user.is_superuser or (hasattr(request.user, 'role') and request.user.role == 'admin'):
+            # O recruiter já foi definido pelo formulário, não precisa fazer nada
+            pass
+        # Se não é admin, mantém o recruiter original
+        else:
+            # Mantém o recruiter original da vaga
+            if obj.pk:
+                original_obj = Vacancy.objects.get(pk=obj.pk)
+                obj.recruiter = original_obj.recruiter
         
         super().save_model(request, obj, form, change)
+    
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Personaliza o formulário baseado no usuário.
+        """
+        form = super().get_form(request, obj, **kwargs)
+        
+        # Se não é administrador, torna o campo recruiter somente leitura
+        if not (request.user.is_superuser or (hasattr(request.user, 'role') and request.user.role == 'admin')):
+            if 'recruiter' in form.base_fields:
+                form.base_fields['recruiter'].disabled = True
+                form.base_fields['recruiter'].help_text = "Apenas administradores podem alterar o recrutador responsável."
+        
+        return form
     
     def get_queryset(self, request):
         """

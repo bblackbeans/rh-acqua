@@ -13,7 +13,7 @@ class Hospital(models.Model):
     city = models.CharField(_('cidade'), max_length=100)
     state = models.CharField(_('estado'), max_length=2)
     zip_code = models.CharField(_('CEP'), max_length=10)
-    phone = models.CharField(_('telefone'), max_length=20)
+    phone = models.CharField(_('telefone'), max_length=20, blank=True, null=True)
     email = models.EmailField(_('email'), blank=True, null=True)
     website = models.URLField(_('website'), blank=True, null=True)
     description = models.TextField(_('descrição'), blank=True, null=True)
@@ -137,13 +137,13 @@ class Vacancy(models.Model):
     # Campos básicos
     title = models.CharField(_('título'), max_length=200)
     slug = models.SlugField(_('slug'), max_length=250, unique=True, blank=True)
-    description = models.TextField(_('descrição'))
+    description = models.TextField(_('descrição'), blank=True, null=True)
     requirements = models.TextField(_('requisitos'))
     benefits = models.TextField(_('benefícios'), blank=True, null=True)
     
     # Relacionamentos
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='vacancies', verbose_name=_('hospital'))
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='vacancies', verbose_name=_('departamento'))
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='vacancies', verbose_name=_('departamento'), blank=True, null=True)
     category = models.ForeignKey(JobCategory, on_delete=models.SET_NULL, null=True, related_name='vacancies', verbose_name=_('categoria'))
     skills = models.ManyToManyField(Skill, related_name='vacancies', verbose_name=_('habilidades'))
     recruiter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_vacancies', verbose_name=_('recrutador'))
@@ -155,6 +155,7 @@ class Vacancy(models.Model):
     salary_range_min = models.DecimalField(_('faixa salarial mínima'), max_digits=10, decimal_places=2, blank=True, null=True)
     salary_range_max = models.DecimalField(_('faixa salarial máxima'), max_digits=10, decimal_places=2, blank=True, null=True)
     is_salary_visible = models.BooleanField(_('salário visível'), default=False)
+    monthly_hours = models.PositiveIntegerField(_('carga horária mensal'), blank=True, null=True, help_text=_('Carga horária mensal em horas'))
     location = models.CharField(_('localização'), max_length=200)
     is_remote = models.BooleanField(_('remoto'), default=False)
     
@@ -201,9 +202,9 @@ class Vacancy(models.Model):
             if self.salary_range_min and self.salary_range_max:
                 return f"R$ {self.salary_range_min} - R$ {self.salary_range_max}"
             elif self.salary_range_min:
-                return f"A partir de R$ {self.salary_range_min}"
+                return f"R$ {self.salary_range_min}"
             elif self.salary_range_max:
-                return f"Até R$ {self.salary_range_max}"
+                return f"R$ {self.salary_range_max}"
         return _("Não informado")
     
     @property

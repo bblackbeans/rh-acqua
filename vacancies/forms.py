@@ -84,9 +84,9 @@ class VacancyForm(ModelForm):
     
     department = forms.ModelChoiceField(
         queryset=Department.objects.all().order_by('name'),
-        required=True,
+        required=False,
         label=_('Departamento/Setor'),
-        help_text=_('Selecione o departamento do hospital'),
+        help_text=_('Selecione o departamento do hospital (opcional)'),
         widget=forms.Select(attrs={
             'class': 'form-select form-select-lg',
             'style': 'border-radius: 8px; border: 2px solid #e2e8f0; transition: all 0.3s ease;'
@@ -157,6 +157,7 @@ class VacancyForm(ModelForm):
             'benefits': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': _('Descreva os benefícios oferecidos')}),
             'salary_range_min': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': _('Salário mínimo')}),
             'salary_range_max': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': _('Salário máximo')}),
+            'monthly_hours': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': _('Ex: 40 horas mensais')}),
             'publication_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'closing_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
@@ -220,6 +221,11 @@ class VacancyForm(ModelForm):
             self.add_error("salary_range_max", _("O salário máximo deve ser maior que o salário mínimo."))
         
         return cleaned
+
+    def clean_description(self):
+        description = self.cleaned_data.get('description')
+        # Descrição não é mais obrigatória - apenas retorna o valor
+        return description
 
     def clean_skills(self):
         skills = self.cleaned_data.get('skills')
