@@ -1,0 +1,161 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}Logs de Email - Sistema de Email{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Logs de Email</h1>
+                <div>
+                    <a href="{% url 'email_system:dashboard' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Voltar ao Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">Todos os status</option>
+                                {% for value, label in status_choices %}
+                                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="trigger" class="form-label">Gatilho</label>
+                            <select name="trigger" id="trigger" class="form-select">
+                                <option value="">Todos os gatilhos</option>
+                                {% for trigger in triggers %}
+                                    <option value="{{ trigger.id }}" {% if current_trigger == trigger.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ trigger.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                            <a href="{% url 'email_system:logs' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Limpar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Logs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Histórico de Emails ({{ logs.count }} total)</h5>
+                </div>
+                <div class="card-body">
+                    {% if logs %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Destinatário</th>
+                                        <th>Assunto</th>
+                                        <th>Gatilho</th>
+                                        <th>Status</th>
+                                        <th>Enviado em</th>
+                                        <th>Tentativas</th>
+                                        <th>Tempo (s)</th>
+                                        <th>Erro</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in logs %}
+                                    <tr>
+                                        <td>{{ log.id }}</td>
+                                        <td>
+                                            <strong>{{ log.to_name|default:log.to_email }}</strong><br>
+                                            <small class="text-muted">{{ log.to_email }}</small>
+                                        </td>
+                                        <td>{{ log.subject|truncatechars:50 }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ log.trigger.name }}</span>
+                                        </td>
+                                        <td>
+                                            {% if log.status == 'sent' %}
+                                                <span class="badge bg-success">{{ log.get_status_display }}</span>
+                                            {% elif log.status == 'failed' %}
+                                                <span class="badge bg-danger">{{ log.get_status_display }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ log.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if log.sent_at %}
+                                                {{ log.sent_at|date:"d/m/Y H:i:s" }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ log.retry_count }}</td>
+                                        <td>
+                                            {% if log.processing_time %}
+                                                {{ log.processing_time|floatformat:2 }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if log.error_message %}
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        data-bs-toggle="tooltip" 
+                                                        title="{{ log.error_message }}">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </button>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum log encontrado</h5>
+                            <p class="text-muted">Não há logs de email com os filtros aplicados.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Inicializar tooltips do Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}
